@@ -852,6 +852,26 @@
                   </label>
                 </div>
                 <div class="settings-section">
+                  <h3 style="margin-top:0; color:var(--heading-text); font-size:1.15rem;">Emergency Hotlines</h3>
+                  <form id="hotline-form" style="display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; align-items:center;">
+                    <input type="text" id="hotline-name" class="modal-input" placeholder="Hotline Name" required style="flex:2; min-width:120px;">
+                    <input type="text" id="hotline-number" class="modal-input" placeholder="Hotline Number" required style="flex:2; min-width:120px;">
+                    <button type="submit" class="modal-btn save" style="flex:1; min-width:100px;">Add Hotline</button>
+                  </form>
+                  <table id="hotline-table" style="width:100%; background:var(--container-bg); border-radius:8px; border-collapse:collapse;">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Number</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Hotlines will be rendered here -->
+                    </tbody>
+                  </table>
+                </div>
+                <div class="settings-section">
                   <h3 style="margin-top:0; color:var(--heading-text); font-size:1.15rem;">Profile Information</h3>
                   <div style="margin-bottom:8px; color:var(--main-text); font-weight:600;">Admin: <span style="color:#13b464;">CDRRMO</span></div>
                   <div style="margin-bottom:8px; color:var(--main-text);">Email: <span style="color:#13b464;">admin@cdrrmo.gov</span></div>
@@ -860,6 +880,69 @@
               </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Emergency Hotlines management logic
+  let hotlines = [];
+  const hotlineForm = document.getElementById('hotline-form');
+  const hotlineTableBody = document.querySelector('#hotline-table tbody');
+
+  function renderHotlines() {
+    hotlineTableBody.innerHTML = '';
+    hotlines.forEach((hotline, idx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${hotline.name}</td>
+        <td>${hotline.number}</td>
+        <td>
+          <button class="edit-hotline-btn table-action-btn edit" data-idx="${idx}">Edit</button>
+          <button class="delete-hotline-btn table-action-btn delete" data-idx="${idx}">Delete</button>
+        </td>
+      `;
+      hotlineTableBody.appendChild(tr);
+    });
+  }
+
+  if (hotlineForm) {
+    hotlineForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('hotline-name').value.trim();
+      const number = document.getElementById('hotline-number').value.trim();
+      if (!name || !number) return;
+      // If editing, update; else, add new
+      if (hotlineForm._editIdx !== undefined) {
+        hotlines[hotlineForm._editIdx] = { name, number };
+        hotlineForm._editIdx = undefined;
+        showToast('Hotline updated!');
+        hotlineForm.querySelector('button[type="submit"]').textContent = 'Add Hotline';
+      } else {
+        hotlines.push({ name, number });
+        showToast('Hotline added!');
+      }
+      hotlineForm.reset();
+      renderHotlines();
+    });
+  }
+
+  hotlineTableBody.addEventListener('click', function(e) {
+    if (e.target.classList.contains('edit-hotline-btn')) {
+      const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+      document.getElementById('hotline-name').value = hotlines[idx].name;
+      document.getElementById('hotline-number').value = hotlines[idx].number;
+      hotlineForm._editIdx = idx;
+      hotlineForm.querySelector('button[type="submit"]').textContent = 'Save Changes';
+    }
+    if (e.target.classList.contains('delete-hotline-btn')) {
+      const idx = parseInt(e.target.getAttribute('data-idx'), 10);
+      hotlines.splice(idx, 1);
+      renderHotlines();
+      showToast('Hotline deleted!');
+      hotlineForm.reset();
+      hotlineForm._editIdx = undefined;
+      hotlineForm.querySelector('button[type="submit"]').textContent = 'Add Hotline';
+    }
+  });
+
+  // Initial render
+  renderHotlines();
   // Helper to add user to Users table
   function addUserToTable(id, name, number, status) {
     const table = document.getElementById('users-table').getElementsByTagName('tbody')[0];
