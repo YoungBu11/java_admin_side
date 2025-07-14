@@ -6,6 +6,47 @@
     <link rel="stylesheet" href="styles.css">
     <script src="scripts.js" defer></script>
     <style>
+        .main-flex {
+            display: flex;
+            min-height: 100vh;
+            width: 100vw;
+            background: inherit;
+        }
+        aside.sidebar {
+            width: 240px;
+            background: #183c2b;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 0;
+            box-shadow: 2px 0 16px rgba(0,0,0,0.12);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+        .main-content {
+            margin-left: 240px;
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: rgba(0,0,0,0.7);
+            width: 100%;
+            overflow-y: auto;
+        }
+        .main-area {
+            flex: 1 1 0;
+            padding: 40px 0;
+            min-height: 100vh;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
         /* User table borders */
         #users-table {
             border: 2.5px solid #0e8c4a;
@@ -177,14 +218,92 @@
             transition: background 0.3s, color 0.3s;
         }
         .dashboard-container {
-            max-width: 1200px;
+            width: 100%;
+            max-width: 1100px;
+            min-height: 700px;
             margin: 40px auto;
             background: var(--container-bg);
             border-radius: 12px;
             padding: 32px;
             box-shadow: 0 8px 32px #13b46422;
             transition: background 0.3s, color 0.3s;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            font-size: 1.15rem;
+            overflow: visible;
         }
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+        .stats-cards {
+            flex: 2 1 320px;
+            display: flex;
+            gap: 32px;
+            min-width: 0;
+        }
+        .stat-card {
+            flex: 1 1 0;
+            min-width: 180px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .notifications-panel {
+            flex: 1 1 220px;
+            min-width: 220px;
+            max-width: 320px;
+            padding: 24px;
+        }
+        .quick-actions {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .tab-container, .settings-container {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 40px 32px;
+            background: inherit;
+            color: var(--main-text);
+            border-radius: 16px;
+            box-shadow: 0 2px 16px #13b46422;
+            margin: 0 auto 32px auto;
+            transition: background 0.3s, color 0.3s;
+            overflow-x: auto;
+        }
+
+        /* Add border to Users tab container */
+        #content-users .tab-container {
+            border: 2.5px solid #0e8c4a;
+        }
+
+        /* Table borderlines for Users tab */
+        #users-table {
+            border: 2.5px solid #0e8c4a;
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--container-bg);
+        }
+        #users-table th, #users-table td {
+            border-bottom: 2px solid #0e8c4a;
+        }
+        #users-table tr:last-child td {
+            border-bottom: none;
+        }
+        body.dark-mode #content-users .tab-container {
+            border: 2.5px solid #13b464;
+        }
+        body.dark-mode #users-table {
+            border: 2px solid #13b464;
+        }
+        body.dark-mode #users-table th, body.dark-mode #users-table td {
+            border-bottom: 1px solid #13b464;
+        }
+        
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -248,17 +367,6 @@
             color: #fff;
             transition: background 0.3s, color 0.3s;
         }
-        /* Settings and tab containers */
-        .tab-container, .settings-container {
-            background: var(--container-bg);
-            color: var(--main-text);
-            border-radius: 16px;
-            box-shadow: 0 2px 16px #13b46422;
-            padding: 40px 32px;
-            max-width: 1200px;
-            margin: 0 auto;
-            transition: background 0.3s, color 0.3s;
-        }
         /* Dark mode styles */
         body.dark-mode {
             --main-text: #eafaf3;
@@ -274,7 +382,7 @@
             color: var(--main-text);
         }
         body.dark-mode .dashboard-container {
-            background: #1a2326;
+            background: var(--container-bg);
             color: var(--main-text);
         }
         body.dark-mode .stat-card {
@@ -289,7 +397,7 @@
             color: var(--main-text);
         }
         body.dark-mode .tab-container, body.dark-mode .settings-container {
-            background: var(--container-bg);
+            background: inherit;
             color: var(--main-text);
         }
         body.dark-mode table {
@@ -426,20 +534,21 @@
     </style>
 </head>
 <body>
-    <div style="display:flex; min-height:100vh;">
+    <div class="main-flex">
       <!-- Sidebar -->
-      <aside style="width:240px; background:#183c2b; color:#fff; display:flex; flex-direction:column; align-items:center; padding:32px 0; box-shadow:2px 0 16px rgba(0,0,0,0.12); position:fixed; height:100vh;">
+      <aside class="sidebar">
         <img src="images/logo.png" alt="Logo" style="width:120px; height:auto; margin-bottom:24px; filter: drop-shadow(0 2px 8px #13b46488);">
         <nav style="width:100%; display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; height:320px; min-height:320px; max-height:320px;">
           <a href="#" id="nav-home" class="sidebar-tab active-tab" style="display:flex; align-items:center; justify-content:center; height:64px; color:#13b464; text-align:center; text-decoration:none; font-weight:700; border-left:6px solid #13b464; background:rgba(19,180,100,0.08); transition:background 0.2s, border 0.2s;">Home</a>
           <a href="#" id="nav-users" class="sidebar-tab" style="display:flex; align-items:center; justify-content:center; height:64px; color:#13b464; text-align:center; text-decoration:none; font-weight:700; border-left:6px solid transparent; background:rgba(19,180,100,0.04); transition:background 0.2s, border 0.2s;">Users</a>
           <a href="#" id="nav-post" class="sidebar-tab" style="display:flex; align-items:center; justify-content:center; height:64px; color:#13b464; text-align:center; text-decoration:none; font-weight:700; border-left:6px solid transparent; background:rgba(19,180,100,0.04); transition:background 0.2s, border 0.2s;">Post Notification</a>
           <a href="#" id="nav-settings" class="sidebar-tab" style="display:flex; align-items:center; justify-content:center; height:64px; color:#13b464; text-align:center; text-decoration:none; font-weight:700; border-left:6px solid transparent; background:rgba(19,180,100,0.04); transition:background 0.2s, border 0.2s;">Settings</a>
+          <a href="#" id="nav-systemlog" class="sidebar-tab" style="display:flex; align-items:center; justify-content:center; height:64px; color:#13b464; text-align:center; text-decoration:none; font-weight:700; border-left:6px solid transparent; background:rgba(19,180,100,0.04); transition:background 0.2s, border 0.2s;">System Logs</a>
           <a href="#" id="nav-logout" class="sidebar-tab" style="display:flex; align-items:center; justify-content:center; height:64px; color:#ff4444; text-align:center; text-decoration:none; font-weight:700; border-left:6px solid transparent; background:rgba(255,68,68,0.04); transition:background 0.2s, border 0.2s;">Logout</a>
         </nav>
       </aside>
       <!-- Main Area -->
-      <div style="margin-left:240px; flex:1; display:flex; flex-direction:column; min-height:100vh;">
+      <div class="main-content">
         <!-- Header -->
         <header style="background:rgba(0,0,0,0.85); padding:24px 40px 16px 40px; display:flex; align-items:center; justify-content:space-between;">
           <h1 style="color:#13b464; font-size:2.2rem; margin:0; display:flex; align-items:center; gap:16px;">
@@ -449,91 +558,10 @@
           <div style="color:#183c2b; font-weight:600;">Welcome, <span style="font-weight:700; color:#13b464;">CDRRMO</span></div>
         </header>
         <!-- Main Content -->
-        <main style="flex:1; padding:40px; background:rgba(0,0,0,0.7); min-height:calc(100vh - 80px); display:flex; align-items:flex-start; justify-content:center;">
-          <div class="dashboard-container" style="width:100%; max-width:1400px; height:700px; min-height:700px; display:flex; flex-direction:column; justify-content:flex-start; overflow:auto; font-size:1.15rem;">
-            <!-- POST NOTIFICATION TAB CONTENT -->
-            <section id="content-post" style="display:none; margin-top:32px; height:100%; overflow:auto;">
-              <div class="tab-container">
-                <h2 style="color:var(--heading-text); margin-top:0;">Post Notification</h2>
-                <p style="margin-bottom:18px; color:var(--main-text);">
-                  Use this tool to post updates, announcements, or attach images for the community and all users. Notifications will appear in the user system and community dashboard.
-                </p>
-                <ul style="margin-bottom:18px; color:var(--secondary-text); font-size:1.05rem;">
-                  <li>Share important updates, advisories, or events.</li>
-                  <li>Attach a photo (e.g., event poster, advisory image, or update).</li>
-                  <li>All posts will be sent to the user system and visible to the community.</li>
-                </ul>
-                <button id="open-post-modal" style="background:#13b464; color:#fff; border:none; border-radius:7px; padding:10px 20px; font-weight:700;">Create Notification</button>
-              </div>
-              <!-- Post Notification Modal -->
-              <div id="post-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
-                <div class="modern-modal">
-                  <button type="button" class="modal-close" id="close-post-modal" aria-label="Close">&times;</button>
-                  <h3 class="modal-title">Create Notification</h3>
-                  <form id="post-form" enctype="multipart/form-data">
-                    <label for="post-title" class="modal-label">Title</label>
-                    <input type="text" id="post-title" required class="modal-input" maxlength="60" placeholder="e.g., Community Update or Event">
-                    <label for="post-message" class="modal-label">Message</label>
-                    <textarea id="post-message" required class="modal-input" rows="4" maxlength="300" style="resize:vertical;" placeholder="Write your announcement or update here..."></textarea>
-                    <label for="post-image" class="modal-label">Attach Image (optional)</label>
-                    <input type="file" id="post-image" accept="image/*" class="modal-input" style="padding:6px 0;">
-                    <div id="post-image-preview" style="margin-bottom:12px; display:none;"></div>
-                    <div id="post-preview" style="background:var(--card-bg); border-radius:10px; box-shadow:0 2px 8px #13b46422; padding:18px; margin-bottom:12px; display:none;">
-                      <h4 style="color:var(--heading-text); margin:0 0 8px 0;" id="preview-title"></h4>
-                      <div style="color:var(--main-text); margin-bottom:8px;" id="preview-message"></div>
-                      <div id="preview-image" style="margin-bottom:8px;"></div>
-                    </div>
-                    <div class="modal-actions">
-                      <button type="button" id="cancel-post-modal" class="modal-btn cancel">Cancel</button>
-                      <button type="submit" class="modal-btn save">Send Notification</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </section>
+        <main class="main-area">
+          <div class="dashboard-container">
             <!-- HOME TAB CONTENT -->
-            <section id="content-home" style="height:100%; overflow:auto;">
-            <!-- POST NOTIFICATION TAB CONTENT -->
-            <section id="content-post" style="display:none; margin-top:32px; height:100%; overflow:auto;">
-              <div class="tab-container">
-                <h2 style="color:var(--heading-text); margin-top:0;">Post Notification</h2>
-                <p style="margin-bottom:18px; color:var(--main-text);">
-                  Use this tool to post updates, announcements, or attach images for the community and all users. Notifications will appear in the user system and community dashboard.
-                </p>
-                <ul style="margin-bottom:18px; color:var(--secondary-text); font-size:1.05rem;">
-                  <li>Share important updates, advisories, or events.</li>
-                  <li>Attach a photo (e.g., event poster, advisory image, or update).</li>
-                  <li>All posts will be sent to the user system and visible to the community.</li>
-                </ul>
-                <button id="open-post-modal" style="background:#13b464; color:#fff; border:none; border-radius:7px; padding:10px 20px; font-weight:700;">Create Notification</button>
-              </div>
-              <!-- Post Notification Modal -->
-              <div id="post-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
-                <div class="modern-modal">
-                  <button type="button" class="modal-close" id="close-post-modal" aria-label="Close">&times;</button>
-                  <h3 class="modal-title">Create Notification</h3>
-                  <form id="post-form" enctype="multipart/form-data">
-                    <label for="post-title" class="modal-label">Title</label>
-                    <input type="text" id="post-title" required class="modal-input" maxlength="60" placeholder="e.g., Community Update or Event">
-                    <label for="post-message" class="modal-label">Message</label>
-                    <textarea id="post-message" required class="modal-input" rows="4" maxlength="300" style="resize:vertical;" placeholder="Write your announcement or update here..."></textarea>
-                    <label for="post-image" class="modal-label">Attach Image (optional)</label>
-                    <input type="file" id="post-image" accept="image/*" class="modal-input" style="padding:6px 0;">
-                    <div id="post-image-preview" style="margin-bottom:12px; display:none;"></div>
-                    <div id="post-preview" style="background:var(--card-bg); border-radius:10px; box-shadow:0 2px 8px #13b46422; padding:18px; margin-bottom:12px; display:none;">
-                      <h4 style="color:var(--heading-text); margin:0 0 8px 0;" id="preview-title"></h4>
-                      <div style="color:var(--main-text); margin-bottom:8px;" id="preview-message"></div>
-                      <div id="preview-image" style="margin-bottom:8px;"></div>
-                    </div>
-                    <div class="modal-actions">
-                      <button type="button" id="cancel-post-modal" class="modal-btn cancel">Cancel</button>
-                      <button type="submit" class="modal-btn save">Send Notification</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </section>
-              <!-- Quick Actions & Notifications Row -->
+            <section id="content-home">
               <div style="display:flex; gap:32px; margin-bottom:32px;">
                 <!-- Stats Cards -->
                 <div style="flex:2; display:flex; gap:32px;">
@@ -613,6 +641,36 @@
                   </div>
                 </div>
               </div>
+            </section>
+            <!-- POST NOTIFICATION TAB CONTENT (single instance, no inline styles) -->
+            <section id="content-post" style="display:none;">
+              <div class="tab-container">
+                <h2 style="color:var(--heading-text);">Create Notification for Users</h2>
+                <p style="margin-bottom:18px; color:var(--secondary-text);">
+                  Post news, announcements, advisories, or events to notify all users in the system. Fill out the form below and send your notification instantly.
+                </p>
+                <form id="post-form" enctype="multipart/form-data" style="max-width:480px; margin:0 auto; background:var(--card-bg); border-radius:12px; box-shadow:0 2px 12px #13b46422; padding:32px;">
+                  <label for="post-title" class="modal-label">Title</label>
+                  <input type="text" id="post-title" required class="modal-input" maxlength="60" placeholder="e.g., Community Update or Event">
+                  <label for="post-message" class="modal-label">Message</label>
+                  <textarea id="post-message" required class="modal-input" rows="4" maxlength="300" placeholder="Write your announcement or update here..."></textarea>
+                  <label for="post-image" class="modal-label">Attach Image (optional)</label>
+                  <input type="file" id="post-image" accept="image/*" class="modal-input">
+                  <div id="post-image-preview" style="display:none; margin-bottom:12px;"></div>
+                  <div id="post-preview" style="display:none; background:var(--container-bg); border-radius:8px; box-shadow:0 2px 8px #13b46422; padding:18px; margin-top:18px;">
+                    <h4 id="preview-title" style="color:var(--heading-text);"></h4>
+                    <div id="preview-message" style="margin-bottom:8px;"></div>
+                    <div id="preview-image"></div>
+                  </div>
+                  <div class="modal-actions" style="margin-top:18px;">
+                    <button type="submit" class="modal-btn save">Send Notification</button>
+                  </div>
+                </form>
+                <div style="margin-top:32px; color:var(--secondary-text); font-size:0.98rem; text-align:center;">
+                  All notifications will be sent to the user system side and appear in their dashboard.
+                </div>
+              </div>
+            </section>
             </section>
             <!-- USERS TAB CONTENT -->
             <section id="content-users" style="margin-top:32px; display:none; height:100%; overflow:auto;">
@@ -710,547 +768,355 @@
               </div>
             </section>
             <!-- SETTINGS TAB CONTENT -->
+            <!-- SYSTEM LOG TAB CONTENT -->
+            <section id="content-systemlog" style="display:none; margin-top:32px; height:100%; overflow:auto;">
+              <div class="tab-container">
+                <h2 style="color:var(--heading-text); margin-top:0;">System Logs</h2>
+                <p style="color:var(--secondary-text);">Below are recent system activities and events for audit and monitoring purposes.</p>
+                <div style="margin-bottom:18px; display:flex; align-items:center; gap:16px;">
+                  <label for="systemlog-filter" style="font-weight:600; color:var(--main-text);">Filter by Event:</label>
+                  <select id="systemlog-filter" style="padding:8px 16px; border-radius:7px; font-size:1.05rem;">
+                    <option value="all">All</option>
+                    <option value="login">Login</option>
+                    <option value="logout">Logout</option>
+                    <option value="posting">Posting</option>
+                    <option value="activation">Activation</option>
+                  </select>
+                </div>
+                <table id="systemlog-table" style="width:100%; background:var(--container-bg); border-radius:8px; border-collapse:collapse; margin-top:16px;">
+                  <thead>
+                    <tr>
+                      <th style="background:var(--table-header-bg); color:var(--table-header-text);">Date/Time</th>
+                      <th style="background:var(--table-header-bg); color:var(--table-header-text);">Event</th>
+                      <th style="background:var(--table-header-bg); color:var(--table-header-text);">User</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr data-type="login">
+                      <td>2025-07-14 09:12</td>
+                      <td>Admin logged in</td>
+                      <td>CDRRMO</td>
+                    </tr>
+                    <tr data-type="posting">
+                      <td>2025-07-14 09:15</td>
+                      <td>Posted notification: Water Interruption</td>
+                      <td>CDRRMO</td>
+                    </tr>
+                    <tr data-type="activation">
+                      <td>2025-07-13 17:40</td>
+                      <td>User account activated: Mark Cruz</td>
+                      <td>Admin</td>
+                    </tr>
+                    <tr data-type="logout">
+                      <td>2025-07-14 17:00</td>
+                      <td>Admin logged out</td>
+                      <td>CDRRMO</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
             <section id="content-settings" style="display:none; margin-top:32px; height:100%; overflow:auto;">
+
               <div class="settings-container">
                 <h2 style="color:var(--heading-text); margin-top:0;">Admin Settings</h2>
                 <div class="settings-section">
                   <label style="display:flex; align-items:center; gap:12px; font-size:1.1rem; font-weight:600; color:var(--main-text);">
                     <input type="checkbox" id="dark-mode-toggle" style="width:22px; height:22px; accent-color:#13b464;">
-                    Enable Dark Mode (Admin Interface)
+                    Enable Dark Mode
                   </label>
-                  <div style="font-size:0.95rem; color:var(--secondary-text); margin-top:8px;">Toggle the dashboard's theme for better visibility while managing users and system settings.</div>
                 </div>
-                <!-- Admin Notification Controls -->
                 <div class="settings-section">
-                  <h3 style="color:var(--heading-text); margin-top:0;">Admin Notification Controls</h3>
-                  <label style="display:flex; align-items:center; gap:12px; font-size:1.1rem;">
-                    <input type="checkbox" id="notif-email" checked style="width:18px; height:18px; accent-color:#13b464;">
-                    Receive Email Alerts for System Events
-                  </label>
-                  <label style="display:flex; align-items:center; gap:12px; font-size:1.1rem; margin-top:8px;">
-                    <input type="checkbox" id="notif-sms" style="width:18px; height:18px; accent-color:#13b464;">
-                    Receive SMS Alerts for Critical Issues
-                  </label>
-                  <label style="display:flex; align-items:center; gap:12px; font-size:1.1rem; margin-top:8px;">
-                    <input type="checkbox" id="notif-system" checked style="width:18px; height:18px; accent-color:#13b464;">
-                    Show System Alerts in Dashboard
-                  </label>
-                  <div style="font-size:0.95rem; color:var(--secondary-text); margin-top:8px;">Configure how you are notified about important system activities and user actions.</div>
-                </div>
-                <!-- Dashboard Layout Options -->
-                <div class="settings-section">
-                  <h3 style="color:var(--heading-text); margin-top:0;">Dashboard Layout Options</h3>
-                  <label style="display:flex; align-items:center; gap:12px; font-size:1.1rem;">
-                    <input type="checkbox" id="compact-mode" style="width:18px; height:18px; accent-color:#13b464;">
-                    Compact Mode (Show More Data)
-                  </label>
-                  <div style="font-size:0.95rem; color:var(--secondary-text); margin-top:8px;">Reduce spacing and font size to optimize the admin view for data management.</div>
-                </div>
-                <!-- Admin Security Settings -->
-                <div class="settings-section">
-                  <h3 style="color:var(--heading-text); margin-top:0;">Admin Security Settings</h3>
-                  <label style="display:flex; align-items:center; gap:12px; font-size:1.1rem;">
-                    <input type="checkbox" id="2fa-toggle" style="width:18px; height:18px; accent-color:#13b464;">
-                    Enable Two-Factor Authentication for Admin Login
-                  </label>
-                  <div style="font-size:0.95rem; color:var(--secondary-text); margin-top:8px;">Add an extra layer of protection to your administrator account and dashboard access.</div>
-                </div>
-                <hr style="margin:32px 0; border:none; border-top:1px solid #e0e0e0;">
-                <div>
-                  <h3 style="color:var(--heading-text); margin-top:0;">Administrator Account Preferences</h3>
-                  <p style="margin-bottom:16px;">Update your administrator profile and contact information. These settings affect your admin access and how you receive system notifications.</p>
-                  <form id="account-settings-form" style="max-width:400px;">
-                    <label for="admin-name" style="font-weight:600; color:var(--main-text);">Admin Name</label>
-                    <input type="text" id="admin-name" name="admin-name" style="width:100%;margin-bottom:12px;padding:8px 10px;border-radius:6px;border:1px solid #b6fcd5; color:var(--main-text); background:var(--container-bg);">
-                    <label for="admin-email" style="font-weight:600; color:var(--main-text);">Admin Email</label>
-                    <input type="email" id="admin-email" name="admin-email" style="width:100%;margin-bottom:12px;padding:8px 10px;border-radius:6px;border:1px solid #b6fcd5; color:var(--main-text); background:var(--container-bg);">
-                    <button type="submit" style="background:#13b464; color:#fff; border:none; border-radius:7px; padding:10px 20px; font-weight:700; margin-top:8px;">Save Changes</button>
+                  <h3 style="margin-top:0; color:var(--heading-text); font-size:1.15rem;">Change Password</h3>
+                  <form id="change-password-form" style="max-width:340px;">
+                    <label for="current-password" class="modal-label">Current Password</label>
+                    <input type="password" id="current-password" class="modal-input" required>
+                    <label for="new-password" class="modal-label">New Password</label>
+                    <input type="password" id="new-password" class="modal-input" required>
+                    <label for="confirm-password" class="modal-label">Confirm New Password</label>
+                    <input type="password" id="confirm-password" class="modal-input" required>
+                    <div class="modal-actions">
+                      <button type="submit" class="modal-btn save">Update Password</button>
+                    </div>
                   </form>
                 </div>
+                <div class="settings-section">
+                  <h3 style="margin-top:0; color:var(--heading-text); font-size:1.15rem;">Notification Preferences</h3>
+                  <label style="display:flex; align-items:center; gap:10px; font-size:1.05rem;">
+                    <input type="checkbox" id="notif-email" checked>
+                    Email Notifications
+                  </label>
+                  <label style="display:flex; align-items:center; gap:10px; font-size:1.05rem; margin-top:8px;">
+                    <input type="checkbox" id="notif-sms">
+                    SMS Notifications
+                  </label>
+                </div>
+                <div class="settings-section">
+                  <h3 style="margin-top:0; color:var(--heading-text); font-size:1.15rem;">Profile Information</h3>
+                  <div style="margin-bottom:8px; color:var(--main-text); font-weight:600;">Admin: <span style="color:#13b464;">CDRRMO</span></div>
+                  <div style="margin-bottom:8px; color:var(--main-text);">Email: <span style="color:#13b464;">admin@cdrrmo.gov</span></div>
+                  <div style="margin-bottom:8px; color:var(--main-text);">Role: <span style="color:#13b464;">Super Admin</span></div>
+                </div>
               </div>
-            </section>
-          </div>
-        </main>
-      </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Post Notification Tab Logic
-            const navPost = document.getElementById('nav-post');
-            const contentPost = document.getElementById('content-post');
-            const openPostModalBtn = document.getElementById('open-post-modal');
-            const postModal = document.getElementById('post-modal');
-            const closePostModal = document.getElementById('close-post-modal');
-            const cancelPostModal = document.getElementById('cancel-post-modal');
-            const postForm = document.getElementById('post-form');
-            navPost.onclick = function(e) {
-                e.preventDefault();
-                showContent('post');
-                setActiveTab('nav-post');
-            };
-            openPostModalBtn.onclick = function() {
-                postModal.style.display = 'flex';
-            };
-            closePostModal.onclick = cancelPostModal.onclick = function() {
-                postModal.style.display = 'none';
-                postForm.reset();
-            };
-            postModal.onclick = function(e) {
-                if (e.target === postModal) {
-                    postModal.style.display = 'none';
-                    postForm.reset();
-                }
-            };
-            // Image preview logic for post notification
-            const postImageInput = document.getElementById('post-image');
-            const postImagePreview = document.getElementById('post-image-preview');
-            // Post Notification Preview Logic
-            const postPreview = document.getElementById('post-preview');
-            const previewTitle = document.getElementById('preview-title');
-            const previewMessage = document.getElementById('preview-message');
-            const previewImage = document.getElementById('preview-image');
-            function updatePostPreview() {
-                const title = document.getElementById('post-title').value.trim();
-                const message = document.getElementById('post-message').value.trim();
-                const file = postImageInput.files[0];
-                let hasContent = false;
-                if (title) {
-                    previewTitle.textContent = title;
-                    hasContent = true;
-                } else {
-                    previewTitle.textContent = '';
-                }
-                if (message) {
-                    previewMessage.textContent = message;
-                    hasContent = true;
-                } else {
-                    previewMessage.textContent = '';
-                }
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewImage.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="max-width:100%; max-height:180px; border-radius:8px; box-shadow:0 2px 8px #13b46422; margin-bottom:6px;">';
-                        postPreview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    previewImage.innerHTML = '';
-                    // Only hide preview if no title/message either
-                    postPreview.style.display = hasContent ? 'block' : 'none';
-                }
-                // If file is present, preview will be shown in onload above
-                if (!file) postPreview.style.display = hasContent ? 'block' : 'none';
-            }
-            document.getElementById('post-title').addEventListener('input', updatePostPreview);
-            document.getElementById('post-message').addEventListener('input', updatePostPreview);
-            postImageInput.onchange = function() {
-                updatePostPreview();
-                // Also update the old preview
-                const file = postImageInput.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        postImagePreview.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="max-width:100%; max-height:180px; border-radius:8px; box-shadow:0 2px 8px #13b46422; margin-bottom:6px;">';
-                        postImagePreview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    postImagePreview.innerHTML = '';
-                    postImagePreview.style.display = 'none';
-                }
-            };
-            postForm.onsubmit = function(e) {
-                e.preventDefault();
-                const title = document.getElementById('post-title').value.trim();
-                const message = document.getElementById('post-message').value.trim();
-                const imageFile = postImageInput.files[0];
-                if (!title || !message) {
-                    showToast('Please fill in both title and message.');
-                    return;
-                }
-                // Simulate sending notification with image
-                if (imageFile) {
-                    showToast('Notification with image sent to community and users!');
-                } else {
-                    showToast('Notification sent to community and users!');
-                }
-                postModal.style.display = 'none';
-                postForm.reset();
-                postImagePreview.innerHTML = '';
-                postImagePreview.style.display = 'none';
-                postPreview.style.display = 'none';
-                previewTitle.textContent = '';
-                previewMessage.textContent = '';
-                previewImage.innerHTML = '';
-            };
-            // Quick Actions Modal Logic
-            const quickAddUserBtn = document.getElementById('quick-add-user');
-            const quickAddUserModal = document.getElementById('quick-add-user-modal');
-            const closeQuickAddUser = document.getElementById('close-quick-add-user');
-            const cancelQuickAddUser = document.getElementById('cancel-quick-add-user');
-            const quickAddUserForm = document.getElementById('quick-add-user-form');
-            quickAddUserBtn.onclick = function() {
-                quickAddUserModal.style.display = 'flex';
-            };
-            closeQuickAddUser.onclick = cancelQuickAddUser.onclick = function() {
-                quickAddUserModal.style.display = 'none';
-                quickAddUserForm.reset();
-            };
-            quickAddUserModal.onclick = function(e) {
-                if (e.target === quickAddUserModal) {
-                    quickAddUserModal.style.display = 'none';
-                    quickAddUserForm.reset();
-                }
-            };
-            quickAddUserForm.onsubmit = function(e) {
-                e.preventDefault();
-                const name = document.getElementById('quick-user-name').value;
-                const number = document.getElementById('quick-user-number').value;
-                const status = document.getElementById('quick-user-status').value;
-                const numberPattern = /^09\d{9}$/;
-                if (!numberPattern.test(number)) {
-                    let errorElem = document.getElementById('quick-user-number-error');
-                    if (!errorElem) {
-                        errorElem = document.createElement('div');
-                        errorElem.id = 'quick-user-number-error';
-                        errorElem.style.color = '#ff4444';
-                        errorElem.style.fontSize = '0.98rem';
-                        errorElem.style.marginTop = '-10px';
-                        errorElem.style.marginBottom = '10px';
-                        document.getElementById('quick-user-number').insertAdjacentElement('afterend', errorElem);
-                    }
-                    errorElem.textContent = 'Please enter a valid 11-digit Philippine mobile number (e.g., 09XXXXXXXXX).';
-                    document.getElementById('quick-user-number').focus();
-                    return;
-                } else {
-                    const errorElem = document.getElementById('quick-user-number-error');
-                    if (errorElem) errorElem.remove();
-                }
-                showToast('User "' + name + '" added successfully!');
-                quickAddUserModal.style.display = 'none';
-                quickAddUserForm.reset();
-            };
-            // Review Requests Modal Logic
-            const quickReviewBtn = document.getElementById('quick-review');
-            const quickReviewModal = document.getElementById('quick-review-modal');
-            const closeQuickReview = document.getElementById('close-quick-review');
-            quickReviewBtn.onclick = function() {
-                quickReviewModal.style.display = 'flex';
-            };
-            closeQuickReview.onclick = function() {
-                quickReviewModal.style.display = 'none';
-            };
-            quickReviewModal.onclick = function(e) {
-                if (e.target === quickReviewModal) {
-                    quickReviewModal.style.display = 'none';
-                }
-            };
-            // Approve/Reject buttons (demo only)
-            quickReviewModal.querySelectorAll('.modal-btn.save').forEach(btn => {
-                btn.onclick = function() {
-                    showToast('Request approved!');
-                };
-            });
-            quickReviewModal.querySelectorAll('.modal-btn.cancel').forEach(btn => {
-                btn.onclick = function() {
-                    showToast('Request rejected.');
-                };
-            });
-            // View Alerts Modal Logic
-            const quickAlertsBtn = document.getElementById('quick-alerts');
-            const quickAlertsModal = document.getElementById('quick-alerts-modal');
-            const closeQuickAlerts = document.getElementById('close-quick-alerts');
-            quickAlertsBtn.onclick = function() {
-                quickAlertsModal.style.display = 'flex';
-            };
-            closeQuickAlerts.onclick = function() {
-                quickAlertsModal.style.display = 'none';
-            };
-            quickAlertsModal.onclick = function(e) {
-                if (e.target === quickAlertsModal) {
-                    quickAlertsModal.style.display = 'none';
-                }
-            };
-            // ...existing code...
-            // Toast notification logic
-            function showToast(message) {
-                let toast = document.getElementById('dashboard-toast');
-                if (!toast) {
-                    toast = document.createElement('div');
-                    toast.id = 'dashboard-toast';
-                    toast.className = 'toast';
-                    document.body.appendChild(toast);
-                }
-                toast.textContent = message;
-                toast.classList.add('show');
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 2200);
-            }
-            // Dark mode toggle logic (system preference + user override)
-            // Modal close button logic
-            if (document.getElementById('close-edit-user')) {
-                document.getElementById('close-edit-user').onclick = function() {
-                    editUserModal.style.display = 'none';
-                    editUserForm.reset();
-                };
-            }
-            if (document.getElementById('close-add-user')) {
-                document.getElementById('close-add-user').onclick = function() {
-                    addUserModal.style.display = 'none';
-                    addUserForm.reset();
-                };
-            }
-            const darkModeToggle = document.getElementById('dark-mode-toggle');
-            const DARK_KEY = 'dashboard-dark-mode';
-            let userOverride = null;
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Helper to add user to Users table
+  function addUserToTable(id, name, number, status) {
+    const table = document.getElementById('users-table').getElementsByTagName('tbody')[0];
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${id}</td>
+      <td>${name}</td>
+      <td>${number}</td>
+      <td>${status}</td>
+      <td>
+        <button class="edit-user-btn table-action-btn edit">Edit</button>
+        <button class="delete-user-btn table-action-btn delete">Delete</button>
+      </td>
+    `;
+    table.appendChild(row);
+  }
 
-            // Helper to set mode
-            function setDarkMode(enabled, persist) {
-                if (enabled) {
-                    document.body.classList.add('dark-mode');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                }
-                // Sync toggle if present
-                if (darkModeToggle) darkModeToggle.checked = enabled;
-                if (persist) {
-                    localStorage.setItem(DARK_KEY, enabled ? '1' : '0');
-                }
-            }
+  // Event delegation for delete/edit buttons in Users table
+  document.getElementById('users-table').addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('delete-user-btn')) {
+      const row = e.target.closest('tr');
+      if (row) row.remove();
+    }
+    if (e.target && e.target.classList.contains('edit-user-btn')) {
+      const row = e.target.closest('tr');
+      if (!row) return;
+      // Pre-fill modal
+      document.getElementById('edit-user-name').value = row.cells[1].textContent;
+      document.getElementById('edit-user-number').value = row.cells[2].textContent;
+      document.getElementById('edit-user-status').value = row.cells[3].textContent;
+      document.getElementById('edit-user-modal').style.display = 'flex';
+      // Store row being edited
+      document.getElementById('edit-user-form')._editingRow = row;
+    }
+  });
 
-            // Detect system preference
-            function getSystemDark() {
-                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            }
+  // Edit User modal: Save changes
+  document.getElementById('edit-user-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const row = e.target._editingRow;
+    if (!row) return;
+    row.cells[1].textContent = document.getElementById('edit-user-name').value.trim();
+    row.cells[2].textContent = document.getElementById('edit-user-number').value.trim();
+    row.cells[3].textContent = document.getElementById('edit-user-status').value;
+    document.getElementById('edit-user-modal').style.display = 'none';
+    e.target._editingRow = null;
+  });
+  // Edit User modal: Cancel/Close
+  document.getElementById('close-edit-user').addEventListener('click', function() {
+    document.getElementById('edit-user-modal').style.display = 'none';
+    document.getElementById('edit-user-form')._editingRow = null;
+  });
+  document.getElementById('cancel-edit-user').addEventListener('click', function() {
+    document.getElementById('edit-user-modal').style.display = 'none';
+    document.getElementById('edit-user-form')._editingRow = null;
+  });
 
-            // On load, check user override, else use system
-            const savedMode = localStorage.getItem(DARK_KEY);
-            if (savedMode === '1' || savedMode === '0') {
-                userOverride = true;
-                setDarkMode(savedMode === '1', false);
-            } else {
-                userOverride = false;
-                setDarkMode(getSystemDark(), false);
-            }
-
-            // Listen for toggle
-            if (darkModeToggle) {
-                darkModeToggle.addEventListener('change', function() {
-                    userOverride = true;
-                    setDarkMode(darkModeToggle.checked, true);
-                });
-            }
-
-            // Listen for system dark mode changes if no user override
-            if (window.matchMedia) {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-                    if (!userOverride) {
-                        setDarkMode(e.matches, false);
-                    }
-                });
-            }
-
-            // When switching to settings tab, sync toggle state
-            function syncDarkToggle() {
-                if (document.getElementById('dark-mode-toggle')) {
-                    document.getElementById('dark-mode-toggle').checked = document.body.classList.contains('dark-mode');
-                }
-            }
-
-            // Dashboard navigation logic with tab highlighting
-            function setActiveTab(tabId) {
-                document.querySelectorAll('.sidebar-tab').forEach(function(tab) {
-                    tab.classList.remove('active-tab');
-                    if(tab.id === 'nav-logout') {
-                        tab.style.borderLeftColor = 'transparent';
-                        tab.style.background = 'rgba(255,68,68,0.04)';
-                    } else {
-                        tab.style.borderLeftColor = 'transparent';
-                        tab.style.background = 'rgba(19,180,100,0.04)';
-                    }
-                });
-                var active = document.getElementById(tabId);
-                if (active) {
-                    active.classList.add('active-tab');
-                    if(tabId === 'nav-logout') {
-                        active.style.borderLeftColor = '#ff4444';
-                        active.style.background = 'rgba(255,68,68,0.08)';
-                    } else {
-                        active.style.borderLeftColor = '#13b464';
-                        active.style.background = 'rgba(19,180,100,0.08)';
-                    }
-                }
-            }
-            document.getElementById('nav-home').onclick = function(e) {
-                e.preventDefault();
-                showContent('home');
-                setActiveTab('nav-home');
-            };
-            document.getElementById('nav-users').onclick = function(e) {
-                e.preventDefault();
-                showContent('users');
-                setActiveTab('nav-users');
-            };
-            document.getElementById('nav-settings').onclick = function(e) {
-                e.preventDefault();
-                showContent('settings');
-                setActiveTab('nav-settings');
-                syncDarkToggle();
-            };
-            document.getElementById('nav-logout').onclick = function(e) {
-                e.preventDefault();
-                setActiveTab('nav-logout');
-                window.location.href = 'index.html';
-            };
-            function showContent(tab) {
-                document.getElementById('content-home').style.display = (tab === 'home') ? '' : 'none';
-                document.getElementById('content-users').style.display = (tab === 'users') ? '' : 'none';
-                document.getElementById('content-post').style.display = (tab === 'post') ? '' : 'none';
-                document.getElementById('content-settings').style.display = (tab === 'settings') ? '' : 'none';
-            }
-            // Set initial active tab
-            setActiveTab('nav-home');
-
-            // Add User Modal Logic
-            const addUserBtn = document.getElementById('add-user-btn');
-            const addUserModal = document.getElementById('add-user-modal');
-            const cancelAddUser = document.getElementById('cancel-add-user');
-            const addUserForm = document.getElementById('add-user-form');
-            const usersTable = document.getElementById('users-table').getElementsByTagName('tbody')[0];
-
-            // Edit User Modal Logic
-            const editUserModal = document.getElementById('edit-user-modal');
-            const editUserForm = document.getElementById('edit-user-form');
-            const cancelEditUser = document.getElementById('cancel-edit-user');
-            let editingRow = null;
-
-            function refreshUserActionButtons() {
-                const editBtns = document.querySelectorAll('.edit-user-btn');
-                const deleteBtns = document.querySelectorAll('.delete-user-btn');
-                editBtns.forEach(btn => {
-                    btn.onclick = function() {
-                        const row = btn.closest('tr');
-                        openEditUserModal(row);
-                    };
-                });
-                deleteBtns.forEach(btn => {
-                    btn.onclick = function() {
-                        const row = btn.closest('tr');
-                        if (confirm('Are you sure you want to delete this user?')) {
-                            row.remove();
-                        }
-                    };
-                });
-            }
-
-            addUserBtn.onclick = function() {
-                addUserModal.style.display = 'flex';
-            };
-            cancelAddUser.onclick = function() {
-                addUserModal.style.display = 'none';
-                addUserForm.reset();
-            };
-            addUserForm.onsubmit = function(e) {
-                e.preventDefault();
-                // Generate new ID
-                const lastRow = usersTable.rows[usersTable.rows.length - 1];
-                let newId = '001';
-                if (lastRow) {
-                    newId = (parseInt(lastRow.cells[0].textContent, 10) + 1).toString().padStart(3, '0');
-                }
-                // Get values
-                const name = document.getElementById('add-user-name').value;
-                const number = document.getElementById('add-user-number').value;
-                const status = document.getElementById('add-user-status').value;
-                // Validate number (Philippine mobile: 11 digits, starts with 09)
-                const numberPattern = /^09\d{9}$/;
-                if (!numberPattern.test(number)) {
-                    // Show error below the input
-                    let errorElem = document.getElementById('add-user-number-error');
-                    if (!errorElem) {
-                        errorElem = document.createElement('div');
-                        errorElem.id = 'add-user-number-error';
-                        errorElem.style.color = '#ff4444';
-                        errorElem.style.fontSize = '0.98rem';
-                        errorElem.style.marginTop = '-10px';
-                        errorElem.style.marginBottom = '10px';
-                        document.getElementById('add-user-number').insertAdjacentElement('afterend', errorElem);
-                    }
-                    errorElem.textContent = 'Please enter a valid 11-digit Philippine mobile number (e.g., 09XXXXXXXXX).';
-                    document.getElementById('add-user-number').focus();
-                    return;
-                } else {
-                    // Remove error if present
-                    const errorElem = document.getElementById('add-user-number-error');
-                    if (errorElem) errorElem.remove();
-                }
-                // Add row
-                const row = usersTable.insertRow();
-                row.insertCell(0).textContent = newId;
-                row.insertCell(1).textContent = name;
-                row.insertCell(2).textContent = number;
-                row.insertCell(3).textContent = status;
-                const actionsCell = row.insertCell(4);
-                actionsCell.innerHTML = '<button class="edit-user-btn table-action-btn edit">Edit</button> <button class="delete-user-btn table-action-btn delete">Delete</button>';
-                refreshUserActionButtons();
-                // Close modal
-                addUserModal.style.display = 'none';
-                addUserForm.reset();
-                // Remove error if present
-                const errorElem = document.getElementById('add-user-number-error');
-                if (errorElem) errorElem.remove();
-            };
-            // Close modal on outside click
-            addUserModal.onclick = function(e) {
-                if (e.target === addUserModal) {
-                    addUserModal.style.display = 'none';
-                    addUserForm.reset();
-                }
-            };
-
-            function openEditUserModal(row) {
-                editingRow = row;
-                document.getElementById('edit-user-name').value = row.cells[1].textContent;
-                document.getElementById('edit-user-number').value = row.cells[2].textContent;
-                document.getElementById('edit-user-status').value = row.cells[3].textContent;
-                editUserModal.style.display = 'flex';
-            }
-            cancelEditUser.onclick = function() {
-                editUserModal.style.display = 'none';
-                editUserForm.reset();
-            };
-            editUserForm.onsubmit = function(e) {
-                e.preventDefault();
-                if (editingRow) {
-                    const name = document.getElementById('edit-user-name').value;
-                    const number = document.getElementById('edit-user-number').value;
-                    const status = document.getElementById('edit-user-status').value;
-                    // Validate number (Philippine mobile: 11 digits, starts with 09)
-                    const numberPattern = /^09\d{9}$/;
-                    if (!numberPattern.test(number)) {
-                        alert('Please enter a valid 11-digit Philippine mobile number (e.g., 09XXXXXXXXX).');
-                        document.getElementById('edit-user-number').focus();
-                        return;
-                    }
-                    editingRow.cells[1].textContent = name;
-                    editingRow.cells[2].textContent = number;
-                    editingRow.cells[3].textContent = status;
-                }
-                editUserModal.style.display = 'none';
-                editUserForm.reset();
-            };
-            // Close modal on outside click
-            editUserModal.onclick = function(e) {
-                if (e.target === editUserModal) {
-                    editUserModal.style.display = 'none';
-                    editUserForm.reset();
-                }
-            };
-
-            // Initial call to set up action buttons
-            refreshUserActionButtons();
+  // Review Requests modal Approve/Reject logic
+  document.querySelectorAll('#quick-review-modal .modal-btn.save').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const li = btn.closest('li');
+      if (!li) return;
+      // Extract user info from text
+      const text = li.textContent;
+      let name = '', number = '', status = 'Active';
+      if (text.includes('Mark Cruz')) {
+        name = 'Mark Cruz'; number = '09191234567';
+      } else if (text.includes('Anna Reyes')) {
+        name = 'Anna Reyes'; number = '09181234568';
+      } else if (text.includes('Leo Santos')) {
+        name = 'Leo Santos'; number = '09181234569';
+      }
+      // Generate next ID
+      const table = document.getElementById('users-table').getElementsByTagName('tbody')[0];
+      let nextId = '001';
+      if (table.rows.length > 0) {
+        const lastId = table.rows[table.rows.length-1].cells[0].textContent;
+        nextId = (parseInt(lastId, 10) + 1).toString().padStart(3, '0');
+      }
+      if (name && number) {
+        addUserToTable(nextId, name, number, status);
+      }
+      // Remove only the request item
+      li.remove();
+    });
+  });
+  document.querySelectorAll('#quick-review-modal .modal-btn.cancel').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      let li = btn.closest('li');
+      if (li) li.remove();
+    });
+  });
+  // Logout tab functionality
+  var logoutTab = document.getElementById('nav-logout');
+  if (logoutTab) {
+    logoutTab.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'index.html';
+    });
+  }
+  // Sidebar tab switching logic
+  const tabMap = {
+    'nav-home': 'content-home',
+    'nav-users': 'content-users',
+    'nav-post': 'content-post',
+    'nav-settings': 'content-settings',
+    'nav-systemlog': 'content-systemlog'
+  };
+  const tabs = Object.keys(tabMap);
+  const contents = Object.values(tabMap);
+  tabs.forEach(tabId => {
+    const tab = document.getElementById(tabId);
+    if (tab) {
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Hide all content sections
+        contents.forEach(cid => {
+          const el = document.getElementById(cid);
+          if (el) el.style.display = 'none';
         });
-    </script>
-</body>
-</html>
+        // Remove active-tab from all tabs
+        tabs.forEach(tid => {
+          const t = document.getElementById(tid);
+          if (t) {
+            t.classList.remove('active-tab');
+            t.style.borderLeft = '6px solid transparent';
+            t.style.background = 'rgba(19,180,100,0.04)';
+            t.style.color = '#13b464';
+          }
+        });
+        // Show selected content
+        const showId = tabMap[tabId];
+        const showEl = document.getElementById(showId);
+        if (showEl) showEl.style.display = '';
+        // Highlight active tab
+        tab.classList.add('active-tab');
+        tab.style.borderLeft = '6px solid #13b464';
+        tab.style.background = 'rgba(19,180,100,0.08)';
+        tab.style.color = '#13b464';
+      });
+    }
+  });
+  // Show home tab by default
+  document.getElementById('nav-home').click();
+
+  // Dark mode toggle logic
+  var darkToggle = document.getElementById('dark-mode-toggle');
+  if (darkToggle) {
+    darkToggle.checked = document.body.classList.contains('dark-mode');
+    darkToggle.addEventListener('change', function() {
+      if (darkToggle.checked) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    });
+  }
+
+  // Change password form logic
+  var changeForm = document.getElementById('change-password-form');
+  if (changeForm) {
+    changeForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var current = document.getElementById('current-password').value;
+      var newPass = document.getElementById('new-password').value;
+      var confirm = document.getElementById('confirm-password').value;
+      if (newPass !== confirm) {
+        alert('New passwords do not match.');
+        return;
+      }
+      // Simulate password update
+      alert('Password updated successfully!');
+      changeForm.reset();
+    });
+  }
+
+  // Notification preferences logic
+  var notifEmail = document.getElementById('notif-email');
+  var notifSms = document.getElementById('notif-sms');
+  if (notifEmail) {
+    notifEmail.addEventListener('change', function() {
+      // Simulate saving preference
+      alert('Email notifications ' + (notifEmail.checked ? 'enabled' : 'disabled'));
+    });
+  }
+  if (notifSms) {
+    notifSms.addEventListener('change', function() {
+      alert('SMS notifications ' + (notifSms.checked ? 'enabled' : 'disabled'));
+    });
+  }
+  // Post Notification form logic: show toast, stay on tab
+  var postForm = document.getElementById('post-form');
+  if (postForm) {
+    postForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Simulate posting notification
+      showToast('Notification posted for all users!');
+      postForm.reset();
+      document.getElementById('post-preview').style.display = 'none';
+      document.getElementById('post-image-preview').style.display = 'none';
+    });
+  }
+
+  // Toast notification logic
+  function showToast(message) {
+    let toast = document.querySelector('.toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(function() {
+      toast.classList.remove('show');
+    }, 2200);
+  }
+
+  // Quick Add User modal logic: add user to Users tab
+  var quickAddUserForm = document.getElementById('quick-add-user-form');
+  if (quickAddUserForm) {
+    quickAddUserForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var name = document.getElementById('quick-user-name').value.trim();
+      var number = document.getElementById('quick-user-number').value.trim();
+      var status = document.getElementById('quick-user-status').value;
+      // Generate next ID
+      const table = document.getElementById('users-table').getElementsByTagName('tbody')[0];
+      let nextId = '001';
+      if (table.rows.length > 0) {
+        const lastId = table.rows[table.rows.length-1].cells[0].textContent;
+        nextId = (parseInt(lastId, 10) + 1).toString().padStart(3, '0');
+      }
+      if (name && number) {
+        addUserToTable(nextId, name, number, status);
+        showToast('User added successfully!');
+        quickAddUserForm.reset();
+        document.getElementById('quick-add-user-modal').style.display = 'none';
+      }
+    });
+  }
+
+  // System Log filter logic
+  var logFilter = document.getElementById('systemlog-filter');
+  var logTable = document.getElementById('systemlog-table');
+  if (logFilter && logTable) {
+    logFilter.addEventListener('change', function() {
+      var type = logFilter.value;
+      var rows = logTable.querySelectorAll('tbody tr');
+      rows.forEach(function(row) {
+        if (type === 'all') {
+          row.style.display = '';
+        } else {
+          row.style.display = (row.getAttribute('data-type') === type) ? '' : 'none';
+        }
+      });
+    });
+  }
+});
+</script>
