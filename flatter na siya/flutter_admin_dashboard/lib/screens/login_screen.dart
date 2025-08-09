@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(32.0),
               child: Card(
                 elevation: 12,
-                color: Colors.grey[800]!.withValues(alpha: 0.95), // Dark greyish card
+                color: Colors.white, // Changed to pure white
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -94,9 +94,29 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Logo - transparent, no background
+                          // Logo with darker grey background and enhanced shadow
                           Container(
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[400], // Darker grey background
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.grey[500]!, // Darker border
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3), // Stronger shadow
+                                  blurRadius: 12, // More blur
+                                  offset: const Offset(0, 6), // More offset
+                                ),
+                                BoxShadow(
+                                  color: Colors.grey.withValues(alpha: 0.2), // Additional light shadow
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
                             child: Image.asset(
                               'assets/images/logo.png',
                               width: 120,
@@ -107,8 +127,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return Container(
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF13b464),
-                                    borderRadius: BorderRadius.circular(16),
+                                    color: const Color(0xFF2d5f3f), // CDRRMO green
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(
                                     Icons.admin_panel_settings,
@@ -127,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white, // White text on dark background
+                              color: Color(0xFF2d5f3f), // Dark green for visibility on white
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -143,9 +163,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Username field
                           TextFormField(
                             controller: _usernameController,
-                            decoration: const InputDecoration(
+                            textInputAction: TextInputAction.next, // Shows "Next" on keyboard
+                            onFieldSubmitted: (_) {
+                              // Move focus to password field when Enter is pressed
+                              FocusScope.of(context).nextFocus();
+                            },
+                            decoration: InputDecoration(
                               labelText: 'Username',
-                              prefixIcon: Icon(Icons.person),
+                              prefixIcon: const Icon(Icons.person),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF2d5f3f),
+                                  width: 2,
+                                ),
+                              ),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -160,9 +195,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
+                            textInputAction: TextInputAction.done, // Shows "Done" on keyboard
+                            onFieldSubmitted: (_) {
+                              // Trigger login when Enter is pressed in password field
+                              if (!_isLoading) {
+                                _login();
+                              }
+                            },
                             decoration: InputDecoration(
                               labelText: 'Password',
                               prefixIcon: const Icon(Icons.lock),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF2d5f3f),
+                                  width: 2,
+                                ),
+                              ),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword 
@@ -191,6 +243,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 48,
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _login,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2d5f3f), // CDRRMO green
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 3,
+                              ),
                               child: _isLoading
                                 ? const SizedBox(
                                     width: 20,
