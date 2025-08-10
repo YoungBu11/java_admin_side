@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/system_logs_screen.dart';
 
 void main() {
   runApp(const AdminDashboardApp());
@@ -104,6 +105,7 @@ class AdminDashboardApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/system-logs': (context) => const SystemLogsScreen(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

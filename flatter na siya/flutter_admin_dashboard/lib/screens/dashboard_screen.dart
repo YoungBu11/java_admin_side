@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../widgets/admin_drawer.dart';
+import 'system_logs_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -45,7 +46,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _contactController = TextEditingController();
   final _addressController = TextEditingController();
   String _selectedRole = 'Volunteer';
-  String _selectedStatus = 'Active';
   String? _editingUserId;
 
   // Filter and Sort State Variables
@@ -68,8 +68,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Controllers for emergency contact form
   final _hotlineNameController = TextEditingController();
   final _hotlineNumberController = TextEditingController();
-  final String _selectedContactType = 'Primary';
-  String? _editingContactId;
 
   @override
   void initState() {
@@ -100,6 +98,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _hotlineNameController.dispose();
     _hotlineNumberController.dispose();
     super.dispose();
+  }
+
+  // Simple status item builder for dashboard cards
+  Widget _buildLargerStatusItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 24),
+          SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Simple modal methods for dashboard quick views
+  void _showUsersModal() {
+    // Navigate to users screen instead
+    setState(() {
+      _selectedIndex = 1;
+    });
+  }
+
+  void _showEmergencyContactsModal() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Emergency Contacts: ${_emergencyContacts.length} contacts available'),
+        backgroundColor: Colors.red.shade600,
+      ),
+    );
+  }
+
+  void _showAlertsModal() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Active Alerts: 3 notifications pending'),
+        backgroundColor: Colors.orange.shade600,
+      ),
+    );
+  }
+
+  void _showEmergencyTeamsModal() {
+    int emergencyTeams = _users.where((user) => user['role'] == 'Emergency Responder').length;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Emergency Response Teams: $emergencyTeams teams ready'),
+        backgroundColor: Colors.green.shade600,
+      ),
+    );
   }
 
   @override
@@ -156,7 +226,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 3:
         return _buildSettings();
       case 4:
-        return _buildSystemLogs();
+        return const SystemLogsScreen();
       default:
         return _buildDashboardHome();
     }
@@ -510,89 +580,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatsCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 36, color: color),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActionButton(String title, IconData icon, Color color, VoidCallback onPressed) {
-    return SizedBox(
-      height: 56,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color.withValues(alpha: 0.1),
-          foregroundColor: color,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: BorderSide(color: color.withValues(alpha: 0.3)),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 20, color: color),
-            const SizedBox(height: 4),
-            Flexible(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -1229,7 +1216,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _contactController.text = user['contact']!;
     _addressController.text = user['address']!;
     _selectedRole = user['role']!;
-    _selectedStatus = user['status']!;
+    _selectedStatusFilter = user['status']!;
     _editingUserId = user['id'];
     _showUserDialog('Edit Mobile User');
   }
@@ -1438,12 +1425,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       },
     );
-  }
-
-  void _saveUser() {
-    // This method is now simplified - just call the validation method
-    // The validation method will handle showing errors and keeping modal open
-    _validateAndSaveUser(context, setState);
   }
 
   void _validateAndSaveUser(BuildContext dialogContext, StateSetter setDialogState) {
@@ -2507,753 +2488,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       },
     );
   }
-
-  Widget _buildSystemLogs() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'System Activity Logs',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Logs exported successfully!')),
-                  );
-                },
-                icon: const Icon(Icons.download),
-                label: const Text('Export Logs'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2d5f3f),
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF2d5f3f),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Expanded(child: Text('Time', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                        Expanded(child: Text('User', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                        Expanded(flex: 2, child: Text('Action', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                        Expanded(child: Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                      ],
-                    ),
-                  ),
-                  // Log Entries
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        _buildLogRow('14:30:25', 'admin', 'User login attempt', 'Success'),
-                        _buildLogRow('14:28:12', 'john.doe', 'Emergency alert sent', 'Success'),
-                        _buildLogRow('14:25:45', 'jane.smith', 'User profile updated', 'Success'),
-                        _buildLogRow('14:22:33', 'system', 'Backup completed', 'Success'),
-                        _buildLogRow('14:20:18', 'mike.johnson', 'Failed login attempt', 'Failed'),
-                        _buildLogRow('14:15:07', 'admin', 'System settings changed', 'Success'),
-                        _buildLogRow('14:10:44', 'sarah.wilson', 'Report generated', 'Success'),
-                        _buildLogRow('14:05:22', 'system', 'Automatic data cleanup', 'Success'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLogRow(String time, String user, String action, String status) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: Text(time, style: const TextStyle(fontFamily: 'monospace'))),
-          Expanded(child: Text(user, style: const TextStyle(fontWeight: FontWeight.w500))),
-          Expanded(flex: 2, child: Text(action)),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: status == 'Success' ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                status,
-                style: TextStyle(
-                  color: status == 'Success' ? Colors.green : Colors.red,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper method for quick status items in the header
-  Widget _buildQuickStatusItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            size: 18,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 9,
-            color: Colors.white.withOpacity(0.8),
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 2,
-        ),
-      ],
-    );
-  }
-
-  // Compact status item for single row layout
-  Widget _buildCompactStatusItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Icon(
-            icon,
-            size: 14,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          maxLines: 1,
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 8,
-            color: Colors.white.withOpacity(0.7),
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-
-  // Larger status item for better readability
-  Widget _buildLargerStatusItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10), // Larger padding for bigger touch area
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            icon,
-            size: 20, // Larger, more readable icon
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16, // Larger value text
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          maxLines: 1,
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10, // Readable label size
-            color: Colors.white.withOpacity(0.8),
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-
-  // Helper method for role cards
-  Widget _buildRoleCard(String title, int count, Color color, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(height: 4),
-          Text(
-            '$count',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 10,
-              color: Colors.grey,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper method for system status items
-  Widget _buildSystemStatusItem(String title, String status, Color color, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 16),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 12),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              status,
-              style: TextStyle(
-                color: color,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper method for recent activity items
-  Widget _buildRecentActivityItem(String activity, String time, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  activity,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  time,
-                  style: TextStyle(fontSize: 9, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Modal for Users Overview
-  void _showUsersModal() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.people_outline, color: Colors.lightBlue, size: 24),
-              SizedBox(width: 8),
-              Text('Registered Users Overview'),
-            ],
-          ),
-          content: SizedBox(
-            width: 600,
-            height: 500,
-            child: Column(
-              children: [
-                // Summary Cards
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.lightBlue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.lightBlue.withOpacity(0.3)),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '${_users.length}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.lightBlue,
-                              ),
-                            ),
-                            const Text('Total Users'),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.green.withOpacity(0.3)),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '${_users.where((user) => user['status'] == 'Active').length}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                            const Text('Active Users'),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // User List
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _users.length,
-                    itemBuilder: (context, index) {
-                      final user = _users[index];
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: const Color(0xFF2d5f3f),
-                          child: Text(user['name']![0]),
-                        ),
-                        title: Text(user['name']!),
-                        subtitle: Text('${user['role']} - ${user['contact']}'),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: user['status'] == 'Active' ? Colors.green : Colors.red,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            user['status']!,
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _selectedIndex = 1; // Navigate to User Management
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2d5f3f),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Manage Users'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Modal for Emergency Response Contacts
-  void _showEmergencyContactsModal() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.phone, color: Colors.red, size: 24),
-              SizedBox(width: 8),
-              Text('Emergency Response Contacts'),
-            ],
-          ),
-          content: SizedBox(
-            width: 500,
-            height: 400,
-            child: ListView.builder(
-              itemCount: _emergencyContacts.length,
-              itemBuilder: (context, index) {
-                final contact = _emergencyContacts[index];
-                return Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: _getContactTypeColor(contact['type']!),
-                      child: Icon(
-                        _getContactTypeIcon(contact['type']!),
-                        color: Colors.white,
-                      ),
-                    ),
-                    title: Text(contact['name']!),
-                    subtitle: Text('${contact['type']} - ${contact['number']}'),
-                    trailing: IconButton(
-                      onPressed: () {
-                        // Simulate calling
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Calling ${contact['name']}...'),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.call, color: Colors.green),
-                      tooltip: 'Call',
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Modal for Recent Alerts
-  void _showAlertsModal() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.notifications_active, color: Colors.orange, size: 24),
-              SizedBox(width: 8),
-              Text('Recent Alerts & Notifications'),
-            ],
-          ),
-          content: SizedBox(
-            width: 500,
-            height: 400,
-            child: Column(
-              children: [
-                // Alert Summary
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: [
-                          Text('3', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange)),
-                          Text('Active Alerts'),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text('12', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
-                          Text('Total Sent'),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Recent Alerts
-                Expanded(
-                  child: ListView(
-                    children: [
-                      _buildAlertItem('Flood Warning in Barangay San Antonio', 'Emergency', '2 hours ago'),
-                      _buildAlertItem('Community Meeting Tomorrow', 'Information', '1 day ago'),
-                      _buildAlertItem('Road Closure on Rizal Avenue', 'Warning', '3 days ago'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _selectedIndex = 2; // Navigate to Notifications
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Post New Alert'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Modal for Emergency Response Teams
-  void _showEmergencyTeamsModal() {
-    final emergencyResponders = _users.where((user) => user['role'] == 'Emergency Responder').toList();
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.security, color: Colors.green, size: 24),
-              SizedBox(width: 8),
-              Text('Emergency Response Teams'),
-            ],
-          ),
-          content: SizedBox(
-            width: 500,
-            height: 400,
-            child: Column(
-              children: [
-                // Team Summary
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: [
-                          Text('${emergencyResponders.length}', 
-                               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green)),
-                          Text('Total Responders'),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text('${emergencyResponders.where((user) => user['status'] == 'Active').length}', 
-                               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue)),
-                          Text('On Duty'),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Responder List
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: emergencyResponders.length,
-                    itemBuilder: (context, index) {
-                      final responder = emergencyResponders[index];
-                      return Card(
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.green,
-                            child: Icon(Icons.security, color: Colors.white),
-                          ),
-                          title: Text(responder['name']!),
-                          subtitle: Text('Contact: ${responder['contact']}'),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: responder['status'] == 'Active' ? Colors.green : Colors.red,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              responder['status']!,
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Helper methods for contact types
-  Color _getContactTypeColor(String type) {
-    switch (type) {
-      case 'Primary': return Colors.blue;
-      case 'Emergency': return Colors.red;
-      case 'Security': return Colors.orange;
-      case 'Health': return Colors.green;
-      case 'Rescue': return Colors.purple;
-      default: return Colors.grey;
-    }
-  }
-
-  IconData _getContactTypeIcon(String type) {
-    switch (type) {
-      case 'Primary': return Icons.star;
-      case 'Emergency': return Icons.local_fire_department;
-      case 'Security': return Icons.local_police;
-      case 'Health': return Icons.local_hospital;
-      case 'Rescue': return Icons.group;
-      default: return Icons.phone;
-    }
-  }
-
 }
