@@ -68,6 +68,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Controllers for emergency contact form
   final _hotlineNameController = TextEditingController();
   final _hotlineNumberController = TextEditingController();
+  
+  // Controllers for notification form with validation
+  String? _selectedAlertType;
+  final _alertTitleController = TextEditingController();
+  final _alertMessageController = TextEditingController();
+
+  // Notification CRUD data
+  List<Map<String, String>> _notifications = [
+    {
+      'id': '1',
+      'title': 'Flood Warning Alert',
+      'message': 'Heavy rainfall expected in low-lying areas. Residents are advised to move to higher ground.',
+      'type': 'emergency',
+      'status': 'Active',
+      'createdAt': '2025-01-15 08:30 AM',
+      'sentTo': '250 users',
+    },
+    {
+      'id': '2',
+      'title': 'Road Closure Notice',
+      'message': 'Main highway will be temporarily closed for emergency repairs from 2 PM to 6 PM today.',
+      'type': 'warning',
+      'status': 'Active',
+      'createdAt': '2025-01-15 07:15 AM',
+      'sentTo': '180 users',
+    },
+    {
+      'id': '3',
+      'title': 'Weather Update',
+      'message': 'Clear skies expected for the next 3 days. Normal activities may resume.',
+      'type': 'info',
+      'status': 'Inactive',
+      'createdAt': '2025-01-14 06:00 PM',
+      'sentTo': '320 users',
+    },
+  ];
+
+  String? _editingNotificationId;
 
   @override
   void initState() {
@@ -86,6 +124,101 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Navigator.pushReplacementNamed(context, '/login');
   }
 
+  // Update the existing _validateAndSendAlert method
+  void _validateAndSendAlert() {
+    String? errorMessage = _validateNotificationForm();
+    
+    if (errorMessage != null) {
+      _showErrorSnackbar(errorMessage);
+      return;
+    }
+
+    // Add new notification to the list
+    final newId = (_notifications.length + 1).toString();
+    final currentTime = DateTime.now();
+    final formattedTime = "${currentTime.year}-${currentTime.month.toString().padLeft(2, '0')}-${currentTime.day.toString().padLeft(2, '0')} ${currentTime.hour.toString().padLeft(2, '0')}:${currentTime.minute.toString().padLeft(2, '0')} ${currentTime.hour >= 12 ? 'PM' : 'AM'}";
+    
+    setState(() {
+      _notifications.insert(0, {
+        'id': newId,
+        'title': _alertTitleController.text.trim(),
+        'message': _alertMessageController.text.trim(),
+        'type': _selectedAlertType!,
+        'status': 'Active',
+        'createdAt': formattedTime,
+        'sentTo': '${_users.length} users',
+      });
+    });
+
+    _showSuccessSnackbar('${_selectedAlertType!.toUpperCase()} Alert "${_alertTitleController.text.trim()}" sent successfully to all ${_users.length} users!');
+    _clearAlertForm();
+  }
+
+  // Update the existing _clearAlertForm method
+  void _clearAlertForm() {
+    setState(() {
+      _selectedAlertType = null;
+      _alertTitleController.clear();
+      _alertMessageController.clear();
+    });
+    
+    if (_editingNotificationId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.clear, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Form cleared successfully.'),
+            ],
+          ),
+          backgroundColor: Colors.blue,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  // Show alert statistics
+  Widget _showAlertStats() {
+    return Column(
+      children: [
+        const Text(
+          'Alert Statistics',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildStatCard('🚨', 'Emergency', '12', Colors.red),
+            _buildStatCard('⚠️', 'Warning', '28', Colors.orange),
+            _buildStatCard('ℹ️', 'Info', '45', Colors.blue),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(String emoji, String type, String count, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const SizedBox(height: 4),
+          Text(type, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+          Text(count, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -97,79 +230,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _addressController.dispose();
     _hotlineNameController.dispose();
     _hotlineNumberController.dispose();
+    _alertTitleController.dispose();
+    _alertMessageController.dispose();
     super.dispose();
-  }
-
-  // Simple status item builder for dashboard cards
-  Widget _buildLargerStatusItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 24),
-          SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Simple modal methods for dashboard quick views
-  void _showUsersModal() {
-    // Navigate to users screen instead
-    setState(() {
-      _selectedIndex = 1;
-    });
-  }
-
-  void _showEmergencyContactsModal() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Emergency Contacts: ${_emergencyContacts.length} contacts available'),
-        backgroundColor: Colors.red.shade600,
-      ),
-    );
-  }
-
-  void _showAlertsModal() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Active Alerts: 3 notifications pending'),
-        backgroundColor: Colors.orange.shade600,
-      ),
-    );
-  }
-
-  void _showEmergencyTeamsModal() {
-    int emergencyTeams = _users.where((user) => user['role'] == 'Emergency Responder').length;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Emergency Response Teams: $emergencyTeams teams ready'),
-        backgroundColor: Colors.green.shade600,
-      ),
-    );
   }
 
   @override
@@ -262,7 +325,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Colors.black.withValues(alpha: 0.15),
                     spreadRadius: 2,
                     blurRadius: 10,
                     offset: const Offset(0, 4),
@@ -281,7 +344,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Container(
                             padding: const EdgeInsets.all(12), // Larger padding
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(50),
                             ),
                             child: const Icon(
@@ -320,7 +383,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   margin: const EdgeInsets.only(top: 4), // More spacing
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.2),
+                                    color: Colors.green.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Text(
@@ -356,10 +419,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               color: Colors.lightBlue,
                             ),
                           ),
-                          Container(
-                            height: 60, // Larger divider
+                          SizedBox(
+                            height: 60,
                             width: 1,
-                            color: Colors.white.withOpacity(0.2),
+                            child: Container(
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
                           ),
                           GestureDetector(
                             onTap: () => _showEmergencyContactsModal(),
@@ -370,10 +435,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               color: Colors.red,
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             height: 60,
                             width: 1,
-                            color: Colors.white.withOpacity(0.2),
+                            child: Container(
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
                           ),
                           GestureDetector(
                             onTap: () => _showAlertsModal(),
@@ -384,10 +451,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               color: Colors.orange,
                             ),
                           ),
-                          Container(
+                          SizedBox(
                             height: 60,
                             width: 1,
-                            color: Colors.white.withOpacity(0.2),
+                            child: Container(
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
                           ),
                           GestureDetector(
                             onTap: () => _showEmergencyTeamsModal(),
@@ -412,7 +481,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           CircleAvatar(
                             radius: 20, // Larger avatar
-                            backgroundColor: Colors.white.withOpacity(0.15),
+                            backgroundColor: Colors.white.withValues(alpha: 0.15),
                             child: const Icon(
                               Icons.admin_panel_settings,
                               size: 22, // Larger icon
@@ -433,7 +502,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             margin: const EdgeInsets.only(top: 2),
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.2),
+                              color: Colors.green.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
@@ -679,7 +748,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           borderRadius: BorderRadius.circular(4),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.blue.withOpacity(0.3),
+                              color: Colors.blue.withValues(alpha: 0.3),
                               blurRadius: 2,
                               offset: const Offset(0, 2),
                             ),
@@ -719,7 +788,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           borderRadius: BorderRadius.circular(4),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2d5f3f).withOpacity(0.3),
+                              color: const Color(0xFF2d5f3f).withValues(alpha: 0.3),
                               blurRadius: 2,
                               offset: const Offset(0, 2),
                             ),
@@ -756,7 +825,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -904,7 +973,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2d5f3f).withOpacity(0.1),
+                            color: const Color(0xFF2d5f3f).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -952,7 +1021,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -1155,7 +1224,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: statusColor, width: 1),
               ),
@@ -1216,7 +1285,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _contactController.text = user['contact']!;
     _addressController.text = user['address']!;
     _selectedRole = user['role']!;
-    _selectedStatusFilter = user['status']!;
     _editingUserId = user['id'];
     _showUserDialog('Edit Mobile User');
   }
@@ -1400,7 +1468,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF2d5f3f).withOpacity(0.3),
+                                  color: const Color(0xFF2d5f3f).withValues(alpha: 0.3),
                                   blurRadius: 2,
                                   offset: const Offset(0, 2),
                                 ),
@@ -1640,7 +1708,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _contactController.clear();
     _addressController.clear();
     _selectedRole = 'Volunteer';
-    // Removed _selectedStatus = 'Active';
   }
 
   // Helper method to parse full name into separate fields
@@ -1752,9 +1819,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Post Emergency Notifications',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          // Header with Add Notification button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Post Emergency Notifications',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
+              ElevatedButton.icon(
+                onPressed: _showAddNotificationDialog,
+                icon: const Icon(Icons.add_alert),
+                label: const Text('Create Alert'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           
@@ -1780,67 +1863,101 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Create New Alert',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        Text(
+                          _editingNotificationId == null ? 'Create New Alert' : 'Edit Alert',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 20),
                         
-                        // Alert Type
+                        // Alert Type with validation
                         DropdownButtonFormField<String>(
+                          value: _selectedAlertType,
                           decoration: const InputDecoration(
-                            labelText: 'Alert Type',
+                            labelText: 'Alert Type *',
                             border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.priority_high),
+                            helperText: 'Select the urgency level of your alert',
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'emergency', child: Text('Emergency Alert')),
-                            DropdownMenuItem(value: 'warning', child: Text('Warning')),
-                            DropdownMenuItem(value: 'info', child: Text('Information')),
+                            DropdownMenuItem(value: 'emergency', child: Text('🚨 Emergency Alert')),
+                            DropdownMenuItem(value: 'warning', child: Text('⚠️ Warning')),
+                            DropdownMenuItem(value: 'info', child: Text('ℹ️ Information')),
                           ],
-                          onChanged: (value) {},
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedAlertType = value;
+                            });
+                          },
                         ),
                         const SizedBox(height: 16),
                         
-                        // Title
-                        const TextField(
-                          decoration: InputDecoration(
-                            labelText: 'Alert Title',
+                        // Alert Title with validation
+                        TextField(
+                          controller: _alertTitleController,
+                          maxLength: 100,
+                          decoration: const InputDecoration(
+                            labelText: 'Alert Title *',
                             border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.title),
+                            hintText: 'Enter a clear, concise title',
+                            helperText: 'Maximum 100 characters',
                           ),
                         ),
                         const SizedBox(height: 16),
                         
-                        // Message
-                        const Expanded(
+                        // Alert Message with validation
+                        Expanded(
                           child: TextField(
+                            controller: _alertMessageController,
                             maxLines: null,
                             expands: true,
-                            decoration: InputDecoration(
-                              labelText: 'Alert Message',
+                            maxLength: 500,
+                            decoration: const InputDecoration(
+                              labelText: 'Alert Message *',
                               border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.message),
                               alignLabelWithHint: true,
+                              hintText: 'Provide detailed information about the alert...',
+                              helperText: 'Maximum 500 characters',
                             ),
                           ),
                         ),
                         const SizedBox(height: 20),
                         
-                        // Send Button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Alert sent to mobile app user successfully!')),
-                              );
-                            },
-                            icon: const Icon(Icons.send),
-                            label: const Text('Post Notification'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                        // Action buttons
+                        Row(
+                          children: [
+                            // Send/Update Button
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: _editingNotificationId == null ? _validateAndSendAlert : _updateNotification,
+                                icon: Icon(_editingNotificationId == null ? Icons.send : Icons.update),
+                                label: Text(_editingNotificationId == null ? 'Send Alert' : 'Update Alert'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _editingNotificationId == null ? Colors.orange : Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            
+                            // Cancel/Clear Button
+                            Expanded(
+                              child: TextButton.icon(
+                                onPressed: _editingNotificationId == null ? _clearAlertForm : _cancelEdit,
+                                icon: Icon(_editingNotificationId == null ? Icons.clear : Icons.cancel),
+                                label: Text(_editingNotificationId == null ? 'Clear Form' : 'Cancel Edit'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.grey[600],
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -1848,8 +1965,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(width: 20),
                 
-                // Recent Alerts
+                // Notifications List (CRUD Table)
                 Expanded(
+                  flex: 3,
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -1866,19 +1984,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Recent Alerts',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Alert History',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '${_notifications.length} alerts',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
-                        Expanded(
-                          child: ListView(
+                        
+                        // Table Headers
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF2d5f3f),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(8),
+                              topRight: Radius.circular(8),
+                            ),
+                          ),
+                          child: const Row(
                             children: [
-                              _buildAlertItem('Flood Warning', 'Emergency', '2 hours ago'),
-                              _buildAlertItem('Road Closure', 'Warning', '5 hours ago'),
-                              _buildAlertItem('Weather Update', 'Information', '1 day ago'),
+                              Expanded(flex: 3, child: Text('Title', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                              Expanded(flex: 2, child: Text('Type', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
+                              Expanded(flex: 2, child: Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
+                              Expanded(flex: 2, child: Text('Sent To', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
+                              Expanded(flex: 2, child: Text('Actions', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center)),
                             ],
                           ),
+                        ),
+                        
+                        // Notifications List
+                        Expanded(
+                          child: _notifications.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'No alerts created yet',
+                                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: _notifications.length,
+                                  itemBuilder: (context, index) {
+                                    final notification = _notifications[index];
+                                    return _buildNotificationRow(notification, index);
+                                  },
+                                ),
                         ),
                       ],
                     ),
@@ -1899,32 +2066,352 @@ class _DashboardScreenState extends State<DashboardScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        color: Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: typeColor.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: typeColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
+                  color: typeColor,
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   type,
-                  style: TextStyle(color: typeColor, fontSize: 12),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
                 ),
               ),
+              const Spacer(),
+              Text(time, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(time, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
         ],
+      ),
+    );
+  }
+
+  // Add notification row builder for CRUD table
+  Widget _buildNotificationRow(Map<String, String> notification, int index) {
+    // Get type color and icon
+    Color typeColor;
+    IconData typeIcon;
+    String typeDisplay;
+    
+    switch (notification['type']) {
+      case 'emergency':
+        typeColor = Colors.red;
+        typeIcon = Icons.emergency;
+        typeDisplay = 'Emergency';
+        break;
+      case 'warning':
+        typeColor = Colors.orange;
+        typeIcon = Icons.warning;
+        typeDisplay = 'Warning';
+        break;
+      case 'info':
+        typeColor = Colors.blue;
+        typeIcon = Icons.info;
+        typeDisplay = 'Info';
+        break;
+      default:
+        typeColor = Colors.grey;
+        typeIcon = Icons.notifications;
+        typeDisplay = 'Unknown';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: index % 2 == 0 ? Colors.grey.shade50 : Colors.white,
+        border: const Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+      ),
+      child: Row(
+        children: [
+          // Title
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  notification['title']!,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  notification['createdAt']!,
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+          // Type
+          Expanded(
+            flex: 2,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: typeColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: typeColor, width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(typeIcon, color: typeColor, size: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      typeDisplay,
+                      style: TextStyle(
+                        color: typeColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Status
+          Expanded(
+            flex: 2,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: notification['status'] == 'Active' ? Colors.green : Colors.grey,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  notification['status']!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
+          // Sent To
+          Expanded(
+            flex: 2,
+            child: Text(
+              notification['sentTo']!,
+              style: const TextStyle(fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          // Actions
+          Expanded(
+            flex: 2,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () => _editNotification(notification),
+                  icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
+                  tooltip: 'Edit Alert',
+                ),
+                IconButton(
+                  onPressed: () => _toggleNotificationStatus(notification['id']!),
+                  icon: Icon(
+                    notification['status'] == 'Active' ? Icons.pause : Icons.play_arrow,
+                    color: notification['status'] == 'Active' ? Colors.orange : Colors.green,
+                    size: 18,
+                  ),
+                  tooltip: notification['status'] == 'Active' ? 'Deactivate' : 'Activate',
+                ),
+                IconButton(
+                  onPressed: () => _deleteNotification(notification),
+                  icon: const Icon(Icons.delete, color: Colors.red, size: 18),
+                  tooltip: 'Delete Alert',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // CRUD methods for notifications
+  void _showAddNotificationDialog() {
+    _clearAlertForm();
+    _editingNotificationId = null;
+  }
+
+  void _editNotification(Map<String, String> notification) {
+    setState(() {
+      _editingNotificationId = notification['id'];
+      _selectedAlertType = notification['type'];
+      _alertTitleController.text = notification['title']!;
+      _alertMessageController.text = notification['message']!;
+    });
+  }
+
+  void _updateNotification() {
+    String? errorMessage = _validateNotificationForm();
+    
+    if (errorMessage != null) {
+      _showErrorSnackbar(errorMessage);
+      return;
+    }
+
+    setState(() {
+      final notificationIndex = _notifications.indexWhere((n) => n['id'] == _editingNotificationId);
+      if (notificationIndex != -1) {
+        _notifications[notificationIndex] = {
+          'id': _editingNotificationId!,
+          'title': _alertTitleController.text.trim(),
+          'message': _alertMessageController.text.trim(),
+          'type': _selectedAlertType!,
+          'status': _notifications[notificationIndex]['status']!, // Keep existing status
+          'createdAt': _notifications[notificationIndex]['createdAt']!, // Keep original date
+          'sentTo': _notifications[notificationIndex]['sentTo']!, // Keep existing count
+        };
+      }
+    });
+
+    _showSuccessSnackbar('Alert updated successfully! Changes will be reflected to mobile users.');
+    _cancelEdit();
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _editingNotificationId = null;
+    });
+    _clearAlertForm();
+  }
+
+  void _toggleNotificationStatus(String notificationId) {
+    setState(() {
+      final notificationIndex = _notifications.indexWhere((n) => n['id'] == notificationId);
+      if (notificationIndex != -1) {
+        final currentStatus = _notifications[notificationIndex]['status'];
+        _notifications[notificationIndex]['status'] = currentStatus == 'Active' ? 'Inactive' : 'Active';
+        
+        final newStatus = _notifications[notificationIndex]['status'];
+        final title = _notifications[notificationIndex]['title'];
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Alert "$title" ${newStatus == 'Active' ? 'activated' : 'deactivated'} successfully'),
+            backgroundColor: newStatus == 'Active' ? Colors.green : Colors.orange,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    });
+  }
+
+  void _deleteNotification(Map<String, String> notification) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Alert'),
+          content: Text('Are you sure you want to delete "${notification['title']}"?\n\nThis action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _notifications.removeWhere((n) => n['id'] == notification['id']);
+                });
+                
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Alert "${notification['title']}" deleted successfully'),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Update the existing validation method
+  String? _validateNotificationForm() {
+    if (_selectedAlertType == null || _selectedAlertType!.isEmpty) {
+      return 'Please select an alert type.';
+    }
+    
+    if (_alertTitleController.text.trim().isEmpty) {
+      return 'Please enter an alert title.';
+    }
+    if (_alertTitleController.text.trim().length < 3) {
+      return 'Alert title must be at least 3 characters long.';
+    }
+    if (_alertTitleController.text.trim().length > 100) {
+      return 'Alert title cannot exceed 100 characters.';
+    }
+    
+    if (_alertMessageController.text.trim().isEmpty) {
+      return 'Please enter an alert message.';
+    }
+    if (_alertMessageController.text.trim().length < 10) {
+      return 'Alert message must be at least 10 characters long.';
+    }
+    if (_alertMessageController.text.trim().length > 500) {
+      return 'Alert message cannot exceed 500 characters.';
+    }
+    
+    return null; // No errors
+  }
+
+  // Helper methods for showing messages
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 4),
       ),
     );
   }
@@ -2482,6 +2969,286 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 foregroundColor: Colors.white,
               ),
               child: const Text('Save Changes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Helper method to build larger status items for dashboard
+  Widget _buildLargerStatusItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          icon,
+          size: 32,
+          color: Colors.white,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.white,
+            fontWeight: FontWeight.w400,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  // Modal methods for dashboard quick access
+  void _showUsersModal() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Registered Users'),
+          content: SizedBox(
+            width: 400,
+            height: 300,
+            child: ListView.builder(
+              itemCount: _users.length,
+              itemBuilder: (context, index) {
+                final user = _users[index];
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: const Color(0xFF2d5f3f),
+                    child: Text(user['name']![0], style: const TextStyle(color: Colors.white)),
+                  ),
+                  title: Text(user['name']!),
+                  subtitle: Text('${user['role']} - ${user['contact']}'),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: user['status'] == 'Active' ? Colors.green : Colors.red,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      user['status']!,
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _selectedIndex = 1; // Navigate to User Management
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2d5f3f),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Manage Users'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEmergencyContactsModal() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Emergency Contacts'),
+          content: SizedBox(
+            width: 400,
+            height: 300,
+            child: ListView.builder(
+              itemCount: _emergencyContacts.length,
+              itemBuilder: (context, index) {
+                final contact = _emergencyContacts[index];
+                return ListTile(
+                  leading: const Icon(Icons.phone, color: Colors.red),
+                  title: Text(contact['name']!),
+                  subtitle: Text(contact['number']!),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      contact['type']!,
+                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _selectedIndex = 3; // Navigate to Settings
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Manage Contacts'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAlertsModal() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Active Alerts'),
+          content: const SizedBox(
+            width: 400,
+            height: 200,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.warning, color: Colors.orange),
+                  title: Text('Weather Advisory'),
+                  subtitle: Text('Heavy rainfall expected'),
+                  trailing: Text('2 hrs ago', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                ),
+                ListTile(
+                  leading: Icon(Icons.error, color: Colors.red),
+                  title: Text('Road Closure'),
+                  subtitle: Text('Highway 1 temporarily closed'),
+                  trailing: Text('1 day ago', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                ),
+                ListTile(
+                  leading: Icon(Icons.info, color: Colors.blue),
+                  title: Text('Maintenance Notice'),
+                  subtitle: Text('System maintenance scheduled'),
+                  trailing: Text('3 hrs ago', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _selectedIndex = 2; // Navigate to Notifications
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Send Alert'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEmergencyTeamsModal() {
+    final emergencyResponders = _users.where((user) => user['role'] == 'Emergency Responder').toList();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Emergency Response Teams'),
+          content: SizedBox(
+            width: 400,
+            height: 300,
+            child: emergencyResponders.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No emergency responders registered',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: emergencyResponders.length,
+                    itemBuilder: (context, index) {
+                      final responder = emergencyResponders[index];
+                      return ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: Colors.green,
+                          child: Icon(Icons.security, color: Colors.white),
+                        ),
+                        title: Text(responder['name']!),
+                        subtitle: Text(responder['contact']!),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: responder['status'] == 'Active' ? Colors.green : Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            responder['status']!,
+                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _selectedIndex = 1; // Navigate to User Management
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Manage Teams'),
             ),
           ],
         );
