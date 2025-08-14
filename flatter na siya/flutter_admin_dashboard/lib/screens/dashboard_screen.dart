@@ -526,129 +526,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Combined User Management & Quick Actions Section (Enhanced)
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(32), // Increased padding
+                padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16), // Increased radius
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.15),
+                      color: Colors.grey.withOpacity(0.15),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    // User Stats Section - Enhanced
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(20), // Increased padding
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(16), // Increased radius
-                                ),
-                                child: const Icon(
-                                  Icons.people,
-                                  color: Colors.blue,
-                                  size: 48, // Increased from 32
-                                ),
-                              ),
-                              const SizedBox(width: 24), // Increased spacing
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${_users.length}',
-                                    style: const TextStyle(
-                                      fontSize: 48, // Increased from 32
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                  const Text(
-                                    'Total Users',
-                                    style: TextStyle(
-                                      fontSize: 18, // Increased from 14
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20), // Increased spacing
-                          Text(
-                            'Total: ${_users.length} registered mobile users',
-                            style: TextStyle(
-                              fontSize: 16, // Increased from 12
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Quick Actions Section - Enhanced
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () => _quickAddUser(),
-                            icon: const Icon(Icons.person_add, size: 24), // Increased icon size
-                            label: const Text(
-                              'Add User',
-                              style: TextStyle(
-                                fontSize: 16, // Increased from 14
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(double.infinity, 60), // Increased height
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 3,
-                            ),
-                          ),
-                          const SizedBox(height: 16), // Increased spacing
-                          ElevatedButton.icon(
-                            onPressed: () => _quickSendAlert(),
-                            icon: const Icon(Icons.emergency, size: 24), // Increased icon size
-                            label: const Text(
-                              'Post Notification',
-                              style: TextStyle(
-                                fontSize: 16, // Increased from 14
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(double.infinity, 60), // Increased height
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 3,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                // Container left empty as requested
               ),
             ),
           ],
