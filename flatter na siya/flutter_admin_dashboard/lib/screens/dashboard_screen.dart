@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../widgets/admin_drawer.dart';
 import 'system_logs_screen.dart';
 
@@ -11,6 +12,259 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  // Line chart for logins by time of day
+  Widget _buildLoginsTimelineChart() {
+    // Improved data: hours of the day (military time, every 3 hours)
+    final hours = [0, 3, 6, 9, 12, 15, 18, 21];
+    final hourLabels = ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'];
+    final loginCounts = [2, 4, 8, 12, 10, 7, 5, 3];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 600, // Wider for scrollability and future data
+        child: LineChart(
+          LineChartData(
+            lineBarsData: [
+              LineChartBarData(
+                spots: List.generate(hours.length, (i) => FlSpot(hours[i].toDouble(), loginCounts[i].toDouble())),
+                isCurved: true,
+                color: Colors.green,
+                barWidth: 4,
+                dotData: FlDotData(show: true),
+                belowBarData: BarAreaData(show: true, color: Colors.green.withOpacity(0.15)),
+              ),
+            ],
+            titlesData: FlTitlesData(
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: true, reservedSize: 28),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    final idx = hours.indexOf(value.toInt());
+                    if (idx == -1) return const SizedBox();
+                    return Text(hourLabels[idx]);
+                  },
+                  reservedSize: 36,
+                ),
+              ),
+              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            ),
+            borderData: FlBorderData(show: false),
+            gridData: FlGridData(show: false),
+            minY: 0,
+            maxY: (loginCounts.reduce((a, b) => a > b ? a : b) + 2).toDouble(),
+          ),
+        ),
+      ),
+    );
+  }
+  // Bar chart for system errors/logs by type
+  Widget _buildSystemErrorsBarChart() {
+    // Only Network, Auth, and Database errors with realistic counts
+    final errorTypes = ['Network', 'Auth', 'Database'];
+    final errorCounts = [4, 9, 3];
+    final colors = [Colors.red, Colors.orange, Colors.blue];
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround, // Increase spacing
+        maxY: (errorCounts.reduce((a, b) => a > b ? a : b) + 2).toDouble(),
+  // barTouchData removed (was duplicated below)
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true, reservedSize: 28),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx < 0 || idx >= errorTypes.length) return const SizedBox();
+                return Text(errorTypes[idx]);
+              },
+              reservedSize: 32,
+            ),
+          ),
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: List.generate(errorTypes.length, (i) => BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: errorCounts[i].toDouble(),
+              color: colors[i % colors.length],
+              width: 28, // Default width for better spacing
+              borderRadius: BorderRadius.circular(4),
+              rodStackItems: [],
+            ),
+          ],
+          showingTooltipIndicators: [0],
+          barsSpace: 16, // More space between bars
+        )),
+        gridData: FlGridData(show: false),
+        barTouchData: BarTouchData(
+          enabled: false,
+          touchTooltipData: BarTouchTooltipData(
+            tooltipPadding: EdgeInsets.zero,
+            tooltipMargin: 0,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              return null;
+            },
+          ),
+        ),
+        extraLinesData: ExtraLinesData(),
+      ),
+    );
+  }
+  // Pie chart for post category distribution
+  Widget _buildPostCategoryPieChart() {
+    // Only Alert, Warning, and Information categories
+    final categories = ['Alert', 'Warning', 'Information'];
+    final counts = [10, 6, 8];
+    final colors = [Colors.red, Colors.orange, Colors.blue];
+    if (categories.isEmpty) {
+      return const Center(child: Text('No post data available'));
+    }
+    return PieChart(
+      PieChartData(
+        sections: List.generate(categories.length, (i) {
+          return PieChartSectionData(
+            color: colors[i % colors.length],
+            value: counts[i].toDouble(),
+            title: '${categories[i]}\n${counts[i]}',
+            radius: 75,
+            titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+          );
+        }),
+        sectionsSpace: 2,
+        centerSpaceRadius: 55,
+      ),
+    );
+  }
+  // Line chart for notifications sent over time
+  Widget _buildNotificationsLineChart() {
+    // Realistic data: last 6 months, unique months
+    final months = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
+    final notifCounts = [3, 7, 5, 9, 6, 12];
+    return LineChart(
+      LineChartData(
+        lineBarsData: [
+          LineChartBarData(
+            spots: List.generate(months.length, (i) => FlSpot(i.toDouble(), notifCounts[i].toDouble())),
+            isCurved: true,
+            color: Colors.orange,
+            barWidth: 4,
+            dotData: FlDotData(show: true),
+            belowBarData: BarAreaData(show: true, color: Colors.orange.withOpacity(0.15)),
+          ),
+        ],
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true, reservedSize: 28),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx < 0 || idx >= months.length) return const SizedBox();
+                return Text(months[idx]);
+              },
+              reservedSize: 32,
+            ),
+          ),
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(show: false),
+        gridData: FlGridData(show: false),
+        minY: 0,
+        maxY: (notifCounts.reduce((a, b) => a > b ? a : b) + 2).toDouble(),
+      ),
+    );
+  }
+  // Bar chart for new users per month
+  Widget _buildNewUsersBarChart() {
+    // Example data: last 6 months
+    final months = [
+      'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'
+    ];
+    final userCounts = [5, 8, 12, 7, 10, 14];
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceBetween,
+        maxY: (userCounts.reduce((a, b) => a > b ? a : b) + 2).toDouble(),
+        barTouchData: BarTouchData(enabled: false),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true, reservedSize: 28),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx < 0 || idx >= months.length) return const SizedBox();
+                return Text(months[idx]);
+              },
+              reservedSize: 32,
+            ),
+          ),
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: List.generate(months.length, (i) => BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: userCounts[i].toDouble(),
+              color: Colors.blue,
+              width: 28,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ],
+        )),
+        gridData: FlGridData(show: false),
+      ),
+    );
+  }
+  // Pie chart for user roles
+  Widget _buildUserRolePieChart() {
+    final Map<String, int> roleCounts = {};
+    for (var user in _users) {
+      final role = user['role'] ?? 'Unknown';
+      roleCounts[role] = (roleCounts[role] ?? 0) + 1;
+    }
+    final colors = [Colors.blue, Colors.orange, Colors.green, Colors.purple, Colors.teal];
+    final roles = roleCounts.keys.toList();
+
+    if (roles.isEmpty) {
+      return const Center(child: Text('No user data available'));
+    }
+
+    return PieChart(
+      PieChartData(
+        sections: List.generate(roles.length, (i) {
+          final role = roles[i];
+          final count = roleCounts[role]!;
+          return PieChartSectionData(
+            color: colors[i % colors.length],
+            value: count.toDouble(),
+            title: '$role\n$count',
+            radius: 85, // Further increased radius
+            titleStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white), // Even smaller font
+          );
+        }),
+        sectionsSpace: 2,
+        centerSpaceRadius: 65, // Further increased center space
+      ),
+    );
+  }
   int _selectedIndex = 0;
   
   final List<String> _titles = [
@@ -179,45 +433,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // Show alert statistics
-  Widget _showAlertStats() {
-    return Column(
-      children: [
-        const Text(
-          'Alert Statistics',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildStatCard('🚨', 'Emergency', '12', Colors.red),
-            _buildStatCard('⚠️', 'Warning', '28', Colors.orange),
-            _buildStatCard('ℹ️', 'Info', '45', Colors.blue),
-          ],
-        ),
-      ],
-    );
-  }
 
-  Widget _buildStatCard(String emoji, String type, String count, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 20)),
-          const SizedBox(height: 4),
-          Text(type, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-          Text(count, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
 
   @override
   void dispose() {
@@ -521,8 +737,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            
+            const SizedBox(height: 8),
+            // Subtext below header
+            Padding(
+              padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+              child: Text(
+                'A quick snapshot of everything that matters',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             // Combined User Management & Quick Actions Section (Enhanced)
             Expanded(
               child: Container(
@@ -538,7 +766,166 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
-                // Container left empty as requested
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // --- KPI CARDS REMOVED ---
+                      Divider(thickness: 1, color: Colors.grey, height: 32),
+                      // --- USER ROLES PIE CHART & NEW USERS BAR CHART SIDE BY SIDE ---
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // User Roles Pie Chart
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.pie_chart, color: Colors.blueGrey),
+                                    const SizedBox(width: 8),
+                                    const Text('User Roles Distribution', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Center(child: SizedBox(height: 220, child: _buildUserRolePieChart())),
+                              ],
+                            ),
+                          ),
+                          // Vertical Divider
+                          Container(
+                            width: 1,
+                            height: 240,
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            color: Colors.grey.shade300,
+                          ),
+                          // New Users Bar Chart
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.bar_chart, color: Colors.blueGrey),
+                                    const SizedBox(width: 8),
+                                    const Text('New Users per Month', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Center(child: SizedBox(height: 220, child: _buildNewUsersBarChart())),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Divider(thickness: 1, color: Colors.grey, height: 32),
+                      // --- NOTIFICATIONS LINE CHART & POST CATEGORY PIE CHART SIDE BY SIDE ---
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Notifications Line Chart
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.show_chart, color: Colors.blueGrey),
+                                    const SizedBox(width: 8),
+                                    const Text('Notifications Sent Over Time', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Center(child: SizedBox(height: 220, child: _buildNotificationsLineChart())),
+                              ],
+                            ),
+                          ),
+                          // Vertical Divider
+                          Container(
+                            width: 1,
+                            height: 240,
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            color: Colors.grey.shade300,
+                          ),
+                          // Post Category Pie Chart
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.pie_chart_outline, color: Colors.blueGrey),
+                                    const SizedBox(width: 8),
+                                    const Text('Post Category Distribution', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Center(child: SizedBox(height: 220, child: _buildPostCategoryPieChart())),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Divider(thickness: 1, color: Colors.grey, height: 32),
+                      // --- SYSTEM ERRORS BAR CHART & LOGINS TIMELINE CHART SIDE BY SIDE ---
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // System Errors Bar Chart
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.bug_report, color: Colors.blueGrey),
+                                    const SizedBox(width: 8),
+                                    const Text('System Errors by Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Center(child: SizedBox(height: 220, child: _buildSystemErrorsBarChart())),
+                              ],
+                            ),
+                          ),
+                          // Vertical Divider
+                          Container(
+                            width: 1,
+                            height: 240,
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            color: Colors.grey.shade300,
+                          ),
+                          // Logins Timeline Chart
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.timeline, color: Colors.blueGrey),
+                                    const SizedBox(width: 8),
+                                    const Text('Logins by Time of Day', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Center(child: SizedBox(height: 220, child: _buildLoginsTimelineChart())),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -547,30 +934,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // Quick Action Methods
-  void _quickAddUser() {
-    // Navigate to User Management and open Add User dialog
-    setState(() {
-      _selectedIndex = 1;
-    });
-    // Delay to allow navigation, then show dialog
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _showAddUserDialog();
-    });
-  }
-
-  void _quickSendAlert() {
-    // Navigate to Notifications section
-    setState(() {
-      _selectedIndex = 2;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Switched to Post Notification section for quick alert'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
 
   Widget _buildUserManagement() {
     // Apply filters and sorting
@@ -674,11 +1037,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2d5f3f),
+                          color: Color(0xFF2d5f3f),
                           borderRadius: BorderRadius.circular(4),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2d5f3f).withValues(alpha: 0.3),
+                              color: Color(0xFF2d5f3f).withValues(alpha: 0.3),
                               blurRadius: 2,
                               offset: const Offset(0, 2),
                             ),
@@ -704,6 +1067,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Keep your community organized and secure',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+              fontWeight: FontWeight.w400,
+            ),
           ),
           const SizedBox(height: 20),
 
@@ -1729,6 +2101,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 4),
+          Text(
+            'Keep everyone in the loop with updates',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
           const SizedBox(height: 20),
           
           Expanded(
@@ -1949,43 +2330,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildAlertItem(String title, String type, String time) {
-    Color typeColor = type == 'Emergency' ? Colors.red : type == 'Warning' ? Colors.orange : Colors.blue;
-    
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: typeColor.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: typeColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  type,
-                  style: const TextStyle(color: Colors.white, fontSize: 10),
-                ),
-              ),
-              const Spacer(),
-              Text(time, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   // Add notification row builder for CRUD table
   Widget _buildNotificationRow(Map<String, String> notification, int index) {
