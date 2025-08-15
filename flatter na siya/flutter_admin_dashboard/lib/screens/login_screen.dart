@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,14 +9,14 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -28,49 +27,30 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = true;
       });
 
-      try {
-        final result = await AuthService.login(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
+      // Simulate login delay
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Simple validation - in real app, this would be API call
+      if (_usernameController.text.toLowerCase() == 'admin' &&
+          _passwordController.text == 'admin123') {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        }
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
 
         if (mounted) {
-          if (result.isSuccess) {
-            // Success - navigate to dashboard
-            Navigator.pushReplacementNamed(context, '/dashboard');
-          } else {
-            // Show error message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(result.message),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 4),
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('An unexpected error occurred: ${e.toString()}'),
+            const SnackBar(
+              content: Text('Invalid username or password'),
               backgroundColor: Colors.red,
-              duration: const Duration(seconds: 4),
             ),
           );
         }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
       }
     }
-  }
-
-  void _showForgotPassword() {
-    showDialog(context: context, builder: (context) => _ForgotPasswordDialog());
   }
 
   @override
@@ -89,8 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withValues(alpha: 0.8),
-                Colors.grey[900]!.withValues(alpha: 0.7),
+                Colors.black.withValues(alpha: 0.8), // Darker overlay
+                Colors.grey[900]!.withValues(alpha: 0.7), // Dark greyish
                 Colors.black.withValues(alpha: 0.6),
               ],
             ),
@@ -100,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(32.0),
               child: Card(
                 elevation: 12,
-                color: Colors.white,
+                color: Colors.white, // Changed to pure white
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -113,24 +93,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Logo (keep your existing logo code)
+                          // Logo with darker grey background and enhanced shadow
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.grey[400],
+                              color: Colors.grey[400], // Darker grey background
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.grey[500]!,
+                                color: Colors.grey[500]!, // Darker border
                                 width: 2,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 6),
+                                  color: Colors.black.withValues(
+                                    alpha: 0.3,
+                                  ), // Stronger shadow
+                                  blurRadius: 12, // More blur
+                                  offset: const Offset(0, 6), // More offset
                                 ),
                                 BoxShadow(
-                                  color: Colors.grey.withValues(alpha: 0.2),
+                                  color: Colors.grey.withValues(
+                                    alpha: 0.2,
+                                  ), // Additional light shadow
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -142,10 +126,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 120,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
+                                // Fallback to icon with background if logo.png is not found
                                 return Container(
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF2d5f3f),
+                                    color: const Color(
+                                      0xFF2d5f3f,
+                                    ), // CDRRMO green
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(
@@ -165,27 +152,33 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF2d5f3f),
+                              color: Color(
+                                0xFF2d5f3f,
+                              ), // Dark green for visibility on white
                             ),
                           ),
                           const SizedBox(height: 8),
                           const Text(
                             'Access your admin dashboard',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey, // Light grey subtitle
+                            ),
                           ),
                           const SizedBox(height: 32),
 
-                          // Email field (changed from username)
+                          // Username field
                           TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
+                            controller: _usernameController,
+                            textInputAction: TextInputAction
+                                .next, // Shows "Next" on keyboard
                             onFieldSubmitted: (_) {
+                              // Move focus to password field when Enter is pressed
                               FocusScope.of(context).nextFocus();
                             },
                             decoration: InputDecoration(
-                              labelText: 'Email Address',
-                              prefixIcon: const Icon(Icons.email),
+                              labelText: 'Username',
+                              prefixIcon: const Icon(Icons.person),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -199,12 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your email address';
-                              }
-                              if (!RegExp(
-                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                              ).hasMatch(value)) {
-                                return 'Please enter a valid email address';
+                                return 'Please enter your username';
                               }
                               return null;
                             },
@@ -215,8 +203,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            textInputAction: TextInputAction.done,
+                            textInputAction: TextInputAction
+                                .done, // Shows "Done" on keyboard
                             onFieldSubmitted: (_) {
+                              // Trigger login when Enter is pressed in password field
                               if (!_isLoading) {
                                 _login();
                               }
@@ -254,20 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 16),
-
-                          // Forgot password link
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: _showForgotPassword,
-                              child: const Text(
-                                'Forgot Password?',
-                                style: TextStyle(color: Color(0xFF2d5f3f)),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 32),
 
                           // Login button
                           SizedBox(
@@ -276,7 +253,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _login,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2d5f3f),
+                                backgroundColor: const Color(
+                                  0xFF2d5f3f,
+                                ), // CDRRMO green
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -303,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Demo info
+                          // Demo credentials info
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -314,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Column(
                               children: [
                                 Text(
-                                  'Need Access?',
+                                  'Demo Credentials:',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.blue,
@@ -322,7 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Contact your system administrator\nto create an admin account',
+                                  'Username: admin\nPassword: admin123',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.blue,
@@ -342,100 +321,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-// Forgot password dialog
-class _ForgotPasswordDialog extends StatefulWidget {
-  @override
-  State<_ForgotPasswordDialog> createState() => _ForgotPasswordDialogState();
-}
-
-class _ForgotPasswordDialogState extends State<_ForgotPasswordDialog> {
-  final _emailController = TextEditingController();
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  void _sendResetEmail() async {
-    if (_emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email address'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    final result = await AuthService.resetPassword(
-      _emailController.text.trim(),
-    );
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.message),
-          backgroundColor: result.isSuccess ? Colors.green : Colors.red,
-        ),
-      );
-
-      if (result.isSuccess) {
-        Navigator.of(context).pop();
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Reset Password'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Enter your email address and we\'ll send you a password reset link.',
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Email Address',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _isLoading ? null : _sendResetEmail,
-          child: _isLoading
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Send Reset Email'),
-        ),
-      ],
     );
   }
 }
