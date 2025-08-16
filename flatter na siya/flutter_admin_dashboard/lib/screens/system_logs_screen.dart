@@ -1,4 +1,9 @@
+
+
 import 'package:flutter/material.dart';
+import '../widgets/admin_drawer.dart';
+
+
 
 class SystemLogsScreen extends StatefulWidget {
   const SystemLogsScreen({super.key});
@@ -8,6 +13,28 @@ class SystemLogsScreen extends StatefulWidget {
 }
 
 class _SystemLogsScreenState extends State<SystemLogsScreen> {
+  void _onDrawerItemSelected(int index) {
+    if (index == 4) return; // Already on System Logs
+    Navigator.of(context).pop(); // Close the drawer first
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/dashboard');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/users');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/notifications');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/settings');
+        break;
+    }
+  }
+
+  void _onLogout() {
+    Navigator.pushReplacementNamed(context, '/login');
+  }
   // Comprehensive sample log data combining both versions
   final List<Map<String, dynamic>> _systemLogs = [
     {
@@ -290,7 +317,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredLogs = List.from(_systemLogs);
+  _filteredLogs = List.from(_systemLogs);
+  // Debug print to check if logs are loaded
+  // ignore: avoid_print
+  print('SystemLogsScreen: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}');
   }
 
   void _applyFilters() {
@@ -335,518 +365,441 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Enhanced Header with View Toggle & Refresh Button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'System Activity Logs',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+  // Debug print to check if logs are present at build
+  // ignore: avoid_print
+  print('SystemLogsScreen build: _filteredLogs.length = \\${_filteredLogs.length}');
+  return Scaffold(
+      backgroundColor: const Color(0xFFFAF9F7),
+      drawer: AdminDrawer(
+        selectedIndex: 4,
+        onItemSelected: _onDrawerItemSelected,
+        onLogout: _onLogout,
+      ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF2d5f3f),
+        elevation: 0,
+        centerTitle: true,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.list_alt_rounded, color: Colors.white),
+            SizedBox(width: 10),
+            Text('System Logs', style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal)),
+          ],
+        ),
+        actions: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text('Welcome, CDRRMO', style: TextStyle(color: Colors.white, fontSize: 14)),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Page Title and Subtitle
+              const Text(
+                'System Activity Logs',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Stay informed on what’s happening behind the scenes',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const SizedBox(height: 14),
+              // Search and filter row
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search logs by user, action, details...',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                        _applyFilters();
+                      },
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Stay informed on what’s happening behind the scenes',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w400,
+                  ),
+                  const SizedBox(width: 12),
+                  // Compact toggle
+                  Row(
+                    children: [
+                      const Text('Compact', style: TextStyle(fontSize: 13)),
+                      Switch(
+                        value: _isCompactView,
+                        onChanged: (val) {
+                          setState(() {
+                            _isCompactView = val;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: _applyFilters,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Refresh'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      textStyle: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Filters row
+              Row(
+                children: [
+                  // Category
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      items: [
+                        'All',
+                        'User Management',
+                        'Authentication',
+                        'Content Management',
+                        'System Maintenance',
+                        'System Configuration',
+                        'Security',
+                      ].map((cat) => DropdownMenuItem(value: cat, child: Text('  $cat'))).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedCategory = val!;
+                        });
+                        _applyFilters();
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Category',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                        filled: true,
+                        fillColor: Colors.grey[100],
                       ),
                     ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    // View Toggle Switch
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  ),
+                  const SizedBox(width: 8),
+                  // Status
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedStatus,
+                      items: [
+                        'All',
+                        'Success',
+                        'Failed',
+                        'Warning',
+                      ].map((status) => DropdownMenuItem(value: status, child: Text('  $status'))).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedStatus = val!;
+                        });
+                        _applyFilters();
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Status',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Date Range
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedDateRange,
+                      items: [
+                        'All Time',
+                        'Today',
+                        'Yesterday',
+                      ].map((range) => DropdownMenuItem(value: range, child: Text('  $range'))).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedDateRange = val!;
+                        });
+                        _applyFilters();
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Date Range',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Severity
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedSeverity,
+                      items: [
+                        'All',
+                        'Low',
+                        'Medium',
+                        'High',
+                        'Critical',
+                      ].map((sev) => DropdownMenuItem(value: sev, child: Text('  $sev'))).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedSeverity = val!;
+                        });
+                        _applyFilters();
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Severity',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              // Summary badges
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2d5f3f).withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      '${_filteredLogs.length} of ${_systemLogs.length} logs',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2d5f3f),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check_circle, size: 16, color: Colors.green),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${_filteredLogs.where((log) => log['status'] == 'Success').length} Success',
+                          style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.error, size: 16, color: Colors.red),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${_filteredLogs.where((log) => log['status'] == 'Failed').length} Failed',
+                          style: const TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  // Export button
+                  PopupMenuButton<String>(
+                    onSelected: (String format) {
+                      _exportLogs(format);
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem<String>(
+                        value: 'csv',
+                        child: Row(
+                          children: [
+                            Icon(Icons.table_chart, size: 18, color: Colors.green),
+                            const SizedBox(width: 8),
+                            const Text('Export as CSV', style: TextStyle(fontSize: 14)),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'pdf',
+                        child: Row(
+                          children: [
+                            Icon(Icons.picture_as_pdf, size: 18, color: Colors.red),
+                            const SizedBox(width: 8),
+                            const Text('Export as PDF', style: TextStyle(fontSize: 14)),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'xml',
+                        child: Row(
+                          children: [
+                            Icon(Icons.code, size: 18, color: Colors.orange),
+                            const SizedBox(width: 8),
+                            const Text('Export as XML', style: TextStyle(fontSize: 14)),
+                          ],
+                        ),
+                      ),
+                    ],
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            _isCompactView ? Icons.view_compact : Icons.view_comfortable,
-                            size: 16,
-                            color: Colors.grey[600],
-                          ),
+                          const Icon(Icons.download, size: 16, color: Colors.white),
                           const SizedBox(width: 6),
-                          Text(
-                            _isCompactView ? 'Compact' : 'Detailed',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Switch(
-                            value: _isCompactView,
-                            onChanged: (value) {
-                              setState(() {
-                                _isCompactView = value;
-                              });
-                            },
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
+                          const Text('Export', style: TextStyle(fontSize: 13, color: Colors.white)),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_drop_down, size: 16, color: Colors.white),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    // Refresh Button
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _filteredLogs = List.from(_systemLogs);
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Logs refreshed successfully!'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.refresh, size: 16),
-                      label: const Text('Refresh', style: TextStyle(fontSize: 12)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2d5f3f),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Enhanced Filter Section with READABLE font sizes
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: Column(
-                children: [
-                  // First row of filters
-                  Row(
-                    children: [
-                      // Search Bar
-                      Expanded(
-                        flex: 2,
-                        child: TextField(
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                            _applyFilters();
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Search logs by user, action, details...',
-                            hintStyle: const TextStyle(fontSize: 14), // Readable hint
-                            prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 20),
-                            suffixIcon: _searchQuery.isNotEmpty
-                                ? IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _searchQuery = '';
-                                      });
-                                      _applyFilters();
-                                    },
-                                    icon: const Icon(Icons.clear, color: Colors.grey, size: 20),
-                                  )
-                                : null,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12), // More padding
-                            isDense: false, // Allow normal height
-                          ),
-                          style: const TextStyle(fontSize: 14), // Readable input text
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      
-                      // Date Range Filter
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedDateRange,
-                          decoration: InputDecoration(
-                            labelText: 'Date Range',
-                            labelStyle: const TextStyle(fontSize: 14), // Readable label
-                            prefixIcon: const Icon(Icons.date_range, color: Colors.grey, size: 18),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            isDense: false,
-                          ),
-                          items: const [
-                            DropdownMenuItem(value: 'All Time', child: Text('All Time', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Today', child: Text('Today', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Yesterday', child: Text('Yesterday', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Last 7 Days', child: Text('Last 7 Days', style: TextStyle(fontSize: 14))),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedDateRange = value!;
-                            });
-                            _applyFilters();
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      
-                      // Severity Filter
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedSeverity,
-                          decoration: InputDecoration(
-                            labelText: 'Severity',
-                            labelStyle: const TextStyle(fontSize: 14), // Readable label
-                            prefixIcon: const Icon(Icons.priority_high, color: Colors.grey, size: 18),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            isDense: false,
-                          ),
-                          items: const [
-                            DropdownMenuItem(value: 'All', child: Text('All Severity', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Critical', child: Text('Critical', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'High', child: Text('High', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Medium', child: Text('Medium', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Low', child: Text('Low', style: TextStyle(fontSize: 14))),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedSeverity = value!;
-                            });
-                            _applyFilters();
-                          },
-                        ),
+              const SizedBox(height: 8),
+              // Logs Table
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  
-                  // Second row of filters
-                  Row(
-                    children: [
-                      // Category Filter
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedCategory,
-                          decoration: InputDecoration(
-                            labelText: 'Category',
-                            labelStyle: const TextStyle(fontSize: 14), // Readable label
-                            prefixIcon: const Icon(Icons.category, color: Colors.grey, size: 18),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            isDense: false,
-                          ),
-                          items: const [
-                            DropdownMenuItem(value: 'All', child: Text('All Categories', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Authentication', child: Text('Authentication', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Content Management', child: Text('Content Management', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'User Management', child: Text('User Management', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'System Configuration', child: Text('System Configuration', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'System Maintenance', child: Text('System Maintenance', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Security', child: Text('Security', style: TextStyle(fontSize: 14))),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedCategory = value!;
-                            });
-                            _applyFilters();
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      
-                      // Status Filter
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedStatus,
-                          decoration: InputDecoration(
-                            labelText: 'Status',
-                            labelStyle: const TextStyle(fontSize: 14), // Readable label
-                            prefixIcon: const Icon(Icons.check_circle, color: Colors.grey, size: 18),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            isDense: false,
-                          ),
-                          items: const [
-                            DropdownMenuItem(value: 'All', child: Text('All Status', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Success', child: Text('Success', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Failed', child: Text('Failed', style: TextStyle(fontSize: 14))),
-                            DropdownMenuItem(value: 'Warning', child: Text('Warning', style: TextStyle(fontSize: 14))),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedStatus = value!;
-                            });
-                            _applyFilters();
-                          },
-                        ),
-                      ),
-                      
-                      // Spacer for alignment
-                      Expanded(child: Container()),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Results summary with enhanced statistics (READABLE)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Results count with quick stats
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF2d5f3f).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              '${_filteredLogs.length} of ${_systemLogs.length} logs',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2d5f3f),
-                                fontSize: 14, // Readable size
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // Success count badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.check_circle, size: 16, color: Colors.green),
-                                const SizedBox(width: 6),
-                                Text(
-                                  '${_filteredLogs.where((log) => log['status'] == 'Success').length} Success',
-                                  style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w500),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                          child: Column(
+                            children: [
+                              // Table Header
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF2d5f3f),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12),
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          // Failed count badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.error, size: 16, color: Colors.red),
-                                const SizedBox(width: 6),
-                                Text(
-                                  '${_filteredLogs.where((log) => log['status'] == 'Failed').length} Failed',
-                                  style: const TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      // Enhanced Action buttons with readable text
-                      Row(
-                        children: [
-                          if (_searchQuery.isNotEmpty || 
-                              _selectedCategory != 'All' || 
-                              _selectedStatus != 'All' ||
-                              _selectedSeverity != 'All' ||
-                              _selectedDateRange != 'All Time')
-                            TextButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  _searchQuery = '';
-                                  _selectedCategory = 'All';
-                                  _selectedStatus = 'All';
-                                  _selectedSeverity = 'All';
-                                  _selectedDateRange = 'All Time';
-                                });
-                                _applyFilters();
-                              },
-                              icon: const Icon(Icons.clear_all, size: 16),
-                              label: const Text('Clear All', style: TextStyle(fontSize: 13)), // Readable
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.grey[600],
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              ),
-                            ),
-                          const SizedBox(width: 12),
-                          // Enhanced Export Dropdown Button
-                          PopupMenuButton<String>(
-                            onSelected: (String format) {
-                              _exportLogs(format);
-                            },
-                            itemBuilder: (BuildContext context) => [
-                              PopupMenuItem<String>(
-                                value: 'csv',
                                 child: Row(
-                                  children: [
-                                    Icon(Icons.table_chart, size: 18, color: Colors.green),
-                                    const SizedBox(width: 8),
-                                    const Text('Export as CSV', style: TextStyle(fontSize: 14)),
-                                  ],
+                                  children: _isCompactView
+                                      ? [
+                                          SizedBox(width: 180, child: const Text('Date/Time ↓', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 200, child: const Text('User', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 260, child: const Text('Action', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 130, child: const Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 420, child: const Text('Details', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                        ]
+                                      : [
+                                          SizedBox(width: 180, child: const Text('Date/Time ↓', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 180, child: const Text('User', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 220, child: const Text('Action', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 130, child: const Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 120, child: const Text('Severity', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 180, child: const Text('IP Address', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                          SizedBox(width: 420, child: const Text('Details', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                        ],
                                 ),
                               ),
-                              PopupMenuItem<String>(
-                                value: 'pdf',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.picture_as_pdf, size: 18, color: Colors.red),
-                                    const SizedBox(width: 8),
-                                    const Text('Export as PDF', style: TextStyle(fontSize: 14)),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem<String>(
-                                value: 'xml',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.code, size: 18, color: Colors.orange),
-                                    const SizedBox(width: 8),
-                                    const Text('Export as XML', style: TextStyle(fontSize: 14)),
-                                  ],
+                              // Table Body (vertically scrollable)
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: _filteredLogs.isEmpty
+                                      ? Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 32),
+                                          child: Column(
+                                            children: [
+                                              Icon(Icons.info_outline, size: 64, color: Colors.grey[400]),
+                                              const SizedBox(height: 16),
+                                              Text(
+                                                _systemLogs.isEmpty
+                                                    ? 'No system logs available.'
+                                                    : 'No logs match your search or filter.',
+                                                style: TextStyle(fontSize: 18, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                _systemLogs.isEmpty
+                                                    ? 'System logs will appear here when available.'
+                                                    : 'Try adjusting your search or filter criteria.',
+                                                style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : Column(
+                                          children: [
+                                            for (int index = 0; index < _filteredLogs.length; index++)
+                                              _isCompactView
+                                                  ? _buildReadableCompactLogRow(_filteredLogs[index], index)
+                                                  : _buildReadableDetailedLogRow(_filteredLogs[index], index)
+                                          ],
+                                        ),
                                 ),
                               ),
                             ],
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.download, size: 16, color: Colors.white),
-                                  const SizedBox(width: 6),
-                                  const Text('Export', style: TextStyle(fontSize: 13, color: Colors.white)),
-                                  const SizedBox(width: 4),
-                                  const Icon(Icons.arrow_drop_down, size: 16, color: Colors.white),
-                                ],
-                              ),
-                            ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // BALANCED Logs Table - More logs than original, but readable text
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Table Header with READABLE fonts
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF2d5f3f),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),
                         ),
-                      ),
-                      child: Row(
-                        children: _isCompactView ? [
-                          // Compact view headers - READABLE
-                          SizedBox(width: 120, child: const Text('Date/Time ↓', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          SizedBox(width: 140, child: const Text('User', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          SizedBox(width: 170, child: const Text('Action', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          SizedBox(width: 90, child: const Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          const Expanded(child: Text('Details', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                        ] : [
-                          // Detailed view headers - READABLE
-                          SizedBox(width: 120, child: const Text('Date/Time ↓', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          SizedBox(width: 120, child: const Text('User', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          SizedBox(width: 150, child: const Text('Action', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          SizedBox(width: 90, child: const Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          SizedBox(width: 80, child: const Text('Severity', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          SizedBox(width: 110, child: const Text('IP Address', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                          const Expanded(child: Text('Details', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                        ],
-                      ),
-                    ),
-                    
-                    // BALANCED Table Body - More logs but readable
-                    Expanded(
-                      child: _filteredLogs.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
-                                  const SizedBox(height: 16),
-                                  Text('No logs found', style: TextStyle(fontSize: 18, color: Colors.grey[600], fontWeight: FontWeight.w500)),
-                                  const SizedBox(height: 8),
-                                  Text('Try adjusting your search or filter criteria', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: _filteredLogs.length,
-                              itemBuilder: (context, index) {
-                                final log = _filteredLogs[index];
-                                return _isCompactView 
-                                    ? _buildReadableCompactLogRow(log, index)
-                                    : _buildReadableDetailedLogRow(log, index);
-                              },
-                            ),
-                    ),
-                  ],
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+// ...existing code...
   }
 
   // READABLE Compact log row - Shows ~10-12 logs per screen with normal text
@@ -933,7 +886,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
             ),
           ),
           // Details
-          Expanded(child: Text(log['details'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis, maxLines: 2)),
+          SizedBox(
+            width: 420,
+            child: Text(log['details'], style: const TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis, maxLines: 2),
+          ),
         ],
       ),
     );
@@ -968,7 +924,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
               children: [
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: log['color'], shape: BoxShape.circle)),
                 const SizedBox(width: 8),
-                Expanded(child: Text(log['user'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Text(log['user'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
+                ),
               ],
             ),
           ),
@@ -979,7 +938,8 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
               children: [
                 Icon(log['icon'], size: 18, color: log['color']),
                 const SizedBox(width: 8),
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -1053,7 +1013,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
             ),
           ),
           // Details
-          Expanded(child: Text(log['details'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
+          SizedBox(
+            width: 420,
+            child: Text(log['details'], style: const TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis),
+          ),
         ],
       ),
     );

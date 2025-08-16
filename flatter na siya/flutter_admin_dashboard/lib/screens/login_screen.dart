@@ -7,12 +7,15 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String? _usernameError;
+  String? _passwordError;
 
   @override
   void dispose() {
@@ -22,33 +25,32 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() async {
+    setState(() {
+      _usernameError = null;
+      _passwordError = null;
+    });
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      // Simulate login delay
       await Future.delayed(const Duration(seconds: 1));
 
-      // Simple validation - in real app, this would be API call
-      if (_usernameController.text.toLowerCase() == 'admin' && 
-          _passwordController.text == 'admin123') {
-        
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
-        }
-      } else {
+      final username = _usernameController.text.trim().toLowerCase();
+      final password = _passwordController.text;
+      if (username != 'admin') {
         setState(() {
           _isLoading = false;
+          _usernameError = 'Incorrect username';
         });
-        
+      } else if (password != 'admin123') {
+        setState(() {
+          _isLoading = false;
+          _passwordError = 'Incorrect password';
+        });
+      } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid username or password'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          Navigator.pushReplacementNamed(context, '/dashboard');
         }
       }
     }
@@ -163,9 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Username field
                           TextFormField(
                             controller: _usernameController,
-                            textInputAction: TextInputAction.next, // Shows "Next" on keyboard
+                            textInputAction: TextInputAction.next,
                             onFieldSubmitted: (_) {
-                              // Move focus to password field when Enter is pressed
                               FocusScope.of(context).nextFocus();
                             },
                             decoration: InputDecoration(
@@ -181,12 +182,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                   width: 2,
                                 ),
                               ),
+                              errorText: _usernameError,
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your username';
                               }
                               return null;
+                            },
+                            onChanged: (_) {
+                              if (_usernameError != null) {
+                                setState(() {
+                                  _usernameError = null;
+                                });
+                              }
                             },
                           ),
                           const SizedBox(height: 16),
@@ -195,9 +204,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            textInputAction: TextInputAction.done, // Shows "Done" on keyboard
+                            textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) {
-                              // Trigger login when Enter is pressed in password field
                               if (!_isLoading) {
                                 _login();
                               }
@@ -227,12 +235,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                   });
                                 },
                               ),
+                              errorText: _passwordError,
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your password';
                               }
                               return null;
+                            },
+                            onChanged: (_) {
+                              if (_passwordError != null) {
+                                setState(() {
+                                  _passwordError = null;
+                                });
+                              }
                             },
                           ),
                           const SizedBox(height: 32),
