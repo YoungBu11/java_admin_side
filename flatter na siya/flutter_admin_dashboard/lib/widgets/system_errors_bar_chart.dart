@@ -16,13 +16,22 @@ class SystemErrorsBarChart extends StatelessWidget {
             BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 3, color: Colors.blue)]),
           ],
           titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 32,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toInt().toString(),
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   const labels = ['Network', 'Auth', 'Database'];
-                  return Text(labels[value.toInt()]);
+                  return Text(labels[value.toInt()], style: const TextStyle(fontSize: 12));
                 },
               ),
             ),

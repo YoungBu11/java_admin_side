@@ -79,12 +79,13 @@ class _UsersScreenState extends State<UsersScreen> {
 
   void _showUserDialog(String title) {
     // Add error state variables for each field
-    String? firstNameError;
-    String? lastNameError;
-    String? middleNameError;
-    String? suffixError;
-    String? contactError;
-    String? addressError;
+  String? firstNameError;
+  String? lastNameError;
+  String? middleNameError;
+  String? suffixError;
+  String? contactError;
+  String? addressError;
+  bool showAllErrors = false;
 
     showDialog(
       context: context,
@@ -136,6 +137,18 @@ class _UsersScreenState extends State<UsersScreen> {
               });
             }
 
+            void showAllFieldErrors() {
+              setDialogState(() {
+                showAllErrors = true;
+              });
+              validateFields();
+            }
+
+            // Trigger validation immediately when the dialog is built
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              validateFields();
+            });
+
             return AlertDialog(
               title: Text(title),
               content: SizedBox(
@@ -155,7 +168,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                 labelText: 'First Name *',
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.person),
-                                errorText: firstNameError,
+                                errorText: (showAllErrors || _firstNameController.text.isNotEmpty) ? firstNameError : null,
                               ),
                               onChanged: (_) => validateFields(),
                             ),
@@ -169,7 +182,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                 labelText: 'Last Name *',
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.person_outline),
-                                errorText: lastNameError,
+                                errorText: (showAllErrors || _lastNameController.text.isNotEmpty) ? lastNameError : null,
                               ),
                               onChanged: (_) => validateFields(),
                             ),
@@ -187,7 +200,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                 labelText: 'Middle Name (Optional)',
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.person_2),
-                                errorText: middleNameError,
+                                errorText: (showAllErrors || _middleNameController.text.isNotEmpty) ? middleNameError : null,
                               ),
                               onChanged: (_) => validateFields(),
                             ),
@@ -202,7 +215,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.text_fields),
                                 hintText: 'Jr., Sr., III, etc.',
-                                errorText: suffixError,
+                                errorText: (showAllErrors || _suffixController.text.isNotEmpty) ? suffixError : null,
                               ),
                               onChanged: (_) => validateFields(),
                             ),
@@ -220,7 +233,7 @@ class _UsersScreenState extends State<UsersScreen> {
                           prefixIcon: const Icon(Icons.phone),
                           hintText: 'Enter 11-digit mobile number',
                           helperText: 'Must start with 09 and be 11 digits total',
-                          errorText: contactError,
+                          errorText: (showAllErrors || _contactController.text.isNotEmpty) ? contactError : null,
                           counterText: '',
                         ),
                         onChanged: (_) => validateFields(),
@@ -235,7 +248,7 @@ class _UsersScreenState extends State<UsersScreen> {
                           prefixIcon: const Icon(Icons.location_on),
                           hintText: 'Block/Lot, Street, Barangay, San Pedro',
                           helperText: 'Include complete address for emergency response',
-                          errorText: addressError,
+                          errorText: (showAllErrors || _addressController.text.isNotEmpty) ? addressError : null,
                         ),
                         onChanged: (_) => validateFields(),
                       ),
@@ -250,7 +263,6 @@ class _UsersScreenState extends State<UsersScreen> {
                         items: const [
                           DropdownMenuItem(value: 'Emergency Responder', child: Text('Emergency Responder')),
                           DropdownMenuItem(value: 'Community Leader', child: Text('Community Leader')),
-                          DropdownMenuItem(value: 'Volunteer', child: Text('Volunteer')),
                           DropdownMenuItem(value: 'Citizen', child: Text('Citizen')),
                         ],
                         onChanged: (value) {
@@ -302,7 +314,10 @@ class _UsersScreenState extends State<UsersScreen> {
                         color: Colors.green,
                         borderRadius: BorderRadius.circular(8),
                         child: InkWell(
-                          onTap: () => _validateAndSaveUser(context, setDialogState),
+                          onTap: () {
+                            showAllFieldErrors();
+                            _validateAndSaveUser(context, setDialogState);
+                          },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -357,28 +372,7 @@ class _UsersScreenState extends State<UsersScreen> {
       errorMessage = '❌ Duplicate Contact Number - This mobile number is already registered in the system';
     }
     if (errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  errorMessage,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      );
+      // Error states are now shown inline in the form fields, no need for SnackBar.
       return;
     }
     _saveValidatedUser();
@@ -507,7 +501,7 @@ class _UsersScreenState extends State<UsersScreen> {
     _suffixController.clear();
     _contactController.clear();
     _addressController.clear();
-    _selectedRole = 'Volunteer';
+  _selectedRole = 'Emergency Responder';
   }
 
   void _parseFullNameToFields(String fullName) {
@@ -557,8 +551,8 @@ class _UsersScreenState extends State<UsersScreen> {
   void _exportUsers(String format) {
     String message;
     switch (format) {
-      case 'csv':
-        message = 'Users exported as CSV file successfully!';
+      case 'xlsx':
+        message = 'Users exported as XLSX file successfully!';
         break;
       case 'pdf':
         message = 'Users exported as PDF file successfully!';
@@ -591,16 +585,12 @@ class _UsersScreenState extends State<UsersScreen> {
   final List<Map<String, String>> _users = [
     {'id': '1', 'name': 'John Doe', 'contact': '09123456789', 'address': 'Block 1 Lot 5, San Antonio Village, San Pedro', 'role': 'Emergency Responder', 'status': 'Active'},
     {'id': '2', 'name': 'Jane Smith', 'contact': '09987654321', 'address': 'Unit 205, Greenfield Heights, San Pedro', 'role': 'Community Leader', 'status': 'Active'},
-    {'id': '3', 'name': 'Mike Johnson', 'contact': '09456789123', 'address': '123 Maharlika St., Poblacion, San Pedro', 'role': 'Volunteer', 'status': 'Inactive'},
     {'id': '4', 'name': 'Sarah Wilson', 'contact': '09321654987', 'address': 'Block 8 Lot 12, Villa Maria Subdivision, San Pedro', 'role': 'Emergency Responder', 'status': 'Active'},
     {'id': '5', 'name': 'David Brown', 'contact': '09876543210', 'address': '456 Rizal Avenue, San Pedro', 'role': 'Community Leader', 'status': 'Active'},
-    {'id': '6', 'name': 'Maria Garcia', 'contact': '09234567890', 'address': 'Block 3 Lot 8, Golden City Subdivision, San Pedro', 'role': 'Volunteer', 'status': 'Active'},
     {'id': '7', 'name': 'Robert Martinez', 'contact': '09345678901', 'address': '789 Sampaguita Street, San Pedro', 'role': 'Emergency Responder', 'status': 'Active'},
     {'id': '8', 'name': 'Lisa Anderson', 'contact': '09567890123', 'address': 'Unit 102, Pacific Plaza, San Pedro', 'role': 'Community Leader', 'status': 'Active'},
-    {'id': '9', 'name': 'Carlos Rodriguez', 'contact': '09678901234', 'address': 'Block 5 Lot 15, San Roque Village, San Pedro', 'role': 'Volunteer', 'status': 'Inactive'},
     {'id': '10', 'name': 'Anna Torres', 'contact': '09789012345', 'address': '321 Mabini Street, San Pedro', 'role': 'Emergency Responder', 'status': 'Active'},
     {'id': '11', 'name': 'James Wilson', 'contact': '09890123456', 'address': 'Block 7 Lot 20, New Manila Heights, San Pedro', 'role': 'Community Leader', 'status': 'Active'},
-    {'id': '12', 'name': 'Elena Santos', 'contact': '09901234567', 'address': '654 Del Pilar Avenue, San Pedro', 'role': 'Volunteer', 'status': 'Active'},
   ];
 
   // Controllers for user form
@@ -611,7 +601,7 @@ class _UsersScreenState extends State<UsersScreen> {
   final _suffixController = TextEditingController();
   final _contactController = TextEditingController();
   final _addressController = TextEditingController();
-  String _selectedRole = 'Volunteer';
+  String _selectedRole = 'Emergency Responder';
   String? _editingUserId;
 
   // Filter and Sort State Variables
@@ -928,7 +918,7 @@ Widget build(BuildContext context) {
                   ),
                   items: [
                     DropdownMenuItem(value: 'All', child: Text('All Roles')),
-                    ...['Emergency Responder', 'Community Leader', 'Volunteer', 'Citizen'].map((role) => DropdownMenuItem(value: role, child: Text(role)))
+                    ...['Emergency Responder', 'Community Leader', 'Citizen'].map((role) => DropdownMenuItem(value: role, child: Text(role)))
                   ],
                   onChanged: (value) {
                     setState(() {

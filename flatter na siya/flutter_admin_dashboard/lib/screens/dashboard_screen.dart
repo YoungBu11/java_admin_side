@@ -77,34 +77,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Card
+            // Header Card with Summary Cards inside
             Card(
               color: const Color(0xFF2d5f3f),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning, color: Colors.white, size: 48),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'CDRRMO',
-                            style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                    Flexible(
+                      flex: 2,
+                      child: Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.warning, color: Colors.white, size: 48),
+                            SizedBox(height: 12),
+                            Text(
+                              'CDRRMO',
+                              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Warning System',
+                              style: TextStyle(color: Colors.white70, fontSize: 16),
+                            ),
+                            SizedBox(height: 8),
+                            Chip(
+                              label: Text('ONLINE', style: TextStyle(color: Colors.white)),
+                              backgroundColor: Colors.green,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 32),
+                    Flexible(
+                      flex: 3,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildSummaryCard(
+                            Icons.people, '12', 'Users',
+                            onTap: () => _showCardModal('Users', icon: Icons.people, value: '12'),
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Warning System',
-                            style: TextStyle(color: Colors.white70, fontSize: 16),
+                          _buildSummaryCard(
+                            Icons.contact_phone, '5', 'Emergency Hotlines',
+                            onTap: () => _showCardModal('Emergency Hotlines', icon: Icons.contact_phone, value: '5'),
                           ),
-                          SizedBox(height: 8),
-                          Chip(
-                            label: Text('ONLINE', style: TextStyle(color: Colors.white)),
-                            backgroundColor: Colors.green,
+                          _buildSummaryCard(
+                            Icons.notifications_active, '3', 'Alerts',
+                            onTap: () => _showCardModal('Alerts', icon: Icons.notifications_active, value: '3'),
                           ),
+                          _buildSummaryCard(
+                            Icons.group, '4', 'Emergency Response Teams',
+                            onTap: () => _showCardModal('Emergency Response Teams', icon: Icons.group, value: '4'),
+                          ),
+                          _buildSummaryCard(Icons.admin_panel_settings, 'ONLINE', 'Admin'),
                         ],
                       ),
                     ),
@@ -113,29 +146,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Summary Cards Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildSummaryCard(
-                  Icons.people, '12', 'Users',
-                  onTap: () => _showCardModal('Users', icon: Icons.people, value: '12'),
-                ),
-                _buildSummaryCard(
-                  Icons.contact_phone, '5', 'Emergency Contacts',
-                  onTap: () => _showCardModal('Emergency Contacts', icon: Icons.contact_phone, value: '5'),
-                ),
-                _buildSummaryCard(
-                  Icons.notifications_active, '3', 'Alerts',
-                  onTap: () => _showCardModal('Alerts', icon: Icons.notifications_active, value: '3'),
-                ),
-                _buildSummaryCard(
-                  Icons.group, '4', 'Emergency Response Teams',
-                  onTap: () => _showCardModal('Emergency Response Teams', icon: Icons.group, value: '4'),
-                ),
-                _buildSummaryCard(Icons.admin_panel_settings, 'ONLINE', 'Admin'),
-              ],
-            ),
             const SizedBox(height: 16),
             // Quick snapshot text
             const Text(
@@ -346,12 +356,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (icon != null) Icon(icon, color: const Color(0xFF43A047)),
             if (icon != null) const SizedBox(width: 8),
             Text(label),
             if (value != null) ...[
-              const Spacer(),
+              const SizedBox(width: 8),
               Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
             ],
           ],
@@ -387,11 +398,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       } else if (action == 'add') {
         Navigator.pushNamed(context, '/users', arguments: {'showAddUser': true});
       }
-    } else if (label == 'Emergency Contacts') {
+    } else if (label == 'Emergency Hotlines') {
       if (action == 'view') {
-        Navigator.pushNamed(context, '/emergency-contacts');
+        Navigator.pushReplacementNamed(
+          context,
+          '/settings',
+          arguments: {'showHotlines': true},
+        );
       } else if (action == 'add') {
-        Navigator.pushNamed(context, '/emergency-contacts/add');
+        Navigator.pushReplacementNamed(
+          context,
+          '/settings',
+          arguments: {'showHotlines': true, 'addHotline': true},
+        );
       }
     } else if (label == 'Alerts') {
       if (action == 'view') {

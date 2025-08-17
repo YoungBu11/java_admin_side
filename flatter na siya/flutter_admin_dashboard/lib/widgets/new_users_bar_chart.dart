@@ -20,14 +20,21 @@ class NewUsersBarChart extends StatelessWidget {
           ],
           titlesData: FlTitlesData(
             leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 32,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toInt().toString(),
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   const months = ['Mar', 'Apr', 'May', 'Jun', 'Jul'];
-                  return Text(months[value.toInt()]);
+                  return Text(months[value.toInt()], style: const TextStyle(fontSize: 12));
                 },
               ),
             ),
