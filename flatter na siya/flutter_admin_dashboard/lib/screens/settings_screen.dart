@@ -113,42 +113,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _tipTitleController.clear();
     _tipContentController.clear();
     editingTipIndex = null;
+    String? titleError;
+    String? contentError;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Tip'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _tipTitleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Add Tip'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _tipTitleController,
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                  errorText: titleError,
+                ),
+              ),
+              TextField(
+                controller: _tipContentController,
+                decoration: InputDecoration(
+                  labelText: 'Content',
+                  errorText: contentError,
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            TextField(
-              controller: _tipContentController,
-              decoration: const InputDecoration(labelText: 'Content'),
-              maxLines: 3,
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  titleError = _tipTitleController.text.trim().isEmpty ? 'Title is required' : null;
+                  contentError = _tipContentController.text.trim().isEmpty ? 'Content is required' : null;
+                });
+                if (titleError == null && contentError == null) {
+                  this.setState(() {
+                    tips[selectedTab]!.add({
+                      'title': _tipTitleController.text,
+                      'content': _tipContentController.text,
+                    });
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Add'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                tips[selectedTab]!.add({
-                  'title': _tipTitleController.text,
-                  'content': _tipContentController.text,
-                });
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Add'),
-          ),
-        ],
       ),
     );
   }
@@ -157,42 +173,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _tipTitleController.text = tips[selectedTab]![index]['title']!;
     _tipContentController.text = tips[selectedTab]![index]['content']!;
     editingTipIndex = index;
+    String? titleError;
+    String? contentError;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Tip'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _tipTitleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Tip'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _tipTitleController,
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                  errorText: titleError,
+                ),
+              ),
+              TextField(
+                controller: _tipContentController,
+                decoration: InputDecoration(
+                  labelText: 'Content',
+                  errorText: contentError,
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            TextField(
-              controller: _tipContentController,
-              decoration: const InputDecoration(labelText: 'Content'),
-              maxLines: 3,
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  titleError = _tipTitleController.text.trim().isEmpty ? 'Title is required' : null;
+                  contentError = _tipContentController.text.trim().isEmpty ? 'Content is required' : null;
+                });
+                if (titleError == null && contentError == null) {
+                  this.setState(() {
+                    tips[selectedTab]![editingTipIndex!] = {
+                      'title': _tipTitleController.text,
+                      'content': _tipContentController.text,
+                    };
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Save'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                tips[selectedTab]![editingTipIndex!] = {
-                  'title': _tipTitleController.text,
-                  'content': _tipContentController.text,
-                };
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
   }
@@ -247,42 +279,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _nameController.clear();
     _phoneController.clear();
     editingIndex = null;
+    String? nameError;
+    String? phoneError;
+    final hotlineRegExp = RegExp(r'^[\d\s\-\+\(\)]+$');
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Emergency Hotline'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Add Emergency Hotline'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  errorText: nameError,
+                ),
+              ),
+              TextField(
+                controller: _phoneController,
+                decoration: InputDecoration(
+                  labelText: 'Hotline',
+                  errorText: phoneError,
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            TextField(
-              controller: _phoneController,
-              decoration: const InputDecoration(labelText: 'Hotline'),
-              keyboardType: TextInputType.phone,
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  nameError = _nameController.text.trim().isEmpty ? 'Name is required' : null;
+                  final phoneText = _phoneController.text.trim();
+                  if (phoneText.isEmpty) {
+                    phoneError = 'Hotline is required';
+                  } else if (!hotlineRegExp.hasMatch(phoneText)) {
+                    phoneError = 'Hotline must contain only numbers or special characters';
+                  } else {
+                    phoneError = null;
+                  }
+                });
+                if (nameError == null && phoneError == null) {
+                  this.setState(() {
+                    emergencyHotlines.add({
+                      'name': _nameController.text,
+                      'phone': _phoneController.text,
+                    });
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Add'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                emergencyHotlines.add({
-                  'name': _nameController.text,
-                  'phone': _phoneController.text,
-                });
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Add'),
-          ),
-        ],
       ),
     );
   }
@@ -291,42 +347,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _nameController.text = emergencyHotlines[index]['name']!;
     _phoneController.text = emergencyHotlines[index]['phone']!;
     editingIndex = index;
+    String? nameError;
+    String? phoneError;
+    final hotlineRegExp = RegExp(r'^[\d\s\-\+\(\)]+$');
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Emergency Hotline'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Emergency Hotline'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  errorText: nameError,
+                ),
+              ),
+              TextField(
+                controller: _phoneController,
+                decoration: InputDecoration(
+                  labelText: 'Hotline',
+                  errorText: phoneError,
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            TextField(
-              controller: _phoneController,
-              decoration: const InputDecoration(labelText: 'Hotline'),
-              keyboardType: TextInputType.phone,
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  nameError = _nameController.text.trim().isEmpty ? 'Name is required' : null;
+                  final phoneText = _phoneController.text.trim();
+                  if (phoneText.isEmpty) {
+                    phoneError = 'Hotline is required';
+                  } else if (!hotlineRegExp.hasMatch(phoneText)) {
+                    phoneError = 'Hotline must contain only numbers or special characters';
+                  } else {
+                    phoneError = null;
+                  }
+                });
+                if (nameError == null && phoneError == null) {
+                  this.setState(() {
+                    emergencyHotlines[editingIndex!] = {
+                      'name': _nameController.text,
+                      'phone': _phoneController.text,
+                    };
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Save'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                emergencyHotlines[editingIndex!] = {
-                  'name': _nameController.text,
-                  'phone': _phoneController.text,
-                };
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
   }
