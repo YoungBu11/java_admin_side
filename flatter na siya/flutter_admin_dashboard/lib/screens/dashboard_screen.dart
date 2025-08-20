@@ -80,7 +80,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Header Card with Summary Cards inside
             Card(
               color: const Color(0xFF2d5f3f),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Row(
@@ -90,7 +92,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       flex: 2,
                       child: Container(
                         alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 8,
+                        ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -99,16 +104,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             SizedBox(height: 12),
                             Text(
                               'CDRRMO',
-                              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             SizedBox(height: 4),
                             Text(
                               'Warning System',
-                              style: TextStyle(color: Colors.white70, fontSize: 16),
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),
                             ),
                             SizedBox(height: 8),
                             Chip(
-                              label: Text('ONLINE', style: TextStyle(color: Colors.white)),
+                              label: Text(
+                                'ONLINE',
+                                style: TextStyle(color: Colors.white),
+                              ),
                               backgroundColor: Colors.green,
                             ),
                           ],
@@ -122,22 +137,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildSummaryCard(
-                            Icons.people, '12', 'Users',
-                            onTap: () => _showCardModal('Users', icon: Icons.people, value: '12'),
+                            Icons.people,
+                            '12',
+                            'Users',
+                            onTap: () => _showCardModal(
+                              'Users',
+                              icon: Icons.people,
+                              value: '12',
+                            ),
                           ),
                           _buildSummaryCard(
-                            Icons.contact_phone, '5', 'Emergency Hotlines',
-                            onTap: () => _showCardModal('Emergency Hotlines', icon: Icons.contact_phone, value: '5'),
+                            Icons.contact_phone,
+                            '5',
+                            'Emergency Hotlines',
+                            onTap: () => _showCardModal(
+                              'Emergency Hotlines',
+                              icon: Icons.contact_phone,
+                              value: '5',
+                            ),
                           ),
                           _buildSummaryCard(
-                            Icons.notifications_active, '3', 'Alerts',
-                            onTap: () => _showCardModal('Alerts', icon: Icons.notifications_active, value: '3'),
+                            Icons.notifications_active,
+                            '3',
+                            'Alerts',
+                            onTap: () => _showCardModal(
+                              'Alerts',
+                              icon: Icons.notifications_active,
+                              value: '3',
+                            ),
                           ),
                           _buildSummaryCard(
-                            Icons.group, '4', 'Emergency Response Teams',
-                            onTap: () => _showCardModal('Emergency Response Teams', icon: Icons.group, value: '4'),
+                            Icons.group,
+                            '4',
+                            'Emergency Response',
+                            onTap: () => _showCardModal(
+                              'Emergency Response',
+                              icon: Icons.group,
+                              value: '4',
+                            ),
                           ),
-                          _buildSummaryCard(Icons.admin_panel_settings, 'ONLINE', 'Admin'),
+                          _buildSummaryCard(
+                            Icons.admin_panel_settings,
+                            'ONLINE',
+                            'Admin',
+                          ),
                         ],
                       ),
                     ),
@@ -156,7 +199,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             // User Roles & New Users Row
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Row(
@@ -171,7 +216,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: const [
                               Icon(Icons.pie_chart, color: Colors.black54),
                               SizedBox(width: 8),
-                              Text('User Roles Distribution', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'User Roles Distribution',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -199,7 +247,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: const [
                               Icon(Icons.bar_chart, color: Colors.black54),
                               SizedBox(width: 8),
-                              Text('New Users Per Month', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'New Users Per Month',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -220,7 +271,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             // Charts Row 1
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Row(
@@ -235,7 +288,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: const [
                               Icon(Icons.show_chart, color: Colors.black54),
                               SizedBox(width: 8),
-                              Text('Notifications Sent Over Time', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'Notifications Sent Over Time',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -263,13 +319,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: const [
                               Icon(Icons.pie_chart, color: Colors.black54),
                               SizedBox(width: 8),
-                              Text('Post Category Distribution', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'Post Category Distribution',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
                           const Text(
                             'Shows the breakdown of posts by their assigned categories.',
-                            style: TextStyle(fontSize: 13, color: Colors.grey),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color.fromARGB(255, 194, 194, 194),
+                            ),
                           ),
                           const SizedBox(height: 8),
                           const PostCategoryPieChart(),
@@ -283,7 +345,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 24),
             // Charts Row 2
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Row(
@@ -298,7 +362,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: const [
                               Icon(Icons.settings, color: Colors.black54),
                               SizedBox(width: 8),
-                              Text('System Errors by Type', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'System Errors by Type',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -326,7 +393,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: const [
                               Icon(Icons.show_chart, color: Colors.black54),
                               SizedBox(width: 8),
-                              Text('Logins by Time of Day', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'Logins by Time of Day',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -349,13 +419,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSummaryCard(IconData icon, String value, String label, {VoidCallback? onTap}) {
+  Widget _buildSummaryCard(
+    IconData icon,
+    String value,
+    String label, {
+    VoidCallback? onTap,
+  }) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Card(
           color: const Color(0xFF43A047),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
             child: Column(
@@ -364,7 +441,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 8),
                 Text(
                   value,
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -406,7 +487,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _navigateToSection(label, 'view');
             },
             icon: const Icon(Icons.visibility, color: Color(0xFF43A047)),
-            label: const Text('View', style: TextStyle(color: Color(0xFF43A047))),
+            label: const Text(
+              'View',
+              style: TextStyle(color: Color(0xFF43A047)),
+            ),
           ),
           TextButton.icon(
             onPressed: () {
@@ -414,7 +498,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _navigateToSection(label, 'add');
             },
             icon: const Icon(Icons.add, color: Color(0xFF43A047)),
-            label: const Text('Add', style: TextStyle(color: Color(0xFF43A047))),
+            label: const Text(
+              'Add',
+              style: TextStyle(color: Color(0xFF43A047)),
+            ),
           ),
         ],
       ),
@@ -426,7 +513,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (action == 'view') {
         Navigator.pushNamed(context, '/users');
       } else if (action == 'add') {
-        Navigator.pushNamed(context, '/users', arguments: {'showAddUser': true});
+        Navigator.pushNamed(
+          context,
+          '/users',
+          arguments: {'showAddUser': true},
+        );
       }
     } else if (label == 'Emergency Hotlines') {
       if (action == 'view') {
@@ -446,7 +537,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (action == 'view') {
         Navigator.pushNamed(context, '/notifications');
       } else if (action == 'add') {
-        Navigator.pushNamed(context, '/notifications', arguments: {'showAddAlert': true});
+        Navigator.pushNamed(
+          context,
+          '/notifications',
+          arguments: {'showAddAlert': true},
+        );
       }
     } else if (label == 'Emergency Response Teams') {
       if (action == 'view') {

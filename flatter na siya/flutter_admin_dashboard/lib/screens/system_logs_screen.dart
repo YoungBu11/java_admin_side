@@ -1,9 +1,5 @@
-
-
 import 'package:flutter/material.dart';
 import '../widgets/admin_drawer.dart';
-
-
 
 class SystemLogsScreen extends StatefulWidget {
   const SystemLogsScreen({super.key});
@@ -35,6 +31,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
   void _onLogout() {
     Navigator.pushReplacementNamed(context, '/login');
   }
+
   // Comprehensive sample log data combining both versions
   final List<Map<String, dynamic>> _systemLogs = [
     {
@@ -43,7 +40,8 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
       'action': 'Notification Posted',
       'category': 'Content Management',
       'status': 'Success',
-      'details': 'Posted emergency alert: Flash flood warning for Barangay Central',
+      'details':
+          'Posted emergency alert: Flash flood warning for Barangay Central',
       'icon': Icons.notifications,
       'color': Colors.green,
       'severity': 'High',
@@ -230,7 +228,8 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
       'action': 'Security Scan',
       'category': 'System Maintenance',
       'status': 'Warning',
-      'details': 'Completed automated security vulnerability scan - 2 minor issues found',
+      'details':
+          'Completed automated security vulnerability scan - 2 minor issues found',
       'icon': Icons.security,
       'color': Colors.orange,
       'severity': 'Medium',
@@ -295,10 +294,12 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
   @override
   void initState() {
     super.initState();
-  _filteredLogs = List.from(_systemLogs);
-  // Debug print to check if logs are loaded
-  // ignore: avoid_print
-  print('SystemLogsScreen: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}');
+    _filteredLogs = List.from(_systemLogs);
+    // Debug print to check if logs are loaded
+    // ignore: avoid_print
+    print(
+      'SystemLogsScreen: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}',
+    );
   }
 
   void _applyFilters() {
@@ -307,49 +308,99 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
     // Apply search filter
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((log) {
-        return log['user'].toString().toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               log['action'].toString().toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               log['details'].toString().toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               log['category'].toString().toLowerCase().contains(_searchQuery.toLowerCase());
+        return log['user'].toString().toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            ) ||
+            log['action'].toString().toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            ) ||
+            log['details'].toString().toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            ) ||
+            log['category'].toString().toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            );
       }).toList();
     }
 
     // Apply category filter
     if (_selectedCategory != 'All') {
-      filtered = filtered.where((log) => log['category'] == _selectedCategory).toList();
+      filtered = filtered
+          .where((log) => log['category'] == _selectedCategory)
+          .toList();
     }
 
     // Apply status filter
     if (_selectedStatus != 'All') {
-      filtered = filtered.where((log) => log['status'] == _selectedStatus).toList();
+      filtered = filtered
+          .where((log) => log['status'] == _selectedStatus)
+          .toList();
     }
 
     // Apply severity filter
     if (_selectedSeverity != 'All') {
-      filtered = filtered.where((log) => log['severity'] == _selectedSeverity).toList();
+      filtered = filtered
+          .where((log) => log['severity'] == _selectedSeverity)
+          .toList();
     }
 
     // Apply date range filter
+    DateTime now = DateTime.now();
     if (_selectedDateRange == 'Today') {
-      filtered = filtered.where((log) => log['dateTime'].contains('2025-01-15')).toList();
+      String today = now.toString().split(' ')[0];
+      filtered = filtered
+          .where((log) => log['dateTime'].startsWith(today))
+          .toList();
     } else if (_selectedDateRange == 'Yesterday') {
-      filtered = filtered.where((log) => log['dateTime'].contains('2025-01-14')).toList();
+      final yesterday = now.subtract(const Duration(days: 1));
+      String yest = yesterday.toString().split(' ')[0];
+      filtered = filtered
+          .where((log) => log['dateTime'].startsWith(yest))
+          .toList();
+    } else if (_selectedDateRange == 'Last 7 Days') {
+      final last7 = now.subtract(const Duration(days: 7));
+      filtered = filtered.where((log) {
+        DateTime? logDate = DateTime.tryParse(log['dateTime']);
+        return logDate != null && logDate.isAfter(last7);
+      }).toList();
+    } else if (_selectedDateRange == 'Last 14 Days') {
+      final last14 = now.subtract(const Duration(days: 14));
+      filtered = filtered.where((log) {
+        DateTime? logDate = DateTime.tryParse(log['dateTime']);
+        return logDate != null && logDate.isAfter(last14);
+      }).toList();
+    } else if (_selectedDateRange == 'Last 30 Days (1 month)') {
+      final last30 = now.subtract(const Duration(days: 30));
+      filtered = filtered.where((log) {
+        DateTime? logDate = DateTime.tryParse(log['dateTime']);
+        return logDate != null && logDate.isAfter(last30);
+      }).toList();
+    } else if (_selectedDateRange == 'Last 90 Days (3 months)') {
+      final last90 = now.subtract(const Duration(days: 90));
+      filtered = filtered.where((log) {
+        DateTime? logDate = DateTime.tryParse(log['dateTime']);
+        return logDate != null && logDate.isAfter(last90);
+      }).toList();
     }
 
     setState(() {
       _filteredLogs = filtered;
-  // Debug print to check filtered logs after applying filters
-  // ignore: avoid_print
-  print('APPLY FILTERS: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}');
+      // Debug print to check filtered logs after applying filters
+      // ignore: avoid_print
+      print(
+        'APPLY FILTERS: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}',
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-  // Debug print to check if logs are present at build
-  // ignore: avoid_print
-  print('BUILD: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}');
-  return Scaffold(
+    // Debug print to check if logs are present at build
+    // ignore: avoid_print
+    print(
+      'BUILD: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}',
+    );
+    return Scaffold(
       backgroundColor: const Color(0xFFFAF9F7),
       drawer: AdminDrawer(
         selectedIndex: 4,
@@ -366,13 +417,22 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
           children: const [
             Icon(Icons.list_alt_rounded, color: Colors.white),
             SizedBox(width: 10),
-            Text('System Logs', style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal)),
+            Text(
+              'System Logs',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
           ],
         ),
         actions: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Welcome, CDRRMO', style: TextStyle(color: Colors.white, fontSize: 14)),
+            child: Text(
+              'Welcome, CDRRMO',
+              style: TextStyle(color: Colors.white, fontSize: 14),
+            ),
           ),
         ],
       ),
@@ -411,7 +471,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                         ),
                         filled: true,
                         fillColor: Colors.grey[100],
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 12,
+                        ),
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -430,7 +493,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[700],
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       textStyle: const TextStyle(fontSize: 14),
                     ),
                   ),
@@ -444,15 +510,23 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: _selectedCategory,
-                      items: [
-                        'All',
-                        'User Management',
-                        'Authentication',
-                        'Content Management',
-                        'System Maintenance',
-                        'System Configuration',
-                        'Security',
-                      ].map((cat) => DropdownMenuItem(value: cat, child: Text('  $cat'))).toList(),
+                      items:
+                          [
+                                'All',
+                                'User Management',
+                                'Authentication',
+                                'Content Management',
+                                'System Maintenance',
+                                'System Configuration',
+                                'Security',
+                              ]
+                              .map(
+                                (cat) => DropdownMenuItem(
+                                  value: cat,
+                                  child: Text('  $cat'),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (val) {
                         setState(() {
                           _selectedCategory = val!;
@@ -461,8 +535,13 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                       },
                       decoration: InputDecoration(
                         labelText: 'Category',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 0,
+                        ),
                         filled: true,
                         fillColor: Colors.grey[100],
                       ),
@@ -473,12 +552,14 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: _selectedStatus,
-                      items: [
-                        'All',
-                        'Success',
-                        'Failed',
-                        'Warning',
-                      ].map((status) => DropdownMenuItem(value: status, child: Text('  $status'))).toList(),
+                      items: ['All', 'Success', 'Failed', 'Warning']
+                          .map(
+                            (status) => DropdownMenuItem(
+                              value: status,
+                              child: Text('  $status'),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (val) {
                         setState(() {
                           _selectedStatus = val!;
@@ -487,8 +568,13 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                       },
                       decoration: InputDecoration(
                         labelText: 'Status',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 0,
+                        ),
                         filled: true,
                         fillColor: Colors.grey[100],
                       ),
@@ -499,11 +585,23 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: _selectedDateRange,
-                      items: [
-                        'All Time',
-                        'Today',
-                        'Yesterday',
-                      ].map((range) => DropdownMenuItem(value: range, child: Text('  $range'))).toList(),
+                      items:
+                          [
+                                'All Time',
+                                'Today',
+                                'Yesterday',
+                                'Last 7 Days',
+                                'Last 14 Days',
+                                'Last 30 Days (1 month)',
+                                'Last 90 Days (3 months)',
+                              ]
+                              .map(
+                                (range) => DropdownMenuItem(
+                                  value: range,
+                                  child: Text('  $range'),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (val) {
                         setState(() {
                           _selectedDateRange = val!;
@@ -512,8 +610,13 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                       },
                       decoration: InputDecoration(
                         labelText: 'Date Range',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 0,
+                        ),
                         filled: true,
                         fillColor: Colors.grey[100],
                       ),
@@ -524,13 +627,14 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: _selectedSeverity,
-                      items: [
-                        'All',
-                        'Low',
-                        'Medium',
-                        'High',
-                        'Critical',
-                      ].map((sev) => DropdownMenuItem(value: sev, child: Text('  $sev'))).toList(),
+                      items: ['All', 'Low', 'Medium', 'High', 'Critical']
+                          .map(
+                            (sev) => DropdownMenuItem(
+                              value: sev,
+                              child: Text('  $sev'),
+                            ),
+                          )
+                          .toList(),
                       onChanged: (val) {
                         setState(() {
                           _selectedSeverity = val!;
@@ -539,8 +643,13 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                       },
                       decoration: InputDecoration(
                         labelText: 'Severity',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 0,
+                        ),
                         filled: true,
                         fillColor: Colors.grey[100],
                       ),
@@ -553,7 +662,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2d5f3f).withOpacity(0.08),
                       borderRadius: BorderRadius.circular(16),
@@ -569,7 +681,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                   ),
                   const SizedBox(width: 16),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(12),
@@ -581,14 +696,21 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                         const SizedBox(width: 6),
                         Text(
                           '${_filteredLogs.where((log) => log['status'] == 'Success').length} Success',
-                          style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.green,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(12),
@@ -600,7 +722,11 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                         const SizedBox(width: 6),
                         Text(
                           '${_filteredLogs.where((log) => log['status'] == 'Failed').length} Failed',
-                          style: const TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
@@ -613,12 +739,19 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                     },
                     itemBuilder: (BuildContext context) => [
                       PopupMenuItem<String>(
-                        value: 'csv',
+                        value: 'xlsx',
                         child: Row(
                           children: [
-                            Icon(Icons.table_chart, size: 18, color: Colors.green),
+                            Icon(
+                              Icons.table_chart,
+                              size: 18,
+                              color: Colors.green,
+                            ),
                             const SizedBox(width: 8),
-                            const Text('Export as CSV', style: TextStyle(fontSize: 14)),
+                            const Text(
+                              'Export as XLSX',
+                              style: TextStyle(fontSize: 14),
+                            ),
                           ],
                         ),
                       ),
@@ -626,9 +759,16 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                         value: 'pdf',
                         child: Row(
                           children: [
-                            Icon(Icons.picture_as_pdf, size: 18, color: Colors.red),
+                            Icon(
+                              Icons.picture_as_pdf,
+                              size: 18,
+                              color: Colors.red,
+                            ),
                             const SizedBox(width: 8),
-                            const Text('Export as PDF', style: TextStyle(fontSize: 14)),
+                            const Text(
+                              'Export as PDF',
+                              style: TextStyle(fontSize: 14),
+                            ),
                           ],
                         ),
                       ),
@@ -638,13 +778,19 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                           children: [
                             Icon(Icons.code, size: 18, color: Colors.orange),
                             const SizedBox(width: 8),
-                            const Text('Export as XML', style: TextStyle(fontSize: 14)),
+                            const Text(
+                              'Export as XML',
+                              style: TextStyle(fontSize: 14),
+                            ),
                           ],
                         ),
                       ),
                     ],
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(6),
@@ -652,11 +798,22 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.download, size: 16, color: Colors.white),
+                          const Icon(
+                            Icons.download,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                           const SizedBox(width: 6),
-                          const Text('Export', style: TextStyle(fontSize: 13, color: Colors.white)),
+                          const Text(
+                            'Export',
+                            style: TextStyle(fontSize: 13, color: Colors.white),
+                          ),
                           const SizedBox(width: 4),
-                          const Icon(Icons.arrow_drop_down, size: 16, color: Colors.white),
+                          const Icon(
+                            Icons.arrow_drop_down,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                         ],
                       ),
                     ),
@@ -684,7 +841,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                     children: [
                       // Table Header
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: const BoxDecoration(
                           color: Color(0xFF2d5f3f),
                           borderRadius: BorderRadius.only(
@@ -696,27 +856,79 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                           children: [
                             Expanded(
                               flex: 2,
-                              child: Center(child: Text('Date/Time ↓', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                              child: Center(
+                                child: Text(
+                                  'Date/Time ↓',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
                             ),
                             Expanded(
                               flex: 2,
-                              child: Center(child: Text('User', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                              child: Center(
+                                child: Text(
+                                  'User',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
                             ),
                             Expanded(
                               flex: 3,
-                              child: Center(child: Text('Action', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                              child: Center(
+                                child: Text(
+                                  'Action',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
                             ),
                             Expanded(
                               flex: 2,
-                              child: Center(child: Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                              child: Center(
+                                child: Text(
+                                  'Status',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
                             ),
                             Expanded(
                               flex: 2,
-                              child: Center(child: Text('Severity', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                              child: Center(
+                                child: Text(
+                                  'Severity',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
                             ),
                             Expanded(
                               flex: 5,
-                              child: Text('Details', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                              child: Text(
+                                'Details',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -728,20 +940,31 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.info_outline, size: 64, color: Colors.grey[400]),
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 64,
+                                      color: Colors.grey[400],
+                                    ),
                                     const SizedBox(height: 16),
                                     Text(
                                       _systemLogs.isEmpty
                                           ? 'No system logs available.'
                                           : 'No logs match your search or filter.',
-                                      style: TextStyle(fontSize: 18, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
                                       _systemLogs.isEmpty
                                           ? 'System logs will appear here when available.'
                                           : 'Try adjusting your search or filter criteria.',
-                                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[500],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -749,7 +972,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                             : ListView.builder(
                                 itemCount: _filteredLogs.length,
                                 itemBuilder: (context, index) {
-                                  return _buildReadableDetailedLogRow(_filteredLogs[index], index);
+                                  return _buildReadableDetailedLogRow(
+                                    _filteredLogs[index],
+                                    index,
+                                  );
                                 },
                               ),
                       ),
@@ -762,16 +988,21 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
         ),
       ),
     );
-// ...existing code...
+    // ...existing code...
   }
 
   // READABLE Compact log row - Shows ~10-12 logs per screen with normal text
   Widget _buildReadableCompactLogRow(Map<String, dynamic> log, int index) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Comfortable padding
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 10,
+      ), // Comfortable padding
       decoration: BoxDecoration(
         color: index % 2 == 0 ? Colors.grey.shade50 : Colors.white,
-        border: const Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+        border: const Border(
+          bottom: BorderSide(color: Colors.grey, width: 0.2),
+        ),
       ),
       child: Row(
         children: [
@@ -782,8 +1013,17 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(log['dateTime'].split(' ')[0], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                Text(log['dateTime'].split(' ')[1], style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                Text(
+                  log['dateTime'].split(' ')[0],
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  log['dateTime'].split(' ')[1],
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
               ],
             ),
           ),
@@ -792,9 +1032,25 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
             width: 140,
             child: Row(
               children: [
-                Container(width: 8, height: 8, decoration: BoxDecoration(color: log['color'], shape: BoxShape.circle)),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: log['color'],
+                    shape: BoxShape.circle,
+                  ),
+                ),
                 const SizedBox(width: 8),
-                Expanded(child: Text(log['user'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
+                Expanded(
+                  child: Text(
+                    log['user'],
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),
@@ -810,8 +1066,19 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(log['action'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-                      Text(log['category'], style: TextStyle(fontSize: 11, color: Colors.grey[600]), overflow: TextOverflow.ellipsis),
+                      Text(
+                        log['action'],
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        log['category'],
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
                 ),
@@ -824,23 +1091,29 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: log['status'] == 'Success' ? Colors.green.withValues(alpha: 0.1) 
-                     : log['status'] == 'Failed' ? Colors.red.withValues(alpha: 0.1) 
-                     : Colors.orange.withValues(alpha: 0.1),
+                color: log['status'] == 'Success'
+                    ? Colors.green.withValues(alpha: 0.1)
+                    : log['status'] == 'Failed'
+                    ? Colors.red.withValues(alpha: 0.1)
+                    : Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: log['status'] == 'Success' ? Colors.green 
-                       : log['status'] == 'Failed' ? Colors.red 
-                       : Colors.orange, 
-                  width: 1
+                  color: log['status'] == 'Success'
+                      ? Colors.green
+                      : log['status'] == 'Failed'
+                      ? Colors.red
+                      : Colors.orange,
+                  width: 1,
                 ),
               ),
               child: Text(
                 log['status'],
                 style: TextStyle(
-                  color: log['status'] == 'Success' ? Colors.green 
-                       : log['status'] == 'Failed' ? Colors.red 
-                       : Colors.orange,
+                  color: log['status'] == 'Success'
+                      ? Colors.green
+                      : log['status'] == 'Failed'
+                      ? Colors.red
+                      : Colors.orange,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
@@ -851,7 +1124,12 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
           // Details
           SizedBox(
             width: 420,
-            child: Text(log['details'], style: const TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis, maxLines: 2),
+            child: Text(
+              log['details'],
+              style: const TextStyle(fontSize: 13),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
           ),
         ],
       ),
@@ -864,7 +1142,9 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: index % 2 == 0 ? Colors.grey.shade50 : Colors.white,
-        border: const Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+        border: const Border(
+          bottom: BorderSide(color: Colors.grey, width: 0.2),
+        ),
       ),
       child: Row(
         children: [
@@ -875,8 +1155,17 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(log['dateTime'].split(' ')[0], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  Text(log['dateTime'].split(' ')[1], style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                  Text(
+                    log['dateTime'].split(' ')[0],
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    log['dateTime'].split(' ')[1],
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
                 ],
               ),
             ),
@@ -887,11 +1176,25 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(width: 8, height: 8, decoration: BoxDecoration(color: log['color'], shape: BoxShape.circle)),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: log['color'],
+                    shape: BoxShape.circle,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Flexible(
                   fit: FlexFit.loose,
-                  child: Text(log['user'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
+                  child: Text(
+                    log['user'],
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -900,18 +1203,46 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
           Expanded(
             flex: 3,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(log['icon'], size: 18, color: log['color']),
-                const SizedBox(width: 8),
-                Flexible(
-                  fit: FlexFit.loose,
+                if (log['icon'] != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(
+                      log['icon'],
+                      size: 20,
+                      color: log['color'] ?? Colors.black,
+                    ),
+                  ),
+                if (log['icon'] != null) const SizedBox(width: 10),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(log['action'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-                      Text(log['category'], style: TextStyle(fontSize: 11, color: Colors.grey[600]), overflow: TextOverflow.ellipsis),
+                      Text(
+                        log['action'] ?? '',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 18,
+                        ), // Increased indent for subtitle
+                        child: Text(
+                          log['category'] ?? '',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w400,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -925,23 +1256,29 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: log['status'] == 'Success' ? Colors.green.withOpacity(0.1)
-                       : log['status'] == 'Failed' ? Colors.red.withOpacity(0.1)
-                       : Colors.orange.withOpacity(0.1),
+                  color: log['status'] == 'Success'
+                      ? Colors.green.withOpacity(0.1)
+                      : log['status'] == 'Failed'
+                      ? Colors.red.withOpacity(0.1)
+                      : Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: log['status'] == 'Success' ? Colors.green
-                         : log['status'] == 'Failed' ? Colors.red
-                         : Colors.orange,
-                    width: 1
+                    color: log['status'] == 'Success'
+                        ? Colors.green
+                        : log['status'] == 'Failed'
+                        ? Colors.red
+                        : Colors.orange,
+                    width: 1,
                   ),
                 ),
                 child: Text(
                   log['status'],
                   style: TextStyle(
-                    color: log['status'] == 'Success' ? Colors.green
-                         : log['status'] == 'Failed' ? Colors.red
-                         : Colors.orange,
+                    color: log['status'] == 'Success'
+                        ? Colors.green
+                        : log['status'] == 'Failed'
+                        ? Colors.red
+                        : Colors.orange,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -959,7 +1296,10 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                 decoration: BoxDecoration(
                   color: _getSeverityColor(log['severity']).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: _getSeverityColor(log['severity']), width: 1),
+                  border: Border.all(
+                    color: _getSeverityColor(log['severity']),
+                    width: 1,
+                  ),
                 ),
                 child: Text(
                   log['severity'],
@@ -976,7 +1316,11 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
           // Details
           Expanded(
             flex: 5,
-            child: Text(log['details'], style: const TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis),
+            child: Text(
+              log['details'],
+              style: const TextStyle(fontSize: 13),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -985,11 +1329,16 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
 
   Color _getSeverityColor(String severity) {
     switch (severity) {
-      case 'Critical': return Colors.red;
-      case 'High': return Colors.orange;
-      case 'Medium': return Colors.blue;
-      case 'Low': return Colors.green;
-      default: return Colors.grey;
+      case 'Critical':
+        return Colors.red;
+      case 'High':
+        return Colors.orange;
+      case 'Medium':
+        return Colors.blue;
+      case 'Low':
+        return Colors.green;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -998,7 +1347,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
     String message;
     Color backgroundColor;
     IconData icon;
-    
+
     switch (format) {
       case 'xlsx':
         message = '${_filteredLogs.length} logs exported to XLSX successfully!';
