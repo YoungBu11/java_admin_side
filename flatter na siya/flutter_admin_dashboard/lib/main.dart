@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/admin_dashboard_screen.dart';
 import 'screens/system_logs_screen.dart';
-import 'screens/users_screen.dart';
-import 'screens/notifications_screen.dart'; 
-import 'screens/settings_screen.dart';
+import 'screens/users_management_screen.dart';
+import 'screens/admin_notifications_screen.dart'; 
+import 'screens/admin_settings_screen.dart';
+import 'screens/superadmin_notifications_screen.dart';
+import 'screens/superadmin_dashboard_screen.dart';
+import 'screens/admin_management_screen.dart';
+import 'screens/superadmin_settings_screen.dart';
 
 void main() {
   runApp(const AdminDashboardApp());
@@ -106,12 +110,16 @@ class AdminDashboardApp extends StatelessWidget {
       ),
       initialRoute: '/login',
       routes: {
-        '/login': (context) => const LoginScreen(),
-        '/dashboard': (context) => const DashboardScreen(),
-        '/system-logs': (context) => const SystemLogsScreen(),
-        '/users': (context) => const UsersScreen(),
-        '/notifications': (context) => const NotificationsScreen(),
-        '/settings': (context) => const SettingsScreen(),
+  '/login': (context) => const LoginScreen(),
+  '/dashboard': (context) => const DashboardScreen(),
+  '/system-logs': (context) => const SystemLogsScreen(),
+  '/users': (context) => const UsersScreen(),
+  '/notifications': (context) => const NotificationsScreen(),
+  '/settings': (context) => const SettingsScreen(),
+  '/superadmin-dashboard': (context) => const SuperAdminDashboardScreen(),
+  '/admins': (context) => const AdminManagementScreen(role: 'superadmin'),
+  '/superadmin-notifications': (context) => const SuperAdminNotificationsScreen(),
+  '/superadmin-settings': (context) => const SuperadminSettingsScreen(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

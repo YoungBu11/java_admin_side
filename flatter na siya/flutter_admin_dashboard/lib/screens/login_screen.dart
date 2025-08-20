@@ -36,22 +36,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await Future.delayed(const Duration(seconds: 1));
 
-      final username = _usernameController.text.trim().toLowerCase();
+      final username = _usernameController.text.trim();
       final password = _passwordController.text;
-      if (username != 'admin') {
-        setState(() {
-          _isLoading = false;
-          _usernameError = 'Incorrect username';
-        });
-      } else if (password != 'admin123') {
-        setState(() {
-          _isLoading = false;
-          _passwordError = 'Incorrect password';
-        });
-      } else {
+
+      if (username == 'admin' && password == 'admin123') {
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/dashboard');
         }
+      } else if (username == 'superadmin' && password == 'superadmin123') {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/superadmin-dashboard');
+        }
+      } else {
+        setState(() {
+          _isLoading = false;
+          _usernameError = 'Incorrect username or password';
+          _passwordError = 'Incorrect username or password';
+        });
       }
     }
   }
@@ -145,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           
                           // Title
                           const Text(
-                            'CDRRMO Admin Login',
+                            'CDRRMO Portal Login',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -154,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            'Access your admin dashboard',
+                            'Access the CDRRMO management portal',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey, // Light grey subtitle
@@ -306,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Username: admin\nPassword: admin123',
+                                  'Admin: admin / admin123\nSuperadmin: superadmin / superadmin123',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.blue,

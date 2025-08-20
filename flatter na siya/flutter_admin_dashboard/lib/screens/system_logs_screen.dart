@@ -12,18 +12,19 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
   void _onDrawerItemSelected(int index) {
     if (index == 4) return; // Already on System Logs
     Navigator.of(context).pop(); // Close the drawer first
+  final isSuperadmin = (ModalRoute.of(context)?.settings.arguments is Map && (ModalRoute.of(context)?.settings.arguments as Map)['role'] == 'superadmin');
     switch (index) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        Navigator.pushReplacementNamed(context, isSuperadmin ? '/superadmin-dashboard' : '/dashboard', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/users');
+        Navigator.pushReplacementNamed(context, isSuperadmin ? '/admins' : '/users', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/notifications');
+        Navigator.pushReplacementNamed(context, isSuperadmin ? '/superadmin-notifications' : '/notifications', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/settings');
+        Navigator.pushReplacementNamed(context, isSuperadmin ? '/superadmin-settings' : '/settings', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
         break;
     }
   }
@@ -404,6 +405,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
       backgroundColor: const Color(0xFFFAF9F7),
       drawer: AdminDrawer(
         selectedIndex: 4,
+        role: 'superadmin',
         onItemSelected: _onDrawerItemSelected,
         onLogout: _onLogout,
       ),

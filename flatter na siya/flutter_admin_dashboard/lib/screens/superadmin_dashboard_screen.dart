@@ -7,28 +7,31 @@ import '../widgets/post_category_pie_chart.dart';
 import '../widgets/system_errors_bar_chart.dart';
 import '../widgets/logins_timeline_chart.dart';
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+class SuperAdminDashboardScreen extends StatefulWidget {
+  const SuperAdminDashboardScreen({Key? key}) : super(key: key);
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<SuperAdminDashboardScreen> createState() => _SuperAdminDashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
   void _onDrawerItemSelected(int index) {
-    if (index == 0) return; // Already on dashboard
+    if (index == 0) {
+      Navigator.pushReplacementNamed(context, '/superadmin-dashboard', arguments: {'role': 'superadmin'});
+      return;
+    }
     switch (index) {
       case 1:
-        Navigator.pushReplacementNamed(context, '/users');
+        Navigator.pushReplacementNamed(context, '/admins', arguments: {'role': 'superadmin'});
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/notifications');
+        Navigator.pushReplacementNamed(context, '/superadmin-notifications', arguments: {'role': 'superadmin'});
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/settings');
+        Navigator.pushReplacementNamed(context, '/superadmin-settings', arguments: {'role': 'superadmin'}); // <-- FIXED: route to superadmin-settings
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/system-logs');
+        Navigator.pushReplacementNamed(context, '/system-logs', arguments: {'role': 'superadmin'});
         break;
     }
   }
@@ -42,6 +45,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       drawer: AdminDrawer(
         selectedIndex: 0,
+        role: 'superadmin',
         onItemSelected: _onDrawerItemSelected,
         onLogout: _onLogout,
       ),
@@ -54,7 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Icon(Icons.dashboard_rounded, color: Colors.white),
             SizedBox(width: 10),
             Text(
-              'Dashboard Home',
+              'Superadmin Dashboard',
               style: TextStyle(fontWeight: FontWeight.normal),
             ),
           ],
@@ -65,7 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: EdgeInsets.only(right: 24.0),
             child: Center(
               child: Text(
-                'Welcome, CDRRMO',
+                'Welcome, Superadmin',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -77,7 +81,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Card with Summary Cards inside
             Card(
               color: const Color(0xFF2d5f3f),
               shape: RoundedRectangleBorder(
@@ -137,13 +140,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildSummaryCard(
-                            Icons.people,
-                            '12',
-                            'Users',
+                            Icons.admin_panel_settings,
+                            '6', // Update this to match your actual admin count if needed
+                            'Admins',
                             onTap: () => _showCardModal(
-                              'Users',
-                              icon: Icons.people,
-                              value: '12',
+                              'Admins',
+                              icon: Icons.admin_panel_settings,
+                              value: '6',
                             ),
                           ),
                           _buildSummaryCard(
@@ -179,7 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           _buildSummaryCard(
                             Icons.admin_panel_settings,
                             'ONLINE',
-                            'Admin',
+                            'Superadmin',
                           ),
                         ],
                       ),
@@ -190,14 +193,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 16),
             const SizedBox(height: 16),
-            // Quick snapshot text
             const Text(
               'A quick snapshot of everything that matters',
               style: TextStyle(color: Colors.black54, fontSize: 16),
             ),
             const SizedBox(height: 16),
-
-            // User Roles & New Users Row
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -207,7 +207,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // User Roles Pie Chart
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,7 +237,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 16),
                       color: Colors.grey[200],
                     ),
-                    // New Users Bar Chart
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,8 +266,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Charts Row 1
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -279,7 +275,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Notifications Line Chart
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,7 +305,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 16),
                       color: Colors.grey[200],
                     ),
-                    // Post Category Pie Chart
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,7 +337,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            // Charts Row 2
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -353,7 +346,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // System Errors by Type
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,7 +376,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 16),
                       color: Colors.grey[200],
                     ),
-                    // Logins by Time of Day
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,55 +500,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _navigateToSection(String label, String action) {
-    if (label == 'Users') {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    final isSuperadmin = args is Map && args['role'] == 'superadmin';
+    if (label == 'Admins') {
       if (action == 'view') {
-        Navigator.pushNamed(context, '/users');
+        Navigator.pushNamed(context, '/admins', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
       } else if (action == 'add') {
         Navigator.pushNamed(
           context,
-          '/users',
-          arguments: {'showAddUser': true},
+          '/admins',
+          arguments: {'showAddAdmin': true, 'role': 'superadmin'},
         );
       }
     } else if (label == 'Emergency Hotlines') {
       if (action == 'view') {
-        Navigator.pushReplacementNamed(
+        Navigator.pushNamed(
           context,
-          '/settings',
-          arguments: {'showHotlines': true},
+          '/superadmin-settings',
+          arguments: {'showHotlines': true, 'role': 'superadmin'},
         );
       } else if (action == 'add') {
-        Navigator.pushReplacementNamed(
+        Navigator.pushNamed(
           context,
-          '/settings',
-          arguments: {'showHotlines': true, 'addHotline': true},
+          '/superadmin-settings',
+          arguments: {'showHotlines': true, 'addHotline': true, 'role': 'superadmin'},
         );
       }
     } else if (label == 'Alerts') {
       if (action == 'view') {
-        Navigator.pushNamed(context, '/notifications');
+        Navigator.pushNamed(
+          context,
+          isSuperadmin ? '/superadmin-notifications' : '/notifications',
+          arguments: isSuperadmin ? {'role': 'superadmin'} : null,
+        );
       } else if (action == 'add') {
         Navigator.pushNamed(
           context,
-          '/notifications',
-          arguments: {'showAddAlert': true},
+          isSuperadmin ? '/superadmin-notifications' : '/notifications',
+          arguments: isSuperadmin ? {'showAddAlert': true, 'role': 'superadmin'} : {'showAddAlert': true},
         );
       }
-    } else if (label == 'Emergency Response Teams') {
+    } else if (label == 'Emergency Response Teams' || label == 'Emergency Response') {
       if (action == 'view') {
         Navigator.pushNamed(
           context,
           '/users',
-          arguments: {'filterRole': 'Emergency Responder'},
+          arguments: isSuperadmin ? {'filterRole': 'Emergency Responder', 'role': 'superadmin', 'preselectRole': 'Emergency Responder'} : {'filterRole': 'Emergency Responder', 'preselectRole': 'Emergency Responder'},
         );
       } else if (action == 'add') {
         Navigator.pushNamed(
           context,
           '/users',
-          arguments: {
-            'showAddUser': true,
-            'preselectRole': 'Emergency Responder',
-          },
+          arguments: isSuperadmin
+              ? {'showAddUser': true, 'preselectRole': 'Emergency Responder', 'role': 'superadmin'}
+              : {'showAddUser': true, 'preselectRole': 'Emergency Responder'},
         );
       }
     }

@@ -27,10 +27,9 @@ class _UsersScreenState extends State<UsersScreen> {
             );
       }).toList();
     }
+    // Only filter by role once, using _selectedRoleFilter
     if (_selectedRoleFilter != 'All') {
-      filtered = filtered
-          .where((user) => user['role'] == _selectedRoleFilter)
-          .toList();
+      filtered = filtered.where((user) => user['role'] == _selectedRoleFilter).toList();
     }
     if (_selectedStatusFilter != 'All') {
       filtered = filtered
@@ -70,7 +69,14 @@ class _UsersScreenState extends State<UsersScreen> {
     _clearForm();
     _editingUserId = null;
     if (preselectRole != null) {
-      _selectedRole = preselectRole;
+      // Support both 'Emergency Responder' and 'Emergency Responder' as preselectRole
+      if (preselectRole == 'Emergency Responder' || preselectRole == 'Emergency Responder') {
+        _selectedRole = 'Emergency Responder';
+      } else {
+        _selectedRole = preselectRole;
+      }
+    } else {
+      _selectedRole = '';
     }
     _showUserDialog('Add Mobile User');
   }
@@ -300,7 +306,7 @@ class _UsersScreenState extends State<UsersScreen> {
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        value: _selectedRole,
+                        value: (['Emergency Responder', 'Community Leader', 'Users'].contains(_selectedRole)) ? _selectedRole : null,
                         decoration: const InputDecoration(
                           labelText: 'Role',
                           border: OutlineInputBorder(),
@@ -756,7 +762,7 @@ class _UsersScreenState extends State<UsersScreen> {
   final _suffixController = TextEditingController();
   final _contactController = TextEditingController();
   final _addressController = TextEditingController();
-  String _selectedRole = 'Emergency Responder';
+  String _selectedRole = '';
   String? _editingUserId;
 
   // Filter and Sort State Variables
@@ -791,6 +797,22 @@ class _UsersScreenState extends State<UsersScreen> {
       }
     });
   }
+  bool _isSuperadmin = false;
+
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map) {
+      if (args['filterRole'] == 'Emergency Responder' || args['filterRole'] == 'Emergency Responder') {
+        setState(() {
+          _selectedRoleFilter = 'Emergency Responder';
+        });
+      }
+      // Always set _isSuperadmin if role is superadmin
+      _isSuperadmin = args['role'] == 'superadmin';
+    }
+    _applyFiltersAndSorting();
+  }
 
   @override
   void dispose() {
@@ -809,20 +831,21 @@ class _UsersScreenState extends State<UsersScreen> {
     return Scaffold(
       drawer: AdminDrawer(
         selectedIndex: 1,
+        role: _isSuperadmin ? 'superadmin' : null,
         onItemSelected: (index) {
           if (index == 1) return;
           switch (index) {
             case 0:
-              Navigator.pushReplacementNamed(context, '/dashboard');
+              Navigator.pushReplacementNamed(context, _isSuperadmin ? '/superadmin-dashboard' : '/dashboard', arguments: _isSuperadmin ? {'role': 'superadmin'} : null);
               break;
             case 2:
-              Navigator.pushReplacementNamed(context, '/notifications');
+              Navigator.pushReplacementNamed(context, _isSuperadmin ? '/superadmin-notifications' : '/notifications', arguments: _isSuperadmin ? {'role': 'superadmin'} : null);
               break;
             case 3:
-              Navigator.pushReplacementNamed(context, '/settings');
+              Navigator.pushReplacementNamed(context, _isSuperadmin ? '/superadmin-settings' : '/settings', arguments: _isSuperadmin ? {'role': 'superadmin'} : null);
               break;
             case 4:
-              Navigator.pushReplacementNamed(context, '/system-logs');
+              Navigator.pushReplacementNamed(context, '/system-logs', arguments: _isSuperadmin ? {'role': 'superadmin'} : null);
               break;
           }
         },
@@ -1093,7 +1116,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 Expanded(
                   flex: 2,
                   child: DropdownButtonFormField<String>(
-                    value: _selectedRoleFilter,
+                    value: (['All', 'Emergency Responder', 'Community Leader', 'Users'].contains(_selectedRoleFilter)) ? _selectedRoleFilter : 'All',
                     decoration: InputDecoration(
                       labelText: 'Filter by Role',
                       filled: true,
@@ -1127,7 +1150,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 Expanded(
                   flex: 2,
                   child: DropdownButtonFormField<String>(
-                    value: _selectedStatusFilter,
+                    value: (['All', 'Active', 'Inactive'].contains(_selectedStatusFilter)) ? _selectedStatusFilter : 'All',
                     decoration: InputDecoration(
                       labelText: 'Filter by Status',
                       filled: true,
@@ -1187,7 +1210,7 @@ class _UsersScreenState extends State<UsersScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: DropdownButton<String>(
-                    value: _sortBy,
+                    value: (['name', 'contact', 'address', 'role'].contains(_sortBy)) ? _sortBy : 'name',
                     underline: const SizedBox(),
                     dropdownColor: Colors.white,
                     style: const TextStyle(fontSize: 15, color: Colors.black),

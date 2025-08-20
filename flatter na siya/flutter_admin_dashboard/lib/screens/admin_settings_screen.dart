@@ -492,7 +492,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: Text('Date: ${backup['date']}\nStatus: ${backup['status']}'),
                     trailing: IconButton(
                       icon: const Icon(Icons.download),
-                      onPressed: () {}, // Download logic placeholder
+                      onPressed: () {
+                        // Simulate download and show notification
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Successfully downloaded \\${backup['file']}'),
+                            backgroundColor: Colors.green,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 );

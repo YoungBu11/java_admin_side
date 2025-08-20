@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class AdminDrawer extends StatelessWidget {
   final int selectedIndex;
+  final String? role;
   final Function(int) onItemSelected;
   final VoidCallback onLogout;
 
   const AdminDrawer({
     super.key,
     required this.selectedIndex,
+    this.role,
     required this.onItemSelected,
     required this.onLogout,
   });
@@ -165,7 +167,7 @@ class AdminDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.people_rounded,
-                    title: 'User Management',
+                    title: (role == 'superadmin') ? 'Admin Management' : 'User Management',
                     index: 1,
                   ),
                   _buildDrawerItem(
