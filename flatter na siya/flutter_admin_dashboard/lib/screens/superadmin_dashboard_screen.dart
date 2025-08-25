@@ -6,6 +6,7 @@ import '../widgets/notifications_line_chart.dart';
 import '../widgets/post_category_pie_chart.dart';
 import '../widgets/system_errors_bar_chart.dart';
 import '../widgets/logins_timeline_chart.dart';
+import 'users_management_screen.dart';
 
 class SuperAdminDashboardScreen extends StatefulWidget {
   const SuperAdminDashboardScreen({super.key});
@@ -15,6 +16,19 @@ class SuperAdminDashboardScreen extends StatefulWidget {
 }
 
 class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
+  void _showUsersDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        child: SizedBox(
+          width: 900,
+          height: 600,
+          child: UsersScreen(),
+        ),
+      ),
+    );
+  }
   void _onDrawerItemSelected(int index) {
     if (index == 0) {
       Navigator.pushReplacementNamed(context, '/superadmin-dashboard', arguments: {'role': 'superadmin'});
@@ -28,10 +42,13 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
         Navigator.pushReplacementNamed(context, '/superadmin-notifications', arguments: {'role': 'superadmin'});
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/superadmin-settings', arguments: {'role': 'superadmin'}); // <-- FIXED: route to superadmin-settings
+        Navigator.pushReplacementNamed(context, '/superadmin-settings', arguments: {'role': 'superadmin'});
         break;
       case 4:
         Navigator.pushReplacementNamed(context, '/system-logs', arguments: {'role': 'superadmin'});
+        break;
+      case 5:
+        Navigator.pushReplacementNamed(context, '/users', arguments: {'role': 'superadmin'});
         break;
     }
   }
@@ -170,12 +187,12 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                             ),
                           ),
                           _buildSummaryCard(
-                            Icons.group,
+                            Icons.people,
                             '4',
-                            'Emergency Response',
+                            'Users',
                             onTap: () => _showCardModal(
-                              'Emergency Response',
-                              icon: Icons.group,
+                              'Users',
+                              icon: Icons.people,
                               value: '4',
                             ),
                           ),
@@ -555,20 +572,18 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
           arguments: isSuperadmin ? {'showAddAlert': true, 'role': 'superadmin'} : {'showAddAlert': true},
         );
       }
-    } else if (label == 'Emergency Response Teams' || label == 'Emergency Response') {
+    } else if (label == 'Users') {
       if (action == 'view') {
         Navigator.pushNamed(
           context,
           '/users',
-          arguments: isSuperadmin ? {'filterRole': 'Emergency Responder', 'role': 'superadmin', 'preselectRole': 'Emergency Responder'} : {'filterRole': 'Emergency Responder', 'preselectRole': 'Emergency Responder'},
+          arguments: {'role': 'superadmin'},
         );
       } else if (action == 'add') {
         Navigator.pushNamed(
           context,
           '/users',
-          arguments: isSuperadmin
-              ? {'showAddUser': true, 'preselectRole': 'Emergency Responder', 'role': 'superadmin'}
-              : {'showAddUser': true, 'preselectRole': 'Emergency Responder'},
+          arguments: {'showAddUser': true, 'role': 'superadmin'},
         );
       }
     }

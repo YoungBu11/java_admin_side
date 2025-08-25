@@ -10,6 +10,9 @@ class UsersScreen extends StatefulWidget {
 }
 
 class _UsersScreenState extends State<UsersScreen> {
+  void _navigateToSuperadminDashboard() {
+    Navigator.pushReplacementNamed(context, '/superadmin-dashboard', arguments: {'role': 'superadmin'});
+  }
   final List<String> _barangays = [
     'Bagong Silang',
     'Calendola',
@@ -867,19 +870,36 @@ class _UsersScreenState extends State<UsersScreen> {
         role: _isSuperadmin ? 'superadmin' : null,
         onItemSelected: (index) {
           if (index == 1) return;
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(context, _isSuperadmin ? '/superadmin-dashboard' : '/dashboard', arguments: _isSuperadmin ? {'role': 'superadmin'} : null);
-              break;
-            case 2:
-              Navigator.pushReplacementNamed(context, _isSuperadmin ? '/superadmin-notifications' : '/notifications', arguments: _isSuperadmin ? {'role': 'superadmin'} : null);
-              break;
-            case 3:
-              Navigator.pushReplacementNamed(context, _isSuperadmin ? '/superadmin-settings' : '/settings', arguments: _isSuperadmin ? {'role': 'superadmin'} : null);
-              break;
-            case 4:
-              Navigator.pushReplacementNamed(context, '/system-logs', arguments: _isSuperadmin ? {'role': 'superadmin'} : null);
-              break;
+          if (_isSuperadmin) {
+            switch (index) {
+              case 0:
+                _navigateToSuperadminDashboard();
+                break;
+              case 2:
+                Navigator.pushReplacementNamed(context, '/superadmin-notifications', arguments: {'role': 'superadmin'});
+                break;
+              case 3:
+                Navigator.pushReplacementNamed(context, '/superadmin-settings', arguments: {'role': 'superadmin'});
+                break;
+              case 4:
+                Navigator.pushReplacementNamed(context, '/system-logs', arguments: {'role': 'superadmin'});
+                break;
+            }
+          } else {
+            switch (index) {
+              case 0:
+                Navigator.pushReplacementNamed(context, '/dashboard');
+                break;
+              case 2:
+                Navigator.pushReplacementNamed(context, '/notifications');
+                break;
+              case 3:
+                Navigator.pushReplacementNamed(context, '/settings');
+                break;
+              case 4:
+                Navigator.pushReplacementNamed(context, '/system-logs');
+                break;
+            }
           }
         },
         onLogout: () {

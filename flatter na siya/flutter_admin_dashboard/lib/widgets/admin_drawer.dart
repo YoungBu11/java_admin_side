@@ -170,6 +170,12 @@ class AdminDrawer extends StatelessWidget {
                     title: (role == 'superadmin') ? 'Admin Management' : 'User Management',
                     index: 1,
                   ),
+                  if (role == 'superadmin')
+                    _buildDrawerItem(
+                      icon: Icons.group,
+                      title: 'User Management',
+                      index: 5,
+                    ),
                   _buildDrawerItem(
                     icon: Icons.campaign_rounded,
                     title: 'Post Notification',
