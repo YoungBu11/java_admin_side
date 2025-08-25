@@ -274,71 +274,83 @@ class _DashboardScreenState extends State<DashboardScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Notifications Line Chart
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: const [
-                              Icon(Icons.show_chart, color: Colors.black54),
-                              SizedBox(width: 8),
-                              Text(
-                                'Notifications Sent Over Time',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Visualizes the number of notifications sent to users over time.',
-                            style: TextStyle(fontSize: 13, color: Colors.grey),
-                          ),
-                          const SizedBox(height: 8),
-                          const NotificationsLineChart(),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 1,
-                      height: 250,
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      color: Colors.grey[200],
-                    ),
-                    // Post Category Pie Chart
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: const [
-                              Icon(Icons.pie_chart, color: Colors.black54),
-                              SizedBox(width: 8),
-                              Text(
-                                'Post Category Distribution',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Shows the breakdown of posts by their assigned categories.',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color.fromARGB(255, 194, 194, 194),
+              child: SizedBox(
+                height: 600,
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Notifications Line Chart
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(Icons.show_chart, color: Colors.black54),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Notifications Sent Over Time',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          const PostCategoryPieChart(),
-                        ],
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Visualizes the number of notifications sent to users over time.',
+                              style: TextStyle(fontSize: 13, color: Colors.grey),
+                            ),
+                            const SizedBox(height: 8),
+                            Expanded(
+                              child: NotificationsLineChart(),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      // Vertical divider
+                      Container(
+                        width: 1,
+                        height: double.infinity,
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        color: Colors.grey[200],
+                      ),
+                      // Post Category Pie Chart
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(Icons.pie_chart, color: Colors.black54),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Post Category Distribution',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Shows the breakdown of posts by their assigned categories.',
+                              style: TextStyle(fontSize: 13, color: Colors.grey),
+                            ),
+                            const SizedBox(height: 8),
+                            Expanded(
+                              child: Center(
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: PostCategoryPieChart(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

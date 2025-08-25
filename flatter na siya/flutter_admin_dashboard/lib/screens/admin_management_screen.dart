@@ -1,12 +1,11 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../widgets/admin_drawer.dart';
 
 class AdminManagementScreen extends StatefulWidget {
   final String role;
-  const AdminManagementScreen({Key? key, this.role = 'admin'}) : super(key: key);
+  const AdminManagementScreen({super.key, this.role = 'admin'});
 
   @override
   State<AdminManagementScreen> createState() => _AdminManagementScreenState();

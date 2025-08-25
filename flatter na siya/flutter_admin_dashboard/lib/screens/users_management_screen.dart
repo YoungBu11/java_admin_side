@@ -10,6 +10,36 @@ class UsersScreen extends StatefulWidget {
 }
 
 class _UsersScreenState extends State<UsersScreen> {
+  final List<String> _barangays = [
+    'Bagong Silang',
+    'Calendola',
+    'Chrysanthemum',
+    'Cuyab',
+    'Estrella',
+    'Fatima',
+    'GSIS',
+    'Landayan',
+    'Langgam',
+    'Laram',
+    'Magsaysay',
+    'Maharlika',
+    'Narra',
+    'Nueva',
+    'Pacita 1',
+    'Pacita 2',
+    'Poblacion',
+    'Riverside',
+    'Rosario',
+    'Sampaguita',
+    'San Antonio',
+    'San Lorenzo Ruiz',
+    'San Roque',
+    'San Vicente',
+    'Santo Niño',
+    'United Bayanihan',
+    'United Better Living',
+  ];
+  String _selectedBarangay = '';
   // Removed duplicate build method. Only the latest build method with sidebar/drawer and AppBar remains.
   // --- User Management Helper Methods (from dashboard_screen.dart) ---
   void _applyFiltersAndSorting() {
@@ -184,87 +214,68 @@ class _UsersScreenState extends State<UsersScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _firstNameController,
-                              inputFormatters: [_nameInputFormatter],
-                              decoration: InputDecoration(
-                                labelText: 'First Name *',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.person),
-                                errorText:
-                                    (showAllErrors ||
-                                        _firstNameController.text.isNotEmpty)
-                                    ? firstNameError
-                                    : null,
-                              ),
-                              onChanged: (_) => validateFields(),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextField(
-                              controller: _lastNameController,
-                              inputFormatters: [_nameInputFormatter],
-                              decoration: InputDecoration(
-                                labelText: 'Last Name *',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.person_outline),
-                                errorText:
-                                    (showAllErrors ||
-                                        _lastNameController.text.isNotEmpty)
-                                    ? lastNameError
-                                    : null,
-                              ),
-                              onChanged: (_) => validateFields(),
-                            ),
-                          ),
-                        ],
+                      // First Name
+                      TextField(
+                        controller: _firstNameController,
+                        inputFormatters: [_nameInputFormatter],
+                        decoration: InputDecoration(
+                          labelText: 'First Name *',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.person),
+                          errorText: (showAllErrors || _firstNameController.text.isNotEmpty)
+                              ? firstNameError
+                              : null,
+                        ),
+                        onChanged: (_) => validateFields(),
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _middleNameController,
-                              inputFormatters: [_nameInputFormatter],
-                              decoration: InputDecoration(
-                                labelText: 'Middle Name (Optional)',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.person_2),
-                                errorText:
-                                    (showAllErrors ||
-                                        _middleNameController.text.isNotEmpty)
-                                    ? middleNameError
-                                    : null,
-                              ),
-                              onChanged: (_) => validateFields(),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextField(
-                              controller: _suffixController,
-                              inputFormatters: [_nameInputFormatter],
-                              decoration: InputDecoration(
-                                labelText: 'Suffix (Optional)',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.text_fields),
-                                hintText: 'Jr., Sr., III, etc.',
-                                errorText:
-                                    (showAllErrors ||
-                                        _suffixController.text.isNotEmpty)
-                                    ? suffixError
-                                    : null,
-                              ),
-                              onChanged: (_) => validateFields(),
-                            ),
-                          ),
-                        ],
+                      const SizedBox(height: 10),
+                      // Last Name
+                      TextField(
+                        controller: _lastNameController,
+                        inputFormatters: [_nameInputFormatter],
+                        decoration: InputDecoration(
+                          labelText: 'Last Name *',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.person_outline),
+                          errorText: (showAllErrors || _lastNameController.text.isNotEmpty)
+                              ? lastNameError
+                              : null,
+                        ),
+                        onChanged: (_) => validateFields(),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
+                      // Middle Name
+                      TextField(
+                        controller: _middleNameController,
+                        inputFormatters: [_nameInputFormatter],
+                        decoration: InputDecoration(
+                          labelText: 'Middle Name (Optional)',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.person_2),
+                          errorText: (showAllErrors || _middleNameController.text.isNotEmpty)
+                              ? middleNameError
+                              : null,
+                        ),
+                        onChanged: (_) => validateFields(),
+                      ),
+                      const SizedBox(height: 10),
+                      // Suffix
+                      TextField(
+                        controller: _suffixController,
+                        inputFormatters: [_nameInputFormatter],
+                        decoration: InputDecoration(
+                          labelText: 'Suffix (Optional)',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.text_fields),
+                          hintText: 'Jr., Sr., III, etc.',
+                          errorText: (showAllErrors || _suffixController.text.isNotEmpty)
+                              ? suffixError
+                              : null,
+                        ),
+                        onChanged: (_) => validateFields(),
+                      ),
+                      const SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       TextField(
                         controller: _contactController,
                         keyboardType: TextInputType.phone,
@@ -285,7 +296,8 @@ class _UsersScreenState extends State<UsersScreen> {
                         ),
                         onChanged: (_) => validateFields(),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
+                      // Street/Unit Address
                       TextField(
                         controller: _addressController,
                         maxLines: 2,
@@ -293,16 +305,36 @@ class _UsersScreenState extends State<UsersScreen> {
                           labelText: 'Complete Address *',
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.location_on),
-                          hintText: 'Block/Lot, Street, Barangay, San Pedro',
-                          helperText:
-                              'Include complete address for emergency response',
-                          errorText:
-                              (showAllErrors ||
-                                  _addressController.text.isNotEmpty)
+                          hintText: 'Block/Lot, Street, Subdivision, etc.',
+                          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12), // slightly minimized
+                          errorText: (showAllErrors || _addressController.text.isNotEmpty)
                               ? addressError
                               : null,
                         ),
                         onChanged: (_) => validateFields(),
+                      ),
+                      const SizedBox(height: 10),
+                      // Barangay Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedBarangay.isNotEmpty ? _selectedBarangay : null,
+                        decoration: const InputDecoration(
+                          labelText: 'Barangay *',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.map),
+                        ),
+                        items: _barangays.map((barangay) {
+                          return DropdownMenuItem<String>(
+                            value: barangay,
+                            child: Text(barangay),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedBarangay = value ?? '';
+                          });
+                        },
+                        validator: (value) =>
+                            (showAllErrors && (value == null || value.isEmpty)) ? 'Please select a barangay' : null,
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
@@ -799,6 +831,7 @@ class _UsersScreenState extends State<UsersScreen> {
   }
   bool _isSuperadmin = false;
 
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)?.settings.arguments;
