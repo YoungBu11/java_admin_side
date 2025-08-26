@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import '../widgets/admin_drawer.dart';
+import '../widgets/emergency_hotlines_panel.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -33,12 +33,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _handledInitialArgs = true;
     }
   }
+
   // Tips data structure (tabbed, matching user side)
   Map<String, List<Map<String, String>>> tips = {
     'Air': [
       {
         'title': 'Air Quality Index (AQI) - Health Guidelines',
-        'content': '• 0-50: Good. Outdoor activities are safe.\n'
+        'content':
+            '• 0-50: Good. Outdoor activities are safe.\n'
             '• 51-100: Moderate. Sensitive individuals may reduce outdoor activities.\n'
             '• 101-150: Unhealthy for sensitive groups. Limit outdoor activities, wear masks.\n'
             '• 151-200: Unhealthy. Everyone should avoid prolonged outdoor activities.\n'
@@ -47,7 +49,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       {
         'title': 'Air Quality Preventive Measures',
-        'content': '• Ban open burning, monitor emissions\n'
+        'content':
+            '• Ban open burning, monitor emissions\n'
             '• Plant more trees, promote biking\n'
             '• Teach proper waste disposal\n'
             '• Install air quality sensors',
@@ -56,7 +59,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'Heat': [
       {
         'title': 'Heat Index - Safety Measures',
-        'content': '• <26°C: Safe. Normal outdoor activities.\n'
+        'content':
+            '• <26°C: Safe. Normal outdoor activities.\n'
             '• 27-32°C: Caution. Drink water, take breaks.\n'
             '• 33-41°C: Extreme Caution. Limit outdoor activities, wear light clothing.\n'
             '• 42-51°C: Danger. Avoid outdoor activities, stay in cool areas.\n'
@@ -64,7 +68,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       {
         'title': 'How to Overcome/Prevention',
-        'content': '• Drink water regularly\n'
+        'content':
+            '• Drink water regularly\n'
             '• Take breaks in shade\n'
             '• Wear light, loose clothing\n'
             '• Adjust schedules during extreme heat',
@@ -73,13 +78,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'Flood': [
       {
         'title': 'Flood Safety & Emergency Response',
-        'content': '• 0-0.5m: Alert Level 1. Prepare emergency kit, monitor updates.\n'
+        'content':
+            '• 0-0.5m: Alert Level 1. Prepare emergency kit, monitor updates.\n'
             '• 0.5-1.3m: Alert Level 2. Prepare to evacuate, move valuables up.\n'
             '• 1.3m+: Critical Level 3. Evacuate immediately, do not cross flood waters.',
       },
       {
         'title': 'Flood Safety Tips',
-        'content': '• Never walk or drive through flood waters\n'
+        'content':
+            '• Never walk or drive through flood waters\n'
             '• Move to higher ground\n'
             '• Keep emergency kit ready\n'
             '• Listen to official announcements',
@@ -88,7 +95,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'Typhoon': [
       {
         'title': 'Typhoon Safety & Preparedness',
-        'content': '• Signal #1: Secure loose objects\n'
+        'content':
+            '• Signal #1: Secure loose objects\n'
             '• Signal #2: Stay indoors\n'
             '• Signal #3: Suspend classes/work\n'
             '• Signal #4: Complete shutdown\n'
@@ -96,7 +104,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       {
         'title': 'Typhoon Preparation Checklist',
-        'content': '• Prepare emergency kit\n'
+        'content':
+            '• Prepare emergency kit\n'
             '• Secure windows\n'
             '• Charge devices\n'
             '• Listen to weather updates',
@@ -148,8 +157,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  titleError = _tipTitleController.text.trim().isEmpty ? 'Title is required' : null;
-                  contentError = _tipContentController.text.trim().isEmpty ? 'Content is required' : null;
+                  titleError = _tipTitleController.text.trim().isEmpty
+                      ? 'Title is required'
+                      : null;
+                  contentError = _tipContentController.text.trim().isEmpty
+                      ? 'Content is required'
+                      : null;
                 });
                 if (titleError == null && contentError == null) {
                   this.setState(() {
@@ -208,8 +221,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  titleError = _tipTitleController.text.trim().isEmpty ? 'Title is required' : null;
-                  contentError = _tipContentController.text.trim().isEmpty ? 'Content is required' : null;
+                  titleError = _tipTitleController.text.trim().isEmpty
+                      ? 'Title is required'
+                      : null;
+                  contentError = _tipContentController.text.trim().isEmpty
+                      ? 'Content is required'
+                      : null;
                 });
                 if (titleError == null && contentError == null) {
                   this.setState(() {
@@ -234,6 +251,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       tips[selectedTab]!.removeAt(index);
     });
   }
+
   // Sample data for System Backup
   List<Map<String, String>> systemBackups = [
     {
@@ -257,13 +275,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   List<Map<String, String>> emergencyHotlines = [
     {'name': 'OFFICE OF THE MAYOR', 'phone': '(02) 8808-2020 loc. 401'},
-    {'name': 'SAN PEDRO CDRRMO\nSAN PEDRO AKTIBO RESCUE CREW', 'phone': '(02) 8403-2648'},
-    {'name': 'SAN PEDRO CDRRMO\nSAN PEDRO AKTIBO RESCUE CREW', 'phone': '0998 594 1743'},
+    {
+      'name': 'SAN PEDRO CDRRMO\nSAN PEDRO AKTIBO RESCUE CREW',
+      'phone': '(02) 8403-2648',
+    },
+    {
+      'name': 'SAN PEDRO CDRRMO\nSAN PEDRO AKTIBO RESCUE CREW',
+      'phone': '0998 594 1743',
+    },
     {'name': 'CITY FIRE AUXILIARY UNIT', 'phone': '(02) 8363-9392'},
-    {'name': 'BUREAU OF FIRE PROTECTION\nCITY OF SAN PEDRO', 'phone': '(02) 8808-0617'},
-    {'name': 'BUREAU OF FIRE PROTECTION\nCITY OF SAN PEDRO', 'phone': '0942 834 7377'},
-    {'name': 'SAN PEDRO COMPONENT\nCITY POLICE STATION', 'phone': '(02) 8567-3381'},
-    {'name': 'SAN PEDRO COMPONENT\nCITY POLICE STATION', 'phone': '(02) 8641-1548'},
+    {
+      'name': 'BUREAU OF FIRE PROTECTION\nCITY OF SAN PEDRO',
+      'phone': '(02) 8808-0617',
+    },
+    {
+      'name': 'BUREAU OF FIRE PROTECTION\nCITY OF SAN PEDRO',
+      'phone': '0942 834 7377',
+    },
+    {
+      'name': 'SAN PEDRO COMPONENT\nCITY POLICE STATION',
+      'phone': '(02) 8567-3381',
+    },
+    {
+      'name': 'SAN PEDRO COMPONENT\nCITY POLICE STATION',
+      'phone': '(02) 8641-1548',
+    },
     {'name': 'MERALCO', 'phone': '16211'},
     {'name': 'JOSE L. AMANTE\nEMERGENCY HOSPITAL', 'phone': '(02) 8868-5284'},
     {'name': 'JOSE L. AMANTE\nEMERGENCY HOSPITAL', 'phone': '(02) 8478-5709'},
@@ -315,12 +351,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  nameError = _nameController.text.trim().isEmpty ? 'Name is required' : null;
+                  nameError = _nameController.text.trim().isEmpty
+                      ? 'Name is required'
+                      : null;
                   final phoneText = _phoneController.text.trim();
                   if (phoneText.isEmpty) {
                     phoneError = 'Hotline is required';
                   } else if (!hotlineRegExp.hasMatch(phoneText)) {
-                    phoneError = 'Hotline must contain only numbers or special characters';
+                    phoneError =
+                        'Hotline must contain only numbers or special characters';
                   } else {
                     phoneError = null;
                   }
@@ -383,12 +422,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  nameError = _nameController.text.trim().isEmpty ? 'Name is required' : null;
+                  nameError = _nameController.text.trim().isEmpty
+                      ? 'Name is required'
+                      : null;
                   final phoneText = _phoneController.text.trim();
                   if (phoneText.isEmpty) {
                     phoneError = 'Hotline is required';
                   } else if (!hotlineRegExp.hasMatch(phoneText)) {
-                    phoneError = 'Hotline must contain only numbers or special characters';
+                    phoneError =
+                        'Hotline must contain only numbers or special characters';
                   } else {
                     phoneError = null;
                   }
@@ -419,53 +461,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildRightPanel() {
     if (selectedSetting == 'Emergency Hotlines') {
-      // ...existing code for Emergency Hotlines...
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Emergency Hotlines',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.builder(
-              itemCount: emergencyHotlines.length,
-              itemBuilder: (context, index) {
-                final hotline = emergencyHotlines[index];
-                return Card(
-                  child: ListTile(
-                    title: Text(hotline['name']!),
-                    subtitle: Text(hotline['phone']!),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () => _showEditHotlineDialog(index),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteHotline(index),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.add),
-              label: const Text('Add Hotline'),
-              onPressed: _showAddHotlineDialog,
-            ),
-          ),
-        ],
-      );
+      return const EmergencyHotlinesPanel();
     } else if (selectedSetting == 'System Backup') {
       // ...existing code for System Backup...
       return Column(
@@ -485,18 +481,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 return Card(
                   child: ListTile(
                     leading: Icon(
-                      backup['status'] == 'Completed' ? Icons.check_circle : Icons.error,
-                      color: backup['status'] == 'Completed' ? Colors.green : Colors.red,
+                      backup['status'] == 'Completed'
+                          ? Icons.check_circle
+                          : Icons.error,
+                      color: backup['status'] == 'Completed'
+                          ? Colors.green
+                          : Colors.red,
                     ),
                     title: Text(backup['file']!),
-                    subtitle: Text('Date: ${backup['date']}\nStatus: ${backup['status']}'),
+                    subtitle: Text(
+                      'Date: ${backup['date']}\nStatus: ${backup['status']}',
+                    ),
                     trailing: IconButton(
                       icon: const Icon(Icons.download),
                       onPressed: () {
                         // Simulate download and show notification
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Successfully downloaded \\${backup['file']}'),
+                            content: Text(
+                              'Successfully downloaded \\${backup['file']}',
+                            ),
                             backgroundColor: Colors.green,
                             duration: const Duration(seconds: 2),
                           ),
@@ -540,7 +544,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         },
         {
           'name': 'Manage Notifications',
-          'description': 'Send, edit, or delete system notifications and alerts.',
+          'description':
+              'Send, edit, or delete system notifications and alerts.',
           'enabled': true,
         },
         {
@@ -698,7 +703,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Center(
               child: Text(
                 'Welcome, CDRRMO',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -718,15 +726,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   const Text(
                     'System Settings',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   Expanded(
                     child: ListView(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 0,
+                      ),
                       children: [
                         _SettingsCard(
                           icon: Icons.group,
@@ -787,7 +795,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               flex: 3,
               child: Container(
                 // Remove fixed height and let it expand
-                constraints: const BoxConstraints(minHeight: 0, maxHeight: double.infinity),
+                constraints: const BoxConstraints(
+                  minHeight: 0,
+                  maxHeight: double.infinity,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -832,7 +843,11 @@ class _SettingsCard extends StatelessWidget {
           children: [
             Icon(icon, color: iconColor, size: 40),
             const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.left, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              textAlign: TextAlign.left,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerLeft,
@@ -843,7 +858,10 @@ class _SettingsCard extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                 ),
                 child: const Text('Configure'),
               ),

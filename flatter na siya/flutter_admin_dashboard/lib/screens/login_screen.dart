@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -6,7 +7,6 @@ class LoginScreen extends StatefulWidget {
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -24,35 +24,46 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() async {
+  Future<void> _login() async {
     setState(() {
       _usernameError = null;
       _passwordError = null;
     });
+
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      await Future.delayed(const Duration(seconds: 1));
-
       final username = _usernameController.text.trim();
       final password = _passwordController.text;
 
-      if (username == 'admin' && password == 'admin123') {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
+      try {
+        final role = await AuthService.instance.loginWithUsernamePassword(
+          username: username,
+          password: password,
+        );
+
+        if (!mounted) return;
+        switch (role) {
+          case UserRole.admin:
+            Navigator.pushReplacementNamed(context, '/dashboard');
+            break;
+          case UserRole.superadmin:
+            Navigator.pushReplacementNamed(context, '/superadmin-dashboard');
+            break;
         }
-      } else if (username == 'superadmin' && password == 'superadmin123') {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/superadmin-dashboard');
-        }
-      } else {
+      } catch (e) {
         setState(() {
-          _isLoading = false;
           _usernameError = 'Incorrect username or password';
           _passwordError = 'Incorrect username or password';
         });
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -73,8 +84,8 @@ class _LoginScreenState extends State<LoginScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withValues(alpha: 0.8), // Darker overlay
-                Colors.grey[900]!.withValues(alpha: 0.7), // Dark greyish
+                Colors.black.withValues(alpha: 0.8),
+                Colors.grey[900]!.withValues(alpha: 0.7),
                 Colors.black.withValues(alpha: 0.6),
               ],
             ),
@@ -84,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(32.0),
               child: Card(
                 elevation: 12,
-                color: Colors.white, // Changed to pure white
+                color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -97,24 +108,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Logo with darker grey background and enhanced shadow
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.grey[400], // Darker grey background
+                              color: Colors.grey[400],
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.grey[500]!, // Darker border
+                                color: Colors.grey[500]!,
                                 width: 2,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3), // Stronger shadow
-                                  blurRadius: 12, // More blur
-                                  offset: const Offset(0, 6), // More offset
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 6),
                                 ),
                                 BoxShadow(
-                                  color: Colors.grey.withValues(alpha: 0.2), // Additional light shadow
+                                  color: Colors.grey.withValues(alpha: 0.2),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -126,11 +136,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 120,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
-                                // Fallback to icon with background if logo.png is not found
                                 return Container(
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF2d5f3f), // CDRRMO green
+                                    color: const Color(0xFF2d5f3f),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(
@@ -143,27 +152,21 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          
-                          // Title
                           const Text(
                             'CDRRMO Portal Login',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF2d5f3f), // Dark green for visibility on white
+                              color: Color(0xFF2d5f3f),
                             ),
                           ),
                           const SizedBox(height: 8),
                           const Text(
                             'Access the CDRRMO management portal',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey, // Light grey subtitle
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
                           const SizedBox(height: 32),
 
-                          // Username field
                           TextFormField(
                             controller: _usernameController,
                             textInputAction: TextInputAction.next,
@@ -171,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               FocusScope.of(context).nextFocus();
                             },
                             decoration: InputDecoration(
-                              labelText: 'Username',
+                              labelText: 'Username or Email',
                               prefixIcon: const Icon(Icons.person),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -185,6 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               errorText: _usernameError,
                             ),
+                            keyboardType: TextInputType.emailAddress,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your username';
@@ -201,15 +205,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Password field
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) {
-                              if (!_isLoading) {
-                                _login();
-                              }
+                              if (!_isLoading) _login();
                             },
                             decoration: InputDecoration(
                               labelText: 'Password',
@@ -226,9 +227,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _obscurePassword 
-                                    ? Icons.visibility 
-                                    : Icons.visibility_off,
+                                  _obscurePassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -254,14 +255,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 32),
 
-                          // Login button
                           SizedBox(
                             width: double.infinity,
                             height: 48,
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _login,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2d5f3f), // CDRRMO green
+                                backgroundColor: const Color(0xFF2d5f3f),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -269,54 +269,53 @@ class _LoginScreenState extends State<LoginScreen> {
                                 elevation: 3,
                               ),
                               child: _isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Login',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  )
-                                : const Text(
-                                    'Login',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
                             ),
                           ),
                           const SizedBox(height: 16),
 
-                          // Demo credentials info
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.blue.shade200),
-                            ),
-                            child: const Column(
-                              children: [
-                                Text(
-                                  'Demo Credentials:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Admin: admin / admin123\nSuperadmin: superadmin / superadmin123',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          // Container(
+                          //   padding: const EdgeInsets.all(12),
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.blue.shade50,
+                          //     borderRadius: BorderRadius.circular(8),
+                          //     border: Border.all(color: Colors.blue.shade200),
+                          //   ),
+                          //   // child: const Column(
+                          //   //   children: [
+                          //   //     // Text(
+                          //   //     //   'Demo Credentials:',
+                          //   //     //   style: TextStyle(
+                          //   //     //     fontWeight: FontWeight.bold,
+                          //   //     //     color: Colors.blue,
+                          //   //     //   ),
+                          //   //     // ),
+                          //   //     // SizedBox(height: 4),
+                          //   //     // Text(
+                          //   //     //   'Admin: admin / admin123\nSuperadmin: superadmin / superadmin123',
+                          //   //     //   textAlign: TextAlign.center,
+                          //   //     //   style: TextStyle(
+                          //   //     //     color: Colors.blue,
+                          //   //     //     fontSize: 12,
+                          //   //     //   ),
+                          //   //     // ),
+                          //   //   ],
+                          //   // ),
+                          // ),
                         ],
                       ),
                     ),
