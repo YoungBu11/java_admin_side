@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/notification.dart';
 import 'package:intl/intl.dart';
 import '../widgets/admin_drawer.dart';
+import '../services/notification_service.dart';
 
 class SuperAdminNotificationsScreen extends StatefulWidget {
   const SuperAdminNotificationsScreen({super.key});
@@ -13,10 +14,12 @@ class SuperAdminNotificationsScreen extends StatefulWidget {
 
 class _SuperAdminNotificationsScreenState
     extends State<SuperAdminNotificationsScreen> {
+  List<NotificationAlert> _alerts = [];
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
-    _removeOldAlerts();
+    _fetchNotifications();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args is Map && args['showAddAlert'] == true) {
@@ -25,6 +28,13 @@ class _SuperAdminNotificationsScreenState
         });
       }
     });
+  }
+
+  Future<void> _fetchNotifications() async {
+    setState(() => _isLoading = true);
+    _alerts = await NotificationService.instance.getNotifications();
+    _removeOldAlerts();
+    setState(() => _isLoading = false);
   }
 
   void _removeOldAlerts() {
@@ -82,35 +92,35 @@ class _SuperAdminNotificationsScreenState
   NotificationAlert? _editingAlert;
   bool _showForm = false;
 
-  final List<NotificationAlert> _alerts = [
-    NotificationAlert(
-      id: '1',
-      type: 'Emergency',
-      title: 'Flood Warning Alert',
-      message: 'Heavy rainfall expected. Stay alert.',
-      dateTime: DateTime.now().subtract(const Duration(days: 2, hours: 3)),
-      status: 'Active',
-      sentTo: 250,
-    ),
-    NotificationAlert(
-      id: '2',
-      type: 'Warning',
-      title: 'Road Closure Notice',
-      message: 'Main road closed due to landslide.',
-      dateTime: DateTime.now().subtract(const Duration(days: 5, hours: 6)),
-      status: 'Active',
-      sentTo: 180,
-    ),
-    NotificationAlert(
-      id: '3',
-      type: 'Info',
-      title: 'Weather Update',
-      message: 'Light showers expected in the afternoon.',
-      dateTime: DateTime.now().subtract(const Duration(days: 10, hours: 1)),
-      status: 'Inactive',
-      sentTo: 320,
-    ),
-  ];
+  // final List<NotificationAlert> _alerts = []
+  //   NotificationAlert(
+  //     id: '1',
+  //     type: 'Emergency',
+  //     title: 'Flood Warning Alert',
+  //     message: 'Heavy rainfall expected. Stay alert.',
+  //     dateTime: DateTime.now().subtract(const Duration(days: 2, hours: 3)),
+  //     status: 'Active',
+  //     sentTo: 250,
+  //   ),
+  //   NotificationAlert(
+  //     id: '2',
+  //     type: 'Warning',
+  //     title: 'Road Closure Notice',
+  //     message: 'Main road closed due to landslide.',
+  //     dateTime: DateTime.now().subtract(const Duration(days: 5, hours: 6)),
+  //     status: 'Active',
+  //     sentTo: 180,
+  //   ),
+  //   NotificationAlert(
+  //     id: '3',
+  //     type: 'Info',
+  //     title: 'Weather Update',
+  //     message: 'Light showers expected in the afternoon.',
+  //     dateTime: DateTime.now().subtract(const Duration(days: 10, hours: 1)),
+  //     status: 'Inactive',
+  //     sentTo: 320,
+  //   ),
+  // ];
 
   void _resetForm() {
     setState(() {
@@ -124,7 +134,7 @@ class _SuperAdminNotificationsScreenState
     });
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
       final alertMessage = _alertMessage.trim();
@@ -135,27 +145,32 @@ class _SuperAdminNotificationsScreenState
         return;
       }
       if (_isEditing && _editingAlert != null) {
-        setState(() {
-          _editingAlert!.type = _alertType!;
-          _editingAlert!.title = _alertTitle;
-          _editingAlert!.message = alertMessage;
-        });
+        final updatedAlert = NotificationAlert(
+          id: _editingAlert!.id,
+          type: _alertType!,
+          title: _alertTitle,
+          message: alertMessage,
+          dateTime: DateTime.now(),
+          status: _editingAlert!.status,
+          sentTo: _editingAlert!.sentTo,
+        );
+        await NotificationService.instance.updateNotification(
+          updatedAlert.id,
+          updatedAlert,
+        );
       } else {
-        setState(() {
-          _alerts.insert(
-            0,
-            NotificationAlert(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              type: _alertType!,
-              title: _alertTitle,
-              message: alertMessage,
-              dateTime: DateTime.now(),
-              status: 'Active',
-              sentTo: 0,
-            ),
-          );
-        });
+        final newAlert = NotificationAlert(
+          id: '', // let Firestore generate it
+          type: _alertType!,
+          title: _alertTitle,
+          message: alertMessage,
+          dateTime: DateTime.now(),
+          status: 'Active',
+          sentTo: 0,
+        );
+        await NotificationService.instance.addNotification(newAlert);
       }
+      await _fetchNotifications();
       setState(() {
         _showForm = false;
       });
@@ -174,29 +189,9 @@ class _SuperAdminNotificationsScreenState
     });
   }
 
-  void _deleteAlert(NotificationAlert alert) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Alert'),
-        content: const Text('Are you sure you want to delete this alert?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _alerts.remove(alert);
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
+  void _deleteAlert(NotificationAlert alert) async {
+    await NotificationService.instance.deleteNotification(alert.id);
+    await _fetchNotifications();
   }
 
   Widget _buildTypeBadge(String type) {
