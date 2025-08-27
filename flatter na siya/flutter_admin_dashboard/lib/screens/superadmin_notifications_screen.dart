@@ -56,7 +56,7 @@ class _SuperAdminNotificationsScreenState
       case 3:
         Navigator.pushReplacementNamed(
           context,
-          '/superadmin-settings',
+          '/settings',
           arguments: {'role': 'superadmin'},
         );
         break;
@@ -64,13 +64,6 @@ class _SuperAdminNotificationsScreenState
         Navigator.pushReplacementNamed(
           context,
           '/superadmin-system-logs',
-          arguments: {'role': 'superadmin'},
-        );
-        break;
-      case 5:
-        Navigator.pushReplacementNamed(
-          context,
-          '/users',
           arguments: {'role': 'superadmin'},
         );
         break;
@@ -352,7 +345,117 @@ class _SuperAdminNotificationsScreenState
                                     ),
                                   ],
                                 ),
-                                // ...rest of the form and alert history UI (identical to admin)
+                                const SizedBox(height: 18),
+                                DropdownButtonFormField<String>(
+                                  value: _alertType,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Alert Type *',
+                                    prefixIcon: Icon(
+                                      Icons.priority_high_rounded,
+                                    ),
+                                    helperText:
+                                        'Select the urgency level of your alert',
+                                    filled: true,
+                                    fillColor: Color(0xFFeafaf3),
+                                  ),
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: 'Emergency',
+                                      child: Text('Emergency'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'Warning',
+                                      child: Text('Warning'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'Info',
+                                      child: Text('Info'),
+                                    ),
+                                  ],
+                                  validator: (v) => v == null
+                                      ? 'Please select alert type'
+                                      : null,
+                                  onChanged: (v) =>
+                                      setState(() => _alertType = v),
+                                  onSaved: (v) => _alertType = v,
+                                ),
+                                const SizedBox(height: 16),
+                                TextFormField(
+                                  initialValue: _alertTitle,
+                                  maxLength: 100,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Alert Title *',
+                                    prefixIcon: Icon(Icons.title),
+                                    helperText: 'Maximum 100 characters',
+                                    filled: true,
+                                    fillColor: Color(0xFFeafaf3),
+                                  ),
+                                  validator: (v) =>
+                                      (v == null || v.trim().isEmpty)
+                                      ? 'Please enter alert title'
+                                      : null,
+                                  onChanged: (v) =>
+                                      setState(() => _alertTitle = v),
+                                  onSaved: (v) => _alertTitle = v ?? '',
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Alert Message *',
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  initialValue: _alertMessage,
+                                  maxLines: 7,
+                                  maxLength: 1000,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Alert Message',
+                                    alignLabelWithHint: true,
+                                    prefixIcon: Icon(Icons.message),
+                                    filled: true,
+                                    fillColor: Color(0xFFeafaf3),
+                                  ),
+                                  validator: (v) =>
+                                      (v == null || v.trim().isEmpty)
+                                      ? 'Please enter alert message'
+                                      : null,
+                                  onChanged: (v) =>
+                                      setState(() => _alertMessage = v),
+                                  onSaved: (v) => _alertMessage = v ?? '',
+                                ),
+                                const SizedBox(height: 18),
+                                Row(
+                                  children: [
+                                    ElevatedButton.icon(
+                                      icon: const Icon(Icons.send),
+                                      label: Text(
+                                        _isEditing
+                                            ? 'Update Alert'
+                                            : 'Send Alert',
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFFFFA726,
+                                        ),
+                                        foregroundColor: Colors.white,
+                                        minimumSize: const Size(140, 48),
+                                        elevation: 2,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: _submitForm,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    TextButton.icon(
+                                      icon: const Icon(Icons.clear),
+                                      label: const Text('Clear Form'),
+                                      onPressed: _resetForm,
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
