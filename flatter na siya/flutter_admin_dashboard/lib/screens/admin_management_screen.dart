@@ -1,7 +1,6 @@
-
-
 import 'package:flutter/material.dart';
 import '../widgets/admin_drawer.dart';
+import 'package:flutter/services.dart';
 
 class AdminManagementScreen extends StatefulWidget {
   final String role;
@@ -37,57 +36,57 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
       _handledInitialArgs = true;
     }
   }
-final List<Map<String, String>> _admins = [
-  {
-    'id': '1',
-    'name': 'CDRRMO_NICO',
-    'contact': '09123456780',
-    'address': 'CDRRMO Office, San Pedro',
-    'role': 'Superadmin',
-    'status': 'Active',
-  },
-  {
-    'id': '2',
-    'name': 'CDRRMO_PAT',
-    'contact': '09123456781',
-    'address': 'CDRRMO Office, San Pedro',
-    'role': 'Admin',
-    'status': 'Active',
-  },
-  {
-    'id': '3',
-    'name': 'PUP_CHARLES',
-    'contact': '09123456782',
-    'address': 'PUP San Pedro',
-    'role': 'Admin',
-    'status': 'Active',
-  },
-  {
-    'id': '4',
-    'name': 'PUP_FAYE',
-    'contact': '09123456783',
-    'address': 'PUP San Pedro',
-    'role': 'Admin',
-    'status': 'Active',
-  },
-  {
-    'id': '5',
-    'name': 'PUP_ZAMUEL',
-    'contact': '09123456784',
-    'address': 'PUP San Pedro',
-    'role': 'Admin',
-    'status': 'Active',
-  },
-  {
-    'id': '6',
-    'name': 'PUP_ARIANNE',
-    'contact': '09123456785',
-    'address': 'PUP San Pedro',
-    'role': 'Admin',
-    'status': 'Active',
-  },
-];
 
+  final List<Map<String, String>> _admins = [
+    {
+      'id': '1',
+      'name': 'CDRRMO_NICO',
+      'contact': '09123456780',
+      'address': 'CDRRMO Office, San Pedro',
+      'role': 'Superadmin',
+      'status': 'Active',
+    },
+    {
+      'id': '2',
+      'name': 'CDRRMO_PAT',
+      'contact': '09123456781',
+      'address': 'CDRRMO Office, San Pedro',
+      'role': 'Admin',
+      'status': 'Active',
+    },
+    {
+      'id': '3',
+      'name': 'PUP_CHARLES',
+      'contact': '09123456782',
+      'address': 'PUP San Pedro',
+      'role': 'Admin',
+      'status': 'Active',
+    },
+    {
+      'id': '4',
+      'name': 'PUP_FAYE',
+      'contact': '09123456783',
+      'address': 'PUP San Pedro',
+      'role': 'Admin',
+      'status': 'Active',
+    },
+    {
+      'id': '5',
+      'name': 'PUP_ZAMUEL',
+      'contact': '09123456784',
+      'address': 'PUP San Pedro',
+      'role': 'Admin',
+      'status': 'Active',
+    },
+    {
+      'id': '6',
+      'name': 'PUP_ARIANNE',
+      'contact': '09123456785',
+      'address': 'PUP San Pedro',
+      'role': 'Admin',
+      'status': 'Active',
+    },
+  ];
 
   // Controllers for admin form
   final _nameController = TextEditingController();
@@ -104,8 +103,6 @@ final List<Map<String, String>> _admins = [
   bool _sortAscending = true;
   List<Map<String, String>> _filteredAdmins = [];
 
-
-
   @override
   void dispose() {
     _nameController.dispose();
@@ -118,16 +115,26 @@ final List<Map<String, String>> _admins = [
     List<Map<String, String>> filtered = List.from(_admins);
     if (_adminSearchQuery.isNotEmpty) {
       filtered = filtered.where((admin) {
-        return admin['name']!.toLowerCase().contains(_adminSearchQuery.toLowerCase()) ||
-            admin['contact']!.toLowerCase().contains(_adminSearchQuery.toLowerCase()) ||
-            admin['address']!.toLowerCase().contains(_adminSearchQuery.toLowerCase());
+        return admin['name']!.toLowerCase().contains(
+              _adminSearchQuery.toLowerCase(),
+            ) ||
+            admin['contact']!.toLowerCase().contains(
+              _adminSearchQuery.toLowerCase(),
+            ) ||
+            admin['address']!.toLowerCase().contains(
+              _adminSearchQuery.toLowerCase(),
+            );
       }).toList();
     }
     if (_selectedRoleFilter != 'All') {
-      filtered = filtered.where((admin) => admin['role'] == _selectedRoleFilter).toList();
+      filtered = filtered
+          .where((admin) => admin['role'] == _selectedRoleFilter)
+          .toList();
     }
     if (_selectedStatusFilter != 'All') {
-      filtered = filtered.where((admin) => admin['status'] == _selectedStatusFilter).toList();
+      filtered = filtered
+          .where((admin) => admin['status'] == _selectedStatusFilter)
+          .toList();
     }
     filtered.sort((a, b) {
       String aValue = '';
@@ -190,8 +197,13 @@ final List<Map<String, String>> _admins = [
                 contactError = null;
                 addressError = null;
 
+                // ADMIN NAME VALIDATION: Only allow letters, spaces, hyphens and ñÑ
                 if (_nameController.text.trim().isEmpty) {
                   nameError = 'Admin Name is required';
+                } else if (!RegExp(
+                  r'^[a-zA-ZñÑ\s\-]+$',
+                ).hasMatch(_nameController.text.trim())) {
+                  nameError = 'Name must only contain letters';
                 }
                 if (_contactController.text.trim().isEmpty) {
                   contactError = 'Contact Number is required';
@@ -199,15 +211,22 @@ final List<Map<String, String>> _admins = [
                   contactError = 'Must start with 09 (e.g., 09123456789)';
                 } else if (_contactController.text.length != 11) {
                   contactError = 'Must be exactly 11 digits';
-                } else if (!RegExp(r'^[0-9]+$').hasMatch(_contactController.text)) {
+                } else if (!RegExp(
+                  r'^[0-9]+$',
+                ).hasMatch(_contactController.text)) {
                   contactError = 'Must contain only numbers';
-                } else if (_admins.any((admin) => admin['contact'] == _contactController.text && admin['id'] != _editingAdminId)) {
+                } else if (_admins.any(
+                  (admin) =>
+                      admin['contact'] == _contactController.text &&
+                      admin['id'] != _editingAdminId,
+                )) {
                   contactError = 'This mobile number is already registered';
                 }
                 if (_addressController.text.trim().isEmpty) {
                   addressError = 'Complete Address is required';
                 } else if (_addressController.text.trim().length < 10) {
-                  addressError = 'Please provide a complete address (min 10 chars)';
+                  addressError =
+                      'Please provide a complete address (min 10 chars)';
                 }
               });
             }
@@ -234,11 +253,19 @@ final List<Map<String, String>> _admins = [
                     children: [
                       TextField(
                         controller: _nameController,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^[a-zA-ZñÑ\s\-]+$'),
+                          ),
+                        ],
                         decoration: InputDecoration(
                           labelText: 'Admin Name *',
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.person),
-                          errorText: (showAllErrors || _nameController.text.isNotEmpty) ? nameError : null,
+                          errorText:
+                              (showAllErrors || _nameController.text.isNotEmpty)
+                              ? nameError
+                              : null,
                         ),
                         onChanged: (_) => validateFields(),
                       ),
@@ -252,8 +279,13 @@ final List<Map<String, String>> _admins = [
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.phone),
                           hintText: 'Enter 11-digit mobile number',
-                          helperText: 'Must start with 09 and be 11 digits total',
-                          errorText: (showAllErrors || _contactController.text.isNotEmpty) ? contactError : null,
+                          helperText:
+                              'Must start with 09 and be 11 digits total',
+                          errorText:
+                              (showAllErrors ||
+                                  _contactController.text.isNotEmpty)
+                              ? contactError
+                              : null,
                           counterText: '',
                         ),
                         onChanged: (_) => validateFields(),
@@ -267,14 +299,21 @@ final List<Map<String, String>> _admins = [
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.location_on),
                           hintText: 'Office, Building, City',
-                          helperText: 'Include complete address for admin contact',
-                          errorText: (showAllErrors || _addressController.text.isNotEmpty) ? addressError : null,
+                          helperText:
+                              'Include complete address for admin contact',
+                          errorText:
+                              (showAllErrors ||
+                                  _addressController.text.isNotEmpty)
+                              ? addressError
+                              : null,
                         ),
                         onChanged: (_) => validateFields(),
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        value: (['Admin', 'Superadmin'].contains(_selectedRole)) ? _selectedRole : null,
+                        value: (['Admin', 'Superadmin'].contains(_selectedRole))
+                            ? _selectedRole
+                            : null,
                         decoration: const InputDecoration(
                           labelText: 'Role',
                           border: OutlineInputBorder(),
@@ -314,12 +353,21 @@ final List<Map<String, String>> _admins = [
                           onTap: () => Navigator.of(context).pop(),
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade400),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text('Cancel', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500)),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -330,7 +378,7 @@ final List<Map<String, String>> _admins = [
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Material(
-                        color: Colors.green,
+                        color: Color(0xFF2d5f3f),
                         borderRadius: BorderRadius.circular(8),
                         child: InkWell(
                           onTap: () {
@@ -339,8 +387,17 @@ final List<Map<String, String>> _admins = [
                           },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                            child: const Text('Save', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            child: const Text(
+                              'Save',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -355,24 +412,35 @@ final List<Map<String, String>> _admins = [
     );
   }
 
-  void _validateAndSaveAdmin(BuildContext dialogContext, StateSetter setDialogState) {
+  void _validateAndSaveAdmin(
+    BuildContext dialogContext,
+    StateSetter setDialogState,
+  ) {
     String? errorMessage;
     if (_nameController.text.trim().isEmpty) {
       errorMessage = '❌ Admin Name is required';
     } else if (_contactController.text.trim().isEmpty) {
       errorMessage = '❌ Contact Number is required';
     } else if (!_contactController.text.startsWith('09')) {
-      errorMessage = '❌ Invalid Contact Number - Must start with 09 (e.g., 09123456789)';
+      errorMessage =
+          '❌ Invalid Contact Number - Must start with 09 (e.g., 09123456789)';
     } else if (_contactController.text.length != 11) {
-      errorMessage = '❌ Invalid Contact Number - Must be exactly 11 digits (09XXXXXXXXX)';
+      errorMessage =
+          '❌ Invalid Contact Number - Must be exactly 11 digits (09XXXXXXXXX)';
     } else if (!RegExp(r'^[0-9]+$').hasMatch(_contactController.text)) {
       errorMessage = '❌ Invalid Contact Number - Must contain only numbers';
     } else if (_addressController.text.trim().isEmpty) {
       errorMessage = '❌ Complete Address is required';
     } else if (_addressController.text.trim().length < 10) {
-      errorMessage = '❌ Incomplete Address - Please provide a complete address (minimum 10 characters)';
-    } else if (_admins.any((admin) => admin['contact'] == _contactController.text && admin['id'] != _editingAdminId)) {
-      errorMessage = '❌ Duplicate Contact Number - This mobile number is already registered in the system';
+      errorMessage =
+          '❌ Incomplete Address - Please provide a complete address (minimum 10 characters)';
+    } else if (_admins.any(
+      (admin) =>
+          admin['contact'] == _contactController.text &&
+          admin['id'] != _editingAdminId,
+    )) {
+      errorMessage =
+          '❌ Duplicate Contact Number - This mobile number is already registered in the system';
     }
     if (errorMessage != null) {
       return;
@@ -400,18 +468,25 @@ final List<Map<String, String>> _admins = [
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text('✅ Success! Admin "${_nameController.text.trim()}" has been added to the system', style: const TextStyle(fontWeight: FontWeight.w500)),
+                  child: Text(
+                    '✅ Success! Admin "${_nameController.text.trim()}" has been added to the system',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
                 ),
               ],
             ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 3),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       } else {
-        final adminIndex = _admins.indexWhere((admin) => admin['id'] == _editingAdminId);
+        final adminIndex = _admins.indexWhere(
+          (admin) => admin['id'] == _editingAdminId,
+        );
         if (adminIndex != -1) {
           _admins[adminIndex] = {
             'id': _editingAdminId!,
@@ -428,14 +503,19 @@ final List<Map<String, String>> _admins = [
                   const Icon(Icons.check_circle, color: Colors.white),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text('✅ Success! Admin "${_nameController.text.trim()}" has been updated successfully', style: const TextStyle(fontWeight: FontWeight.w500)),
+                    child: Text(
+                      '✅ Success! Admin "${_nameController.text.trim()}" has been updated successfully',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ),
                 ],
               ),
               backgroundColor: Colors.blue,
               duration: const Duration(seconds: 3),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           );
         }
@@ -511,8 +591,8 @@ final List<Map<String, String>> _admins = [
               format == 'xlsx'
                   ? Icons.table_chart
                   : format == 'pdf'
-                      ? Icons.picture_as_pdf
-                      : Icons.code,
+                  ? Icons.picture_as_pdf
+                  : Icons.code,
               color: Colors.white,
             ),
             const SizedBox(width: 8),
@@ -539,24 +619,56 @@ final List<Map<String, String>> _admins = [
           switch (index) {
             case 0:
               if (widget.role == 'superadmin') {
-                Navigator.pushReplacementNamed(context, '/superadmin-dashboard', arguments: {'role': 'superadmin'});
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/superadmin-dashboard',
+                  arguments: {'role': 'superadmin'},
+                );
               } else {
-                Navigator.pushReplacementNamed(context, '/dashboard', arguments: {'role': widget.role});
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/dashboard',
+                  arguments: {'role': widget.role},
+                );
               }
               break;
             case 1:
               // Always go to admin management, not user management
-              Navigator.pushReplacementNamed(context, '/admins', arguments: {'role': widget.role});
+              Navigator.pushReplacementNamed(
+                context,
+                '/admins',
+                arguments: {'role': widget.role},
+              );
               break;
             case 2:
-              Navigator.pushReplacementNamed(context, widget.role == 'superadmin' ? '/superadmin-notifications' : '/notifications', arguments: {'role': widget.role});
+              Navigator.pushReplacementNamed(
+                context,
+                widget.role == 'superadmin'
+                    ? '/superadmin-notifications'
+                    : '/notifications',
+                arguments: {'role': widget.role},
+              );
               break;
             case 3:
-              Navigator.pushReplacementNamed(context, '/settings', arguments: {'role': widget.role});
+              Navigator.pushReplacementNamed(
+                context,
+                '/superadmin-settings',
+                arguments: {'role': widget.role},
+              );
               break;
             case 4:
-              Navigator.pushReplacementNamed(context, '/system-logs', arguments: {'role': widget.role});
+              Navigator.pushReplacementNamed(
+                context,
+                '/superadmin-system-logs',
+                arguments: {'role': widget.role},
+              );
               break;
+            case 5:
+              Navigator.pushReplacementNamed(
+                context,
+                '/users',
+                arguments: {'role': widget.role},
+              );
           }
         },
         onLogout: () {
@@ -659,7 +771,11 @@ final List<Map<String, String>> _admins = [
                             value: 'xlsx',
                             child: Row(
                               children: [
-                                Icon(Icons.table_chart, color: Colors.green, size: 18),
+                                Icon(
+                                  Icons.table_chart,
+                                  color: Colors.green,
+                                  size: 18,
+                                ),
                                 SizedBox(width: 12),
                                 Text('Export as XLSX'),
                               ],
@@ -669,7 +785,11 @@ final List<Map<String, String>> _admins = [
                             value: 'pdf',
                             child: Row(
                               children: [
-                                Icon(Icons.picture_as_pdf, color: Colors.red, size: 18),
+                                Icon(
+                                  Icons.picture_as_pdf,
+                                  color: Colors.red,
+                                  size: 18,
+                                ),
                                 SizedBox(width: 12),
                                 Text('Export as PDF'),
                               ],
@@ -677,7 +797,10 @@ final List<Map<String, String>> _admins = [
                           ),
                         ],
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.blue,
                             borderRadius: BorderRadius.circular(4),
@@ -692,11 +815,25 @@ final List<Map<String, String>> _admins = [
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.download, color: Colors.white, size: 18),
+                              Icon(
+                                Icons.download,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                               SizedBox(width: 8),
-                              Text('Export Admins', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                              Text(
+                                'Export Admins',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                               SizedBox(width: 4),
-                              Icon(Icons.arrow_drop_down, color: Colors.white, size: 16),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                             ],
                           ),
                         ),
@@ -711,7 +848,10 @@ final List<Map<String, String>> _admins = [
                         onTap: _showAddAdminDialog,
                         borderRadius: BorderRadius.circular(4),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: Color(0xFF2d5f3f),
                             borderRadius: BorderRadius.circular(4),
@@ -726,9 +866,19 @@ final List<Map<String, String>> _admins = [
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.person_add, color: Colors.white, size: 18),
+                              Icon(
+                                Icons.person_add,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                               SizedBox(width: 8),
-                              Text('Add Admin', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                              Text(
+                                'Add Admin',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -781,7 +931,10 @@ final List<Map<String, String>> _admins = [
                     ),
                     items: [
                       DropdownMenuItem(value: 'All', child: Text('All Roles')),
-                      ...['Superadmin', 'Admin'].map((role) => DropdownMenuItem(value: role, child: Text(role))),
+                      ...['Superadmin', 'Admin'].map(
+                        (role) =>
+                            DropdownMenuItem(value: role, child: Text(role)),
+                      ),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -809,7 +962,10 @@ final List<Map<String, String>> _admins = [
                     items: [
                       DropdownMenuItem(value: 'All', child: Text('All Status')),
                       DropdownMenuItem(value: 'Active', child: Text('Active')),
-                      DropdownMenuItem(value: 'Inactive', child: Text('Inactive')),
+                      DropdownMenuItem(
+                        value: 'Inactive',
+                        child: Text('Inactive'),
+                      ),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -822,14 +978,20 @@ final List<Map<String, String>> _admins = [
                 const SizedBox(width: 16),
                 // Admin count
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green[50],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     '${_filteredAdmins.length} of ${_admins.length} admins',
-                    style: TextStyle(fontWeight: FontWeight.w500, color: Colors.green[900]),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.green[900],
+                    ),
                   ),
                 ),
               ],
@@ -854,8 +1016,14 @@ final List<Map<String, String>> _admins = [
                     borderRadius: BorderRadius.circular(8),
                     items: const [
                       DropdownMenuItem(value: 'name', child: Text('Name')),
-                      DropdownMenuItem(value: 'contact', child: Text('Contact Number')),
-                      DropdownMenuItem(value: 'address', child: Text('Address')),
+                      DropdownMenuItem(
+                        value: 'contact',
+                        child: Text('Contact Number'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'address',
+                        child: Text('Address'),
+                      ),
                       DropdownMenuItem(value: 'role', child: Text('Role')),
                     ],
                     onChanged: (value) {
@@ -867,7 +1035,9 @@ final List<Map<String, String>> _admins = [
                   ),
                 ),
                 IconButton(
-                  icon: Icon(_sortAscending ? Icons.arrow_upward : Icons.arrow_downward),
+                  icon: Icon(
+                    _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                  ),
                   onPressed: () {
                     setState(() {
                       _sortAscending = !_sortAscending;
@@ -896,73 +1066,195 @@ final List<Map<String, String>> _admins = [
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 8,
+                    ),
                     child: DataTable(
-                      headingRowColor: WidgetStateProperty.all(const Color(0xFF2d5f3f)),
-                      headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                      headingRowColor: WidgetStateProperty.all(
+                        const Color(0xFF2d5f3f),
+                      ),
+                      headingTextStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                       dataRowMinHeight: 56,
                       dataRowMaxHeight: 72,
                       columnSpacing: 32,
                       horizontalMargin: 24,
-                      dataRowColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+                      dataRowColor: WidgetStateProperty.resolveWith<Color?>((
+                        Set<WidgetState> states,
+                      ) {
                         if (states.contains(WidgetState.selected)) {
                           return Colors.green[100];
                         }
                         return Colors.white;
                       }),
                       columns: const [
-                        DataColumn(label: Text('Name', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Contact Number', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Address', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Role', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Status', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Actions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+                        DataColumn(
+                          label: Text(
+                            'Name',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Contact Number',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Address',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Role',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Status',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Actions',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ],
                       rows: _filteredAdmins.map((admin) {
                         final isActive = admin['status'] == 'Active';
                         return DataRow(
                           cells: [
-                            DataCell(Row(children: [
-                              CircleAvatar(
-                                backgroundColor: const Color(0xFF2d5f3f),
-                                foregroundColor: Colors.white,
-                                radius: 22,
-                                child: Text(admin['name']![0].toUpperCase(), style: const TextStyle(fontSize: 20)),
-                              ),
-                              const SizedBox(width: 20),
-                              Text(admin['name'] ?? '', style: const TextStyle(fontSize: 16)),
-                            ])),
-                            DataCell(Text(admin['contact'] ?? '', style: const TextStyle(fontSize: 16))),
-                            DataCell(Text(admin['address'] ?? '', style: const TextStyle(fontSize: 16))),
-                            DataCell(Text(admin['role'] ?? '', style: const TextStyle(fontSize: 16))),
-                            DataCell(Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: isActive ? Colors.green[50] : Colors.red[50],
-                                border: Border.all(color: isActive ? Colors.green : Colors.red),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                            DataCell(
+                              Row(
                                 children: [
-                                  Icon(Icons.circle, size: 12, color: isActive ? Colors.green : Colors.red),
-                                  const SizedBox(width: 8),
-                                  Text(admin['status'] ?? '', style: TextStyle(color: isActive ? Colors.green : Colors.red, fontWeight: FontWeight.w500, fontSize: 15)),
+                                  CircleAvatar(
+                                    backgroundColor: const Color(0xFF2d5f3f),
+                                    foregroundColor: Colors.white,
+                                    radius: 22,
+                                    child: Text(
+                                      admin['name']![0].toUpperCase(),
+                                      style: const TextStyle(fontSize: 20),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Text(
+                                    admin['name'] ?? '',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
                                 ],
                               ),
-                            )),
-                            DataCell(Row(children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue, size: 22),
-                                tooltip: 'Edit',
-                                onPressed: () => _showEditAdminDialog(admin),
+                            ),
+                            DataCell(
+                              Text(
+                                admin['contact'] ?? '',
+                                style: const TextStyle(fontSize: 16),
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red, size: 22),
-                                tooltip: 'Delete',
-                                onPressed: () => _showDeleteConfirmation(admin),
+                            ),
+                            DataCell(
+                              Text(
+                                admin['address'] ?? '',
+                                style: const TextStyle(fontSize: 16),
                               ),
-                            ])),
+                            ),
+                            DataCell(
+                              Text(
+                                admin['role'] ?? '',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            DataCell(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? Colors.green[50]
+                                      : Colors.red[50],
+                                  border: Border.all(
+                                    color: isActive ? Colors.green : Colors.red,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.circle,
+                                      size: 12,
+                                      color: isActive
+                                          ? Colors.green
+                                          : Colors.red,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      admin['status'] ?? '',
+                                      style: TextStyle(
+                                        color: isActive
+                                            ? Colors.green
+                                            : Colors.red,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                      size: 22,
+                                    ),
+                                    tooltip: 'Edit',
+                                    onPressed: () =>
+                                        _showEditAdminDialog(admin),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                      size: 22,
+                                    ),
+                                    tooltip: 'Delete',
+                                    onPressed: () =>
+                                        _showDeleteConfirmation(admin),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         );
                       }).toList(),

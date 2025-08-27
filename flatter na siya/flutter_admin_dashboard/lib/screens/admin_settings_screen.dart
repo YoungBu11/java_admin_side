@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/admin_drawer.dart';
 import '../widgets/emergency_hotlines_panel.dart';
+import '../widgets/safety_tips_and_measures_panel.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -584,71 +585,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       );
     } else if (selectedSetting == 'Tips') {
-      final tabNames = ['Air', 'Heat', 'Flood', 'Typhoon'];
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Tips',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: tabNames.map((tab) {
-              final isSelected = selectedTab == tab;
-              return Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: ChoiceChip(
-                  label: Text(tab),
-                  selected: isSelected,
-                  onSelected: (_) {
-                    setState(() {
-                      selectedTab = tab;
-                    });
-                  },
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: ListView.builder(
-              itemCount: tips[selectedTab]!.length,
-              itemBuilder: (context, index) {
-                final tip = tips[selectedTab]![index];
-                return Card(
-                  child: ListTile(
-                    title: Text(tip['title']!),
-                    subtitle: Text(tip['content']!),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () => _showEditTipDialog(index),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteTip(index),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.add),
-              label: const Text('Add Tip'),
-              onPressed: _showAddTipDialog,
-            ),
-          ),
-        ],
-      );
+      final categories = [
+        {'id': 'air_quality', 'name': 'Air'},
+        {'id': 'heat_index', 'name': 'Heat'},
+        {'id': 'flood_safety', 'name': 'Flood'},
+        {'id': 'typhoon_safety', 'name': 'Typhoon'},
+      ];
+      return SafetyTipsAndMeasuresPanel(categories: categories);
     }
     // Default placeholder for other settings
     return const Center(
@@ -680,7 +623,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.pushReplacementNamed(context, '/notifications');
               break;
             case 4:
-              Navigator.pushReplacementNamed(context, '/system-logs');
+              Navigator.pushReplacementNamed(context, '/admin-system-logs');
               break;
           }
         },

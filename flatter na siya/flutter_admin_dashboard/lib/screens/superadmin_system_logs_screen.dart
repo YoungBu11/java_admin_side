@@ -1,31 +1,105 @@
 import 'package:flutter/material.dart';
 import '../widgets/admin_drawer.dart';
 
-class SystemLogsScreen extends StatefulWidget {
-  const SystemLogsScreen({super.key});
+class SuperAdminSystemLogsScreen extends StatefulWidget {
+  const SuperAdminSystemLogsScreen({super.key});
 
   @override
-  State<SystemLogsScreen> createState() => _SystemLogsScreenState();
+  State<SuperAdminSystemLogsScreen> createState() =>
+      _SuperAdminSystemLogsScreenState();
 }
 
-class _SystemLogsScreenState extends State<SystemLogsScreen> {
+class _SuperAdminSystemLogsScreenState
+    extends State<SuperAdminSystemLogsScreen> {
   void _onDrawerItemSelected(int index) {
-    if (index == 4) return; // Already on System Logs
-    Navigator.of(context).pop(); // Close the drawer first
-  final isSuperadmin = (ModalRoute.of(context)?.settings.arguments is Map && (ModalRoute.of(context)?.settings.arguments as Map)['role'] == 'superadmin');
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, isSuperadmin ? '/superadmin-dashboard' : '/dashboard', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, isSuperadmin ? '/admins' : '/users', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, isSuperadmin ? '/superadmin-notifications' : '/notifications', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
-        break;
-      case 3:
-        Navigator.pushReplacementNamed(context, isSuperadmin ? '/superadmin-settings' : '/settings', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
-        break;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    final isSuperadmin = args is Map && args['role'] == 'superadmin';
+
+    if (isSuperadmin) {
+      // Superadmin drawer: [0:Dashboard, 1:AdminMgmt, 2:Notif, 3:Settings, 4:SystemLogs, 5:UserMgmt]
+      switch (index) {
+        case 0:
+          Navigator.pushReplacementNamed(
+            context,
+            '/superadmin-dashboard',
+            arguments: {'role': 'superadmin'},
+          );
+          break;
+        case 1:
+          Navigator.pushReplacementNamed(
+            context,
+            '/admins',
+            arguments: {'role': 'superadmin'},
+          );
+          break;
+        case 2:
+          Navigator.pushReplacementNamed(
+            context,
+            '/superadmin-notifications',
+            arguments: {'role': 'superadmin'},
+          );
+          break;
+        case 3:
+          Navigator.pushReplacementNamed(
+            context,
+            '/superadmin-settings',
+            arguments: {'role': 'superadmin'},
+          );
+          break;
+        case 4:
+          Navigator.pushReplacementNamed(
+            context,
+            '/superadmin-system-logs',
+            arguments: {'role': 'superadmin'},
+          );
+          break;
+        case 5:
+          Navigator.pushReplacementNamed(
+            context,
+            '/users',
+            arguments: {'role': 'superadmin'},
+          );
+          break;
+      }
+    } else {
+      // Admin drawer: [0:Dashboard, 1:UserMgmt, 2:Notif, 3:Settings, 4:SystemLogs]
+      switch (index) {
+        case 0:
+          Navigator.pushReplacementNamed(
+            context,
+            '/dashboard',
+            arguments: {'role': 'admin'},
+          );
+          break;
+        case 1:
+          Navigator.pushReplacementNamed(
+            context,
+            '/users',
+            arguments: {'role': 'admin'},
+          );
+          break;
+        case 2:
+          Navigator.pushReplacementNamed(
+            context,
+            '/notifications',
+            arguments: {'role': 'admin'},
+          );
+          break;
+        case 3:
+          Navigator.pushReplacementNamed(
+            context,
+            '/settings',
+            arguments: {'role': 'admin'},
+          );
+          break;
+        case 4:
+          Navigator.pushReplacementNamed(
+            context,
+            '/system-logs',
+            arguments: {'role': 'admin'},
+          );
+          break;
+      }
     }
   }
 
@@ -34,7 +108,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
   }
 
   // Comprehensive sample log data combining both versions
-  final List<Map<String, dynamic>> _systemLogs = [
+  final List<Map<String, dynamic>> _superAdminSystemLogs = [
     {
       'dateTime': '2025-01-15 14:35',
       'user': 'CDRRMO Admin',
@@ -295,16 +369,16 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredLogs = List.from(_systemLogs);
+    _filteredLogs = List.from(_superAdminSystemLogs);
     // Debug print to check if logs are loaded
     // ignore: avoid_print
     print(
-      'SystemLogsScreen: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}',
+      'SuperAdminSystemLogsScreen: _superAdminSystemLogs.length = \\${_superAdminSystemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}',
     );
   }
 
   void _applyFilters() {
-    List<Map<String, dynamic>> filtered = List.from(_systemLogs);
+    List<Map<String, dynamic>> filtered = List.from(_superAdminSystemLogs);
 
     // Apply search filter
     if (_searchQuery.isNotEmpty) {
@@ -389,23 +463,22 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
       // Debug print to check filtered logs after applying filters
       // ignore: avoid_print
       print(
-        'APPLY FILTERS: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}',
+        'APPLY FILTERS: _superAdminSystemLogs.length = \\${_superAdminSystemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}',
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Debug print to check if logs are present at build
-    // ignore: avoid_print
-    print(
-      'BUILD: _systemLogs.length = \\${_systemLogs.length}, _filteredLogs.length = \\${_filteredLogs.length}',
-    );
+    final isSuperadmin =
+        (ModalRoute.of(context)?.settings.arguments is Map &&
+        (ModalRoute.of(context)?.settings.arguments as Map)['role'] ==
+            'superadmin');
     return Scaffold(
       backgroundColor: const Color(0xFFFAF9F7),
       drawer: AdminDrawer(
         selectedIndex: 4,
-        role: 'superadmin',
+        role: isSuperadmin ? 'superadmin' : 'admin', // <-- FIXED HERE!
         onItemSelected: _onDrawerItemSelected,
         onLogout: _onLogout,
       ),
@@ -444,7 +517,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Page Title and Subtitle
+              // ... (rest of your widget tree unchanged) ...
               const Text(
                 'System Activity Logs',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -673,7 +746,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '${_filteredLogs.length} of ${_systemLogs.length} logs',
+                      '${_filteredLogs.length} of ${_superAdminSystemLogs.length} logs',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF2d5f3f),
@@ -949,7 +1022,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
-                                      _systemLogs.isEmpty
+                                      _superAdminSystemLogs.isEmpty
                                           ? 'No system logs available.'
                                           : 'No logs match your search or filter.',
                                       style: TextStyle(
@@ -960,7 +1033,7 @@ class _SystemLogsScreenState extends State<SystemLogsScreen> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      _systemLogs.isEmpty
+                                      _superAdminSystemLogs.isEmpty
                                           ? 'System logs will appear here when available.'
                                           : 'Try adjusting your search or filter criteria.',
                                       style: TextStyle(

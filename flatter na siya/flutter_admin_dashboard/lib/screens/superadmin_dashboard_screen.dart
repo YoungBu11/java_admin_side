@@ -12,7 +12,8 @@ class SuperAdminDashboardScreen extends StatefulWidget {
   const SuperAdminDashboardScreen({super.key});
 
   @override
-  State<SuperAdminDashboardScreen> createState() => _SuperAdminDashboardScreenState();
+  State<SuperAdminDashboardScreen> createState() =>
+      _SuperAdminDashboardScreenState();
 }
 
 class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
@@ -21,34 +22,55 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
       context: context,
       builder: (context) => Dialog(
         insetPadding: const EdgeInsets.all(24),
-        child: SizedBox(
-          width: 900,
-          height: 600,
-          child: UsersScreen(),
-        ),
+        child: SizedBox(width: 900, height: 600, child: UsersScreen()),
       ),
     );
   }
+
   void _onDrawerItemSelected(int index) {
     if (index == 0) {
-      Navigator.pushReplacementNamed(context, '/superadmin-dashboard', arguments: {'role': 'superadmin'});
+      Navigator.pushReplacementNamed(
+        context,
+        '/superadmin-dashboard',
+        arguments: {'role': 'superadmin'},
+      );
       return;
     }
     switch (index) {
       case 1:
-        Navigator.pushReplacementNamed(context, '/admins', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/admins',
+          arguments: {'role': 'superadmin'},
+        );
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/superadmin-notifications', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/superadmin-notifications',
+          arguments: {'role': 'superadmin'},
+        );
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/superadmin-settings', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/superadmin-settings',
+          arguments: {'role': 'superadmin'},
+        );
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/system-logs', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/superadmin-system-logs',
+          arguments: {'role': 'superadmin'},
+        );
         break;
       case 5:
-        Navigator.pushReplacementNamed(context, '/users', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/users',
+          arguments: {'role': 'superadmin'},
+        );
         break;
     }
   }
@@ -311,7 +333,10 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                             const SizedBox(height: 4),
                             const Text(
                               'Visualizes the number of notifications sent to users over time.',
-                              style: TextStyle(fontSize: 13, color: Colors.grey),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Expanded(
@@ -536,7 +561,11 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     final isSuperadmin = args is Map && args['role'] == 'superadmin';
     if (label == 'Admins') {
       if (action == 'view') {
-        Navigator.pushNamed(context, '/admins', arguments: isSuperadmin ? {'role': 'superadmin'} : null);
+        Navigator.pushNamed(
+          context,
+          '/admins',
+          arguments: isSuperadmin ? {'role': 'superadmin'} : null,
+        );
       } else if (action == 'add') {
         Navigator.pushNamed(
           context,
@@ -555,7 +584,11 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
         Navigator.pushNamed(
           context,
           '/superadmin-settings',
-          arguments: {'showHotlines': true, 'addHotline': true, 'role': 'superadmin'},
+          arguments: {
+            'showHotlines': true,
+            'addHotline': true,
+            'role': 'superadmin',
+          },
         );
       }
     } else if (label == 'Alerts') {
@@ -569,7 +602,9 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
         Navigator.pushNamed(
           context,
           isSuperadmin ? '/superadmin-notifications' : '/notifications',
-          arguments: isSuperadmin ? {'showAddAlert': true, 'role': 'superadmin'} : {'showAddAlert': true},
+          arguments: isSuperadmin
+              ? {'showAddAlert': true, 'role': 'superadmin'}
+              : {'showAddAlert': true},
         );
       }
     } else if (label == 'Users') {

@@ -28,7 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Navigator.pushReplacementNamed(context, '/settings');
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/system-logs');
+        Navigator.pushReplacementNamed(context, '/admin-system-logs');
         break;
     }
   }
@@ -300,12 +300,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const SizedBox(height: 4),
                             const Text(
                               'Visualizes the number of notifications sent to users over time.',
-                              style: TextStyle(fontSize: 13, color: Colors.grey),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
                             ),
                             const SizedBox(height: 8),
-                            Expanded(
-                              child: NotificationsLineChart(),
-                            ),
+                            Expanded(child: NotificationsLineChart()),
                           ],
                         ),
                       ),
@@ -335,7 +336,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const SizedBox(height: 4),
                             const Text(
                               'Shows the breakdown of posts by their assigned categories.',
-                              style: TextStyle(fontSize: 13, color: Colors.grey),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Expanded(

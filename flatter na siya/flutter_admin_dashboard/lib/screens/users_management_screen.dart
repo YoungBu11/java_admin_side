@@ -295,6 +295,9 @@ class _UsersScreenState extends State<UsersScreen> {
                         controller: _contactController,
                         keyboardType: TextInputType.phone,
                         maxLength: 11,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ], // <-- ADD THIS
                         decoration: const InputDecoration(
                           labelText: 'Contact Number (09XXXXXXXXX) *',
                           border: OutlineInputBorder(),
@@ -408,7 +411,9 @@ class _UsersScreenState extends State<UsersScreen> {
                               _validateAndSaveUser(context, setDialogState);
                             },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isSaving ? Colors.grey : Colors.green,
+                        backgroundColor: _isSaving
+                            ? Colors.grey
+                            : Color(0xFF2d5f3f),
                       ),
                       child: _isSaving
                           ? const Row(
@@ -718,15 +723,28 @@ class _UsersScreenState extends State<UsersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AdminDrawer(
-        selectedIndex: 1,
-        role: _isSuperadmin ? 'superadmin' : null,
+        selectedIndex: _isSuperadmin ? 5 : 1,
+        role: _isSuperadmin ? 'superadmin' : 'admin',
         onItemSelected: (index) {
-          if (index == 1 || _isSaving) return;
+          if (index == 5 || _isSaving) return;
+          final args = ModalRoute.of(context)?.settings.arguments;
+          final isSuperadmin = args is Map && args['role'] == 'superadmin';
 
-          if (_isSuperadmin) {
+          if (isSuperadmin) {
             switch (index) {
               case 0:
-                _navigateToSuperadminDashboard();
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/superadmin-dashboard',
+                  arguments: {'role': 'superadmin'},
+                );
+                break;
+              case 1:
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/admins',
+                  arguments: {'role': 'superadmin'},
+                );
                 break;
               case 2:
                 Navigator.pushReplacementNamed(
@@ -745,7 +763,14 @@ class _UsersScreenState extends State<UsersScreen> {
               case 4:
                 Navigator.pushReplacementNamed(
                   context,
-                  '/system-logs',
+                  '/superadmin-system-logs',
+                  arguments: {'role': 'superadmin'},
+                );
+                break;
+              case 5:
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/users',
                   arguments: {'role': 'superadmin'},
                 );
                 break;
@@ -753,16 +778,39 @@ class _UsersScreenState extends State<UsersScreen> {
           } else {
             switch (index) {
               case 0:
-                Navigator.pushReplacementNamed(context, '/dashboard');
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/dashboard',
+                  arguments: {'role': 'admin'},
+                );
+                break;
+              case 1:
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/users',
+                  arguments: {'role': 'admin'},
+                );
                 break;
               case 2:
-                Navigator.pushReplacementNamed(context, '/notifications');
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/notifications',
+                  arguments: {'role': 'admin'},
+                );
                 break;
               case 3:
-                Navigator.pushReplacementNamed(context, '/settings');
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/settings',
+                  arguments: {'role': 'admin'},
+                );
                 break;
               case 4:
-                Navigator.pushReplacementNamed(context, '/system-logs');
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/system-logs',
+                  arguments: {'role': 'admin'},
+                );
                 break;
             }
           }
@@ -857,10 +905,10 @@ class _UsersScreenState extends State<UsersScreen> {
                       ),
                       Row(
                         children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
+                          // Make both buttons have the same width and height
+                          SizedBox(
+                            width: 170,
+                            height: 48,
                             child: PopupMenuButton<String>(
                               onSelected: (String format) =>
                                   _exportUsers(format),
@@ -910,9 +958,11 @@ class _UsersScreenState extends State<UsersScreen> {
                                 ),
                               ],
                               child: Container(
+                                width: double.infinity,
+                                height: double.infinity,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
-                                  vertical: 12,
+                                  vertical: 0,
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.blue,
@@ -925,24 +975,25 @@ class _UsersScreenState extends State<UsersScreen> {
                                     ),
                                   ],
                                 ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.max,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.download,
                                       color: Colors.white,
                                       size: 18,
                                     ),
-                                    SizedBox(width: 8),
-                                    Text(
+                                    const SizedBox(width: 8),
+                                    const Text(
                                       'Export Users',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    SizedBox(width: 4),
-                                    Icon(
+                                    const SizedBox(width: 4),
+                                    const Icon(
                                       Icons.arrow_drop_down,
                                       color: Colors.white,
                                       size: 16,
@@ -953,18 +1004,31 @@ class _UsersScreenState extends State<UsersScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          ElevatedButton.icon(
-                            onPressed: _isSaving ? null : _showAddUserDialog,
-                            icon: const Icon(Icons.person_add, size: 18),
-                            label: const Text('Add Mobile User'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isSaving
-                                  ? Colors.grey
-                                  : Color(0xFF2d5f3f),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
+                          SizedBox(
+                            width: 170,
+                            height: 48,
+                            child: ElevatedButton.icon(
+                              onPressed: _isSaving ? null : _showAddUserDialog,
+                              icon: const Icon(Icons.person_add, size: 18),
+                              label: const Text('Add Mobile User'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _isSaving
+                                    ? Colors.grey
+                                    : Color(0xFF2d5f3f),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 0,
+                                ),
+                                textStyle: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                elevation: 2,
+                                minimumSize: const Size(170, 48),
+                                maximumSize: const Size(170, 48),
                               ),
                             ),
                           ),

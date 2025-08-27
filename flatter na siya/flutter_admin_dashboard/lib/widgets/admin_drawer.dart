@@ -111,7 +111,10 @@ class AdminDrawer extends StatelessWidget {
                   const SizedBox(height: 12),
                   // Status indicator
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
@@ -147,14 +150,14 @@ class AdminDrawer extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const Divider(
               color: Colors.white30,
               thickness: 1,
               indent: 20,
               endIndent: 20,
             ),
-            
+
             // Enhanced Navigation Items
             Expanded(
               child: ListView(
@@ -167,7 +170,9 @@ class AdminDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     icon: Icons.people_rounded,
-                    title: (role == 'superadmin') ? 'Admin Management' : 'User Management',
+                    title: (role == 'superadmin')
+                        ? 'Admin Management'
+                        : 'User Management',
                     index: 1,
                   ),
                   if (role == 'superadmin')
@@ -194,7 +199,7 @@ class AdminDrawer extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Enhanced Logout Button
             Container(
               margin: const EdgeInsets.all(16),
@@ -212,7 +217,10 @@ class AdminDrawer extends StatelessWidget {
                 ),
               ),
               child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -257,31 +265,33 @@ class AdminDrawer extends StatelessWidget {
     required int index,
   }) {
     final isSelected = selectedIndex == index;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: isSelected ? Colors.white.withValues(alpha: 0.25) : null,
-        border: isSelected 
-          ? Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5)
-          : null,
-        boxShadow: isSelected ? [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ] : null,
+        border: isSelected
+            ? Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5)
+            : null,
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: isSelected 
-              ? Colors.white.withValues(alpha: 0.2) 
-              : Colors.transparent,
+            color: isSelected
+                ? Colors.white.withValues(alpha: 0.2)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -299,26 +309,26 @@ class AdminDrawer extends StatelessWidget {
             letterSpacing: 0.5,
           ),
         ),
-        trailing: isSelected ? Container(
-          padding: const EdgeInsets.all(4),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.check,
-            color: Color(0xFF2d5f3f),
-            size: 14,
-          ),
-        ) : const Icon(
-          Icons.arrow_forward_ios,
-          color: Colors.white54,
-          size: 14,
-        ),
+        trailing: isSelected
+            ? Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check,
+                  color: Color(0xFF2d5f3f),
+                  size: 14,
+                ),
+              )
+            : const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white54,
+                size: 14,
+              ),
         onTap: () => onItemSelected(index),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

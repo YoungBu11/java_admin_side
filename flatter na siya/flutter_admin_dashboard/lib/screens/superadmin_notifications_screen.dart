@@ -7,10 +7,12 @@ class SuperAdminNotificationsScreen extends StatefulWidget {
   const SuperAdminNotificationsScreen({super.key});
 
   @override
-  State<SuperAdminNotificationsScreen> createState() => _SuperAdminNotificationsScreenState();
+  State<SuperAdminNotificationsScreen> createState() =>
+      _SuperAdminNotificationsScreenState();
 }
 
-class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsScreen> {
+class _SuperAdminNotificationsScreenState
+    extends State<SuperAdminNotificationsScreen> {
   @override
   void initState() {
     super.initState();
@@ -28,7 +30,9 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
   void _removeOldAlerts() {
     final now = DateTime.now();
     setState(() {
-      _alerts.removeWhere((alert) => now.difference(alert.dateTime).inDays > 14);
+      _alerts.removeWhere(
+        (alert) => now.difference(alert.dateTime).inDays > 14,
+      );
     });
   }
 
@@ -36,16 +40,39 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
     if (index == 2) return; // Already on Post Notification
     switch (index) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/superadmin-dashboard', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/superadmin-dashboard',
+          arguments: {'role': 'superadmin'},
+        );
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/admins', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/admins',
+          arguments: {'role': 'superadmin'},
+        );
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/settings', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/superadmin-settings',
+          arguments: {'role': 'superadmin'},
+        );
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/system-logs', arguments: {'role': 'superadmin'});
+        Navigator.pushReplacementNamed(
+          context,
+          '/superadmin-system-logs',
+          arguments: {'role': 'superadmin'},
+        );
+        break;
+      case 5:
+        Navigator.pushReplacementNamed(
+          context,
+          '/users',
+          arguments: {'role': 'superadmin'},
+        );
         break;
     }
   }
@@ -122,15 +149,18 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
         });
       } else {
         setState(() {
-          _alerts.insert(0, NotificationAlert(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            type: _alertType!,
-            title: _alertTitle,
-            message: alertMessage,
-            dateTime: DateTime.now(),
-            status: 'Active',
-            sentTo: 0,
-          ));
+          _alerts.insert(
+            0,
+            NotificationAlert(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              type: _alertType!,
+              title: _alertTitle,
+              message: alertMessage,
+              dateTime: DateTime.now(),
+              status: 'Active',
+              sentTo: 0,
+            ),
+          );
         });
       }
       setState(() {
@@ -204,7 +234,10 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
         children: [
           Icon(icon, color: color, size: 16),
           const SizedBox(width: 4),
-          Text(type, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+          Text(
+            type,
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -218,7 +251,10 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
         color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(status, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+      child: Text(
+        status,
+        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -240,7 +276,10 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
           children: const [
             Icon(Icons.notifications_active_rounded, color: Colors.white),
             SizedBox(width: 10),
-            Text('Post Notification (Superadmin)', style: TextStyle(fontWeight: FontWeight.normal)),
+            Text(
+              'Post Notification (Superadmin)',
+              style: TextStyle(fontWeight: FontWeight.normal),
+            ),
           ],
         ),
         backgroundColor: const Color(0xFF2d5f3f),
@@ -250,7 +289,11 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
             child: Center(
               child: Text(
                 'Welcome, Superadmin',
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -272,7 +315,9 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                         elevation: 8,
                         shadowColor: Colors.green.withOpacity(0.15),
                         color: const Color(0xFFf6fbf7),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(24.0),
                           child: Form(
@@ -284,14 +329,27 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                                   padding: EdgeInsets.only(bottom: 8.0),
                                   child: Text(
                                     'Reminders: Notifications older than 14 days will be automatically deleted.',
-                                    style: TextStyle(fontSize: 13, color: Colors.redAccent, fontWeight: FontWeight.w600),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.redAccent,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                                 Row(
                                   children: const [
-                                    Icon(Icons.add_alert_rounded, color: Color(0xFF13b464)),
+                                    Icon(
+                                      Icons.add_alert_rounded,
+                                      color: Color(0xFF13b464),
+                                    ),
                                     SizedBox(width: 8),
-                                    Text('Create New Alert', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19)),
+                                    Text(
+                                      'Create New Alert',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 19,
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 // ...rest of the form and alert history UI (identical to admin)
@@ -302,7 +360,11 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                       ),
                     ),
                   if (_showForm)
-                    const VerticalDivider(width: 32, thickness: 1, color: Color(0xFFe0e0e0)),
+                    const VerticalDivider(
+                      width: 32,
+                      thickness: 1,
+                      color: Color(0xFFe0e0e0),
+                    ),
                   // Alert History
                   Expanded(
                     flex: 3,
@@ -310,7 +372,9 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                       elevation: 8,
                       shadowColor: Colors.green.withOpacity(0.15),
                       color: const Color(0xFFf6fbf7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Column(
@@ -321,35 +385,61 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                               children: [
                                 Row(
                                   children: const [
-                                    Icon(Icons.history_edu_rounded, color: Color(0xFF13b464)),
+                                    Icon(
+                                      Icons.history_edu_rounded,
+                                      color: Color(0xFF13b464),
+                                    ),
                                     SizedBox(width: 8),
-                                    Text('Alert History', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19)),
+                                    Text(
+                                      'Alert History',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 19,
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 Row(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 4,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: Colors.orange.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: Text('${_alerts.length} alerts', style: const TextStyle(color: Colors.orange)),
+                                      child: Text(
+                                        '${_alerts.length} alerts',
+                                        style: const TextStyle(
+                                          color: Colors.orange,
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(width: 12),
                                     if (!_showForm)
                                       ElevatedButton.icon(
-                                        icon: const Icon(Icons.add_alert_rounded, color: Colors.white),
-                                        label: const Text('Create Alert', style: TextStyle(color: Colors.white)),
+                                        icon: const Icon(
+                                          Icons.add_alert_rounded,
+                                          color: Colors.white,
+                                        ),
+                                        label: const Text(
+                                          'Create Alert',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Color(0xFFFFA726),
                                           foregroundColor: Colors.white,
                                           elevation: 2,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                         ),
-                                        onPressed: () => setState(() => _showForm = true),
+                                        onPressed: () =>
+                                            setState(() => _showForm = true),
                                       ),
                                   ],
                                 ),
@@ -362,90 +452,179 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                                 child: Row(
                                   children: const [
-                                    Expanded(flex: 3, child: Text('Title', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                                    Expanded(flex: 2, child: Center(child: Text('Type', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
-                                    Expanded(flex: 2, child: Center(child: Text('Sent To', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
-                                    Expanded(flex: 2, child: Center(child: Text('Actions', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        'Title',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Center(
+                                        child: Text(
+                                          'Type',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Center(
+                                        child: Text(
+                                          'Sent To',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Center(
+                                        child: Text(
+                                          'Actions',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
-                            ..._alerts.map((alert) => MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
-                                margin: const EdgeInsets.symmetric(vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.green.withOpacity(0.07),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                  border: Border(
-                                    bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                            ..._alerts.map(
+                              (alert) => MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 2,
                                   ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(alert.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                                            Text(DateFormat('yyyy-MM-dd hh:mm a').format(alert.dateTime), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                                          ],
-                                        ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.green.withOpacity(0.07),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
                                       ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Center(child: _buildTypeBadge(alert.type)),
+                                    ],
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.grey.shade200,
+                                        width: 1,
                                       ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Center(child: Text('${alert.sentTo} users', style: const TextStyle(fontWeight: FontWeight.w500))),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Center(
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 12,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          flex: 3,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Tooltip(
-                                                message: 'Edit this alert',
-                                                child: IconButton(
-                                                  icon: const Icon(Icons.edit, color: Colors.blue),
-                                                  tooltip: 'Edit',
-                                                  onPressed: () => _editAlert(alert),
+                                              Text(
+                                                alert.title,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
                                                 ),
                                               ),
-                                              Tooltip(
-                                                message: 'Delete this alert',
-                                                child: IconButton(
-                                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                                  tooltip: 'Delete',
-                                                  onPressed: () => _deleteAlert(alert),
+                                              Text(
+                                                DateFormat(
+                                                  'yyyy-MM-dd hh:mm a',
+                                                ).format(alert.dateTime),
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey,
                                                 ),
                                               ),
                                             ],
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        Expanded(
+                                          flex: 2,
+                                          child: Center(
+                                            child: _buildTypeBadge(alert.type),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Center(
+                                            child: Text(
+                                              '${alert.sentTo} users',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Center(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Tooltip(
+                                                  message: 'Edit this alert',
+                                                  child: IconButton(
+                                                    icon: const Icon(
+                                                      Icons.edit,
+                                                      color: Colors.blue,
+                                                    ),
+                                                    tooltip: 'Edit',
+                                                    onPressed: () =>
+                                                        _editAlert(alert),
+                                                  ),
+                                                ),
+                                                Tooltip(
+                                                  message: 'Delete this alert',
+                                                  child: IconButton(
+                                                    icon: const Icon(
+                                                      Icons.delete,
+                                                      color: Colors.red,
+                                                    ),
+                                                    tooltip: 'Delete',
+                                                    onPressed: () =>
+                                                        _deleteAlert(alert),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            )),
+                            ),
                           ],
                         ),
                       ),
@@ -459,7 +638,9 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                     Card(
                       elevation: 4,
                       color: const Color(0xFFf6fbf7),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(24.0),
                         child: Form(
@@ -469,7 +650,10 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                             children: [
                               const Text(
                                 'Create New Alert',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
                               const SizedBox(height: 18),
                               DropdownButtonFormField<String>(
@@ -477,17 +661,30 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                                 decoration: const InputDecoration(
                                   labelText: 'Alert Type *',
                                   prefixIcon: Icon(Icons.priority_high_rounded),
-                                  helperText: 'Select the urgency level of your alert',
+                                  helperText:
+                                      'Select the urgency level of your alert',
                                   filled: true,
                                   fillColor: Color(0xFFeafaf3),
                                 ),
                                 items: const [
-                                  DropdownMenuItem(value: 'Emergency', child: Text('Emergency')),
-                                  DropdownMenuItem(value: 'Warning', child: Text('Warning')),
-                                  DropdownMenuItem(value: 'Info', child: Text('Info')),
+                                  DropdownMenuItem(
+                                    value: 'Emergency',
+                                    child: Text('Emergency'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Warning',
+                                    child: Text('Warning'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Info',
+                                    child: Text('Info'),
+                                  ),
                                 ],
-                                validator: (v) => v == null ? 'Please select alert type' : null,
-                                onChanged: (v) => setState(() => _alertType = v),
+                                validator: (v) => v == null
+                                    ? 'Please select alert type'
+                                    : null,
+                                onChanged: (v) =>
+                                    setState(() => _alertType = v),
                                 onSaved: (v) => _alertType = v,
                               ),
                               const SizedBox(height: 16),
@@ -501,14 +698,19 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                                   filled: true,
                                   fillColor: Color(0xFFeafaf3),
                                 ),
-                                validator: (v) => (v == null || v.trim().isEmpty)
+                                validator: (v) =>
+                                    (v == null || v.trim().isEmpty)
                                     ? 'Please enter alert title'
                                     : null,
-                                onChanged: (v) => setState(() => _alertTitle = v),
+                                onChanged: (v) =>
+                                    setState(() => _alertTitle = v),
                                 onSaved: (v) => _alertTitle = v ?? '',
                               ),
                               const SizedBox(height: 8),
-                              const Text('Alert Message *', style: TextStyle(fontWeight: FontWeight.w600)),
+                              const Text(
+                                'Alert Message *',
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
                               const SizedBox(height: 8),
                               Container(
                                 height: 180,
@@ -528,10 +730,12 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                                     filled: true,
                                     fillColor: Color(0xFFeafaf3),
                                   ),
-                                  validator: (v) => (v == null || v.trim().isEmpty)
+                                  validator: (v) =>
+                                      (v == null || v.trim().isEmpty)
                                       ? 'Please enter alert message'
                                       : null,
-                                  onChanged: (v) => setState(() => _alertMessage = v),
+                                  onChanged: (v) =>
+                                      setState(() => _alertMessage = v),
                                   onSaved: (v) => _alertMessage = v ?? '',
                                 ),
                               ),
@@ -540,7 +744,11 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                                 children: [
                                   ElevatedButton.icon(
                                     icon: const Icon(Icons.send),
-                                    label: Text(_isEditing ? 'Update Alert' : 'Send Alert'),
+                                    label: Text(
+                                      _isEditing
+                                          ? 'Update Alert'
+                                          : 'Send Alert',
+                                    ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFFFFA726),
                                       foregroundColor: Colors.white,
@@ -569,7 +777,9 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                   Card(
                     elevation: 4,
                     color: const Color(0xFFf6fbf7),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: Column(
@@ -580,32 +790,52 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                             children: [
                               const Text(
                                 'Alert History',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.orange.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Text('${_alerts.length} alerts', style: const TextStyle(color: Colors.orange)),
+                                    child: Text(
+                                      '${_alerts.length} alerts',
+                                      style: const TextStyle(
+                                        color: Colors.orange,
+                                      ),
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   if (!_showForm)
                                     ElevatedButton.icon(
-                                      icon: const Icon(Icons.add_alert_rounded, color: Colors.white),
-                                      label: const Text('Create Alert', style: TextStyle(color: Colors.white)),
+                                      icon: const Icon(
+                                        Icons.add_alert_rounded,
+                                        color: Colors.white,
+                                      ),
+                                      label: const Text(
+                                        'Create Alert',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Color(0xFFFFA726),
                                         foregroundColor: Colors.white,
                                         elevation: 2,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                       ),
-                                      onPressed: () => setState(() => _showForm = true),
+                                      onPressed: () =>
+                                          setState(() => _showForm = true),
                                     ),
                                 ],
                               ),
@@ -618,64 +848,149 @@ class _SuperAdminNotificationsScreenState extends State<SuperAdminNotificationsS
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               child: Row(
                                 children: const [
-                                  Expanded(child: Text('Title', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                                  Expanded(
+                                    child: Text(
+                                      'Title',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                   SizedBox(width: 8),
-                                  SizedBox(width: 90, child: Text('Type', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                                  SizedBox(width: 80, child: Text('Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                                  SizedBox(width: 80, child: Text('Sent To', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                                  SizedBox(width: 120, child: Text('Actions', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                                  SizedBox(
+                                    width: 90,
+                                    child: Text(
+                                      'Type',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 80,
+                                    child: Text(
+                                      'Status',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 80,
+                                    child: Text(
+                                      'Sent To',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 120,
+                                    child: Text(
+                                      'Actions',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           ),
-                          ..._alerts.map((alert) => Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                          ..._alerts.map(
+                            (alert) => Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            alert.title,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            DateFormat(
+                                              'yyyy-MM-dd hh:mm a',
+                                            ).format(alert.dateTime),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    SizedBox(
+                                      width: 90,
+                                      child: _buildTypeBadge(alert.type),
+                                    ),
+                                    SizedBox(
+                                      width: 80,
+                                      child: _buildStatusBadge(alert.status),
+                                    ),
+                                    SizedBox(
+                                      width: 80,
+                                      child: Text('${alert.sentTo} users'),
+                                    ),
+                                    SizedBox(
+                                      width: 120,
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              color: Colors.blue,
+                                            ),
+                                            tooltip: 'Edit',
+                                            onPressed: () => _editAlert(alert),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                            ),
+                                            tooltip: 'Delete',
+                                            onPressed: () =>
+                                                _deleteAlert(alert),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(alert.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                        Text(DateFormat('yyyy-MM-dd hh:mm a').format(alert.dateTime), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  SizedBox(width: 90, child: _buildTypeBadge(alert.type)),
-                                  SizedBox(width: 80, child: _buildStatusBadge(alert.status)),
-                                  SizedBox(width: 80, child: Text('${alert.sentTo} users')),
-                                  SizedBox(
-                                    width: 120,
-                                    child: Row(
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.edit, color: Colors.blue),
-                                          tooltip: 'Edit',
-                                          onPressed: () => _editAlert(alert),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete, color: Colors.red),
-                                          tooltip: 'Delete',
-                                          onPressed: () => _deleteAlert(alert),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )),
+                          ),
                         ],
                       ),
                     ),
