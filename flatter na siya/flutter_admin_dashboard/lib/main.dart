@@ -115,7 +115,7 @@ class AdminDashboardApp extends StatelessWidget {
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/admins',
+      initialRoute: '/',
       routes: {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
