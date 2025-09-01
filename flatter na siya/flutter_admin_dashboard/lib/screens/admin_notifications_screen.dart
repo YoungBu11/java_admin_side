@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/notification.dart';
 import 'package:intl/intl.dart';
 import '../widgets/admin_drawer.dart';
+import '../services/notification_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -11,11 +12,13 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  List<NotificationAlert> _alerts = [];
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    _removeOldAlerts();
-    // Removed quill controller
+    _fetchNotifications();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)?.settings.arguments;
       if (args is Map && args['showAddAlert'] == true) {
@@ -25,7 +28,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       }
     });
   }
-  // ...existing code...
+
+  Future<void> _fetchNotifications() async {
+    setState(() => _isLoading = true);
+    _alerts = await NotificationService.instance.getNotifications();
+    _removeOldAlerts();
+    setState(() => _isLoading = false);
+  }
 
   void _removeOldAlerts() {
     final now = DateTime.now();
@@ -66,50 +75,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   NotificationAlert? _editingAlert;
   bool _showForm = false;
 
-  final List<NotificationAlert> _alerts = [
-    NotificationAlert(
-      id: '1',
-      type: 'Emergency',
-      title: 'Flood Warning Alert',
-      message: 'Heavy rainfall expected. Stay alert.',
-      dateTime: DateTime.now().subtract(const Duration(days: 2, hours: 3)),
-      status: 'Active',
-      sentTo: 250,
-    ),
-    NotificationAlert(
-      id: '2',
-      type: 'Warning',
-      title: 'Road Closure Notice',
-      message: 'Main road closed due to landslide.',
-      dateTime: DateTime.now().subtract(const Duration(days: 5, hours: 6)),
-      status: 'Active',
-      sentTo: 180,
-    ),
-    NotificationAlert(
-      id: '3',
-      type: 'Info',
-      title: 'Weather Update',
-      message: 'Light showers expected in the afternoon.',
-      dateTime: DateTime.now().subtract(const Duration(days: 10, hours: 1)),
-      status: 'Inactive',
-      sentTo: 320,
-    ),
-  ];
-
   void _resetForm() {
     setState(() {
       _formKey.currentState?.reset();
       _alertType = null;
       _alertTitle = '';
       _alertMessage = '';
-      // No quill controller needed
       _isEditing = false;
       _editingAlert = null;
       _showForm = false;
     });
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
       final alertMessage = _alertMessage.trim();
@@ -120,27 +98,32 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return;
       }
       if (_isEditing && _editingAlert != null) {
-        setState(() {
-          _editingAlert!.type = _alertType!;
-          _editingAlert!.title = _alertTitle;
-          _editingAlert!.message = alertMessage;
-        });
+        final updatedAlert = NotificationAlert(
+          id: _editingAlert!.id,
+          type: _alertType!,
+          title: _alertTitle,
+          message: alertMessage,
+          dateTime: DateTime.now(),
+          status: _editingAlert!.status,
+          sentTo: _editingAlert!.sentTo,
+        );
+        await NotificationService.instance.updateNotification(
+          updatedAlert.id,
+          updatedAlert,
+        );
       } else {
-        setState(() {
-          _alerts.insert(
-            0,
-            NotificationAlert(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              type: _alertType!,
-              title: _alertTitle,
-              message: alertMessage,
-              dateTime: DateTime.now(),
-              status: 'Active',
-              sentTo: 0,
-            ),
-          );
-        });
+        final newAlert = NotificationAlert(
+          id: '', // let Firestore generate it
+          type: _alertType!,
+          title: _alertTitle,
+          message: alertMessage,
+          dateTime: DateTime.now(),
+          status: 'Active',
+          sentTo: 0,
+        );
+        await NotificationService.instance.addNotification(newAlert);
       }
+      await _fetchNotifications();
       setState(() {
         _showForm = false;
       });
@@ -155,34 +138,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       _alertType = alert.type;
       _alertTitle = alert.title;
       _alertMessage = alert.message;
-      _alertMessage = alert.message;
       _showForm = true;
     });
   }
 
-  void _deleteAlert(NotificationAlert alert) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Alert'),
-        content: const Text('Are you sure you want to delete this alert?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _alerts.remove(alert);
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
+  void _deleteAlert(NotificationAlert alert) async {
+    await NotificationService.instance.deleteNotification(alert.id);
+    await _fetchNotifications();
   }
 
   Widget _buildTypeBadge(String type) {
@@ -282,7 +244,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: const Color(0xFFf6fbf7),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: isWide
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : isWide
             ? Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

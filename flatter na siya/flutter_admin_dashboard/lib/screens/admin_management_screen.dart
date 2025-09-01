@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/admin_drawer.dart';
 import 'package:flutter/services.dart';
+import '../services/admin_management_service.dart';
 
 class AdminManagementScreen extends StatefulWidget {
   final String role;
@@ -11,15 +12,80 @@ class AdminManagementScreen extends StatefulWidget {
 }
 
 class _AdminManagementScreenState extends State<AdminManagementScreen> {
+  final AdminManagementService _adminService = AdminManagementService();
+
+  List<Map<String, dynamic>> _admins = [];
+  List<Map<String, dynamic>> _filteredAdmins = [];
+
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _roleController = TextEditingController();
+  String _selectedRole = 'admin';
+  String? _editingAdminId;
+
+  // Filtering and sorting
+  String _adminSearchQuery = '';
+  String _selectedRoleFilter = 'All';
+  String _sortBy = 'username';
+  bool _sortAscending = true;
+
+  bool _handledInitialArgs = false;
+
   @override
   void initState() {
     super.initState();
-    _applyFiltersAndSorting();
+    _fetchAdmins();
   }
-  // Admin Management CRUD State
-  // ...existing code...
 
-  bool _handledInitialArgs = false;
+  Future<void> _fetchAdmins() async {
+    final admins = await _adminService.fetchAdmins();
+    setState(() {
+      _admins = admins;
+      _applyFiltersAndSorting();
+    });
+  }
+
+  void _applyFiltersAndSorting() {
+    List<Map<String, dynamic>> filtered = List.from(_admins);
+    if (_adminSearchQuery.isNotEmpty) {
+      filtered = filtered.where((admin) {
+        return (admin['username'] ?? '').toLowerCase().contains(
+              _adminSearchQuery.toLowerCase(),
+            ) ||
+            (admin['email'] ?? '').toLowerCase().contains(
+              _adminSearchQuery.toLowerCase(),
+            );
+      }).toList();
+    }
+    if (_selectedRoleFilter != 'All') {
+      filtered = filtered
+          .where((admin) => admin['role'] == _selectedRoleFilter)
+          .toList();
+    }
+    filtered.sort((a, b) {
+      String aValue = '';
+      String bValue = '';
+      switch (_sortBy) {
+        case 'username':
+          aValue = a['username'] ?? '';
+          bValue = b['username'] ?? '';
+          break;
+        case 'email':
+          aValue = a['email'] ?? '';
+          bValue = b['email'] ?? '';
+          break;
+        case 'role':
+          aValue = a['role'] ?? '';
+          bValue = b['role'] ?? '';
+          break;
+      }
+      int comparison = aValue.toLowerCase().compareTo(bValue.toLowerCase());
+      return _sortAscending ? comparison : -comparison;
+    });
+    setState(() {
+      _filteredAdmins = filtered;
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -37,153 +103,23 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
     }
   }
 
-  final List<Map<String, String>> _admins = [
-    {
-      'id': '1',
-      'name': 'CDRRMO_NICO',
-      'contact': '09123456780',
-      'address': 'CDRRMO Office, San Pedro',
-      'role': 'Superadmin',
-      'status': 'Active',
-    },
-    {
-      'id': '2',
-      'name': 'CDRRMO_PAT',
-      'contact': '09123456781',
-      'address': 'CDRRMO Office, San Pedro',
-      'role': 'Admin',
-      'status': 'Active',
-    },
-    {
-      'id': '3',
-      'name': 'PUP_CHARLES',
-      'contact': '09123456782',
-      'address': 'PUP San Pedro',
-      'role': 'Admin',
-      'status': 'Active',
-    },
-    {
-      'id': '4',
-      'name': 'PUP_FAYE',
-      'contact': '09123456783',
-      'address': 'PUP San Pedro',
-      'role': 'Admin',
-      'status': 'Active',
-    },
-    {
-      'id': '5',
-      'name': 'PUP_ZAMUEL',
-      'contact': '09123456784',
-      'address': 'PUP San Pedro',
-      'role': 'Admin',
-      'status': 'Active',
-    },
-    {
-      'id': '6',
-      'name': 'PUP_ARIANNE',
-      'contact': '09123456785',
-      'address': 'PUP San Pedro',
-      'role': 'Admin',
-      'status': 'Active',
-    },
-  ];
-
-  // Controllers for admin form
-  final _nameController = TextEditingController();
-  final _contactController = TextEditingController();
-  final _addressController = TextEditingController();
-  String _selectedRole = 'Admin';
-  String? _editingAdminId;
-
-  // Filter and Sort State Variables
-  String _adminSearchQuery = '';
-  String _selectedRoleFilter = 'All';
-  String _selectedStatusFilter = 'All';
-  String _sortBy = 'name';
-  bool _sortAscending = true;
-  List<Map<String, String>> _filteredAdmins = [];
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _contactController.dispose();
-    _addressController.dispose();
-    super.dispose();
-  }
-
-  void _applyFiltersAndSorting() {
-    List<Map<String, String>> filtered = List.from(_admins);
-    if (_adminSearchQuery.isNotEmpty) {
-      filtered = filtered.where((admin) {
-        return admin['name']!.toLowerCase().contains(
-              _adminSearchQuery.toLowerCase(),
-            ) ||
-            admin['contact']!.toLowerCase().contains(
-              _adminSearchQuery.toLowerCase(),
-            ) ||
-            admin['address']!.toLowerCase().contains(
-              _adminSearchQuery.toLowerCase(),
-            );
-      }).toList();
-    }
-    if (_selectedRoleFilter != 'All') {
-      filtered = filtered
-          .where((admin) => admin['role'] == _selectedRoleFilter)
-          .toList();
-    }
-    if (_selectedStatusFilter != 'All') {
-      filtered = filtered
-          .where((admin) => admin['status'] == _selectedStatusFilter)
-          .toList();
-    }
-    filtered.sort((a, b) {
-      String aValue = '';
-      String bValue = '';
-      switch (_sortBy) {
-        case 'name':
-          aValue = a['name']!;
-          bValue = b['name']!;
-          break;
-        case 'contact':
-          aValue = a['contact']!;
-          bValue = b['contact']!;
-          break;
-        case 'address':
-          aValue = a['address']!;
-          bValue = b['address']!;
-          break;
-        case 'role':
-          aValue = a['role']!;
-          bValue = b['role']!;
-          break;
-      }
-      int comparison = aValue.toLowerCase().compareTo(bValue.toLowerCase());
-      return _sortAscending ? comparison : -comparison;
-    });
-    setState(() {
-      _filteredAdmins = filtered;
-    });
-  }
-
   void _showAddAdminDialog() {
     _clearForm();
     _editingAdminId = null;
     _showAdminDialog('Add Admin');
   }
 
-  void _showEditAdminDialog(Map<String, String> admin) {
-    _nameController.text = admin['name']!;
-    _contactController.text = admin['contact']!;
-    _addressController.text = admin['address']!;
-    _selectedRole = admin['role']!;
+  void _showEditAdminDialog(Map<String, dynamic> admin) {
+    _nameController.text = admin['username'] ?? '';
+    _emailController.text = admin['email'] ?? '';
+    _selectedRole = admin['role'] ?? 'admin';
     _editingAdminId = admin['id'];
     _showAdminDialog('Edit Admin');
   }
 
   void _showAdminDialog(String title) {
     String? nameError;
-    String? contactError;
-    String? addressError;
+    String? emailError;
     bool showAllErrors = false;
 
     showDialog(
@@ -194,39 +130,14 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
             void validateFields() {
               setDialogState(() {
                 nameError = null;
-                contactError = null;
-                addressError = null;
-
-                // ADMIN NAME VALIDATION: Only allow letters, spaces, hyphens and ñÑ
+                emailError = null;
                 if (_nameController.text.trim().isEmpty) {
-                  nameError = 'Admin Name is required';
-                } else if (!RegExp(
-                  r'^[a-zA-ZñÑ\s\-]+$',
-                ).hasMatch(_nameController.text.trim())) {
-                  nameError = 'Name must only contain letters';
+                  nameError = 'Username is required';
                 }
-                if (_contactController.text.trim().isEmpty) {
-                  contactError = 'Contact Number is required';
-                } else if (!_contactController.text.startsWith('09')) {
-                  contactError = 'Must start with 09 (e.g., 09123456789)';
-                } else if (_contactController.text.length != 11) {
-                  contactError = 'Must be exactly 11 digits';
-                } else if (!RegExp(
-                  r'^[0-9]+$',
-                ).hasMatch(_contactController.text)) {
-                  contactError = 'Must contain only numbers';
-                } else if (_admins.any(
-                  (admin) =>
-                      admin['contact'] == _contactController.text &&
-                      admin['id'] != _editingAdminId,
-                )) {
-                  contactError = 'This mobile number is already registered';
-                }
-                if (_addressController.text.trim().isEmpty) {
-                  addressError = 'Complete Address is required';
-                } else if (_addressController.text.trim().length < 10) {
-                  addressError =
-                      'Please provide a complete address (min 10 chars)';
+                if (_emailController.text.trim().isEmpty) {
+                  emailError = 'Email is required';
+                } else if (!_emailController.text.contains('@')) {
+                  emailError = 'Invalid email';
                 }
               });
             }
@@ -245,8 +156,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
             return AlertDialog(
               title: Text(title),
               content: SizedBox(
-                width: 500,
-                height: 320,
+                width: 400,
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -255,11 +165,11 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                         controller: _nameController,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                            RegExp(r'^[a-zA-ZñÑ\s\-]+$'),
+                            RegExp(r'^[a-zA-Z0-9_]+$'),
                           ),
                         ],
                         decoration: InputDecoration(
-                          labelText: 'Admin Name *',
+                          labelText: 'Username *',
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.person),
                           errorText:
@@ -271,49 +181,24 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextField(
-                        controller: _contactController,
-                        keyboardType: TextInputType.phone,
-                        maxLength: 11,
+                        controller: _emailController,
                         decoration: InputDecoration(
-                          labelText: 'Contact Number (09XXXXXXXXX) *',
+                          labelText: 'Email *',
                           border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.phone),
-                          hintText: 'Enter 11-digit mobile number',
-                          helperText:
-                              'Must start with 09 and be 11 digits total',
+                          prefixIcon: const Icon(Icons.email),
                           errorText:
                               (showAllErrors ||
-                                  _contactController.text.isNotEmpty)
-                              ? contactError
-                              : null,
-                          counterText: '',
-                        ),
-                        onChanged: (_) => validateFields(),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _addressController,
-                        maxLines: 2,
-                        decoration: InputDecoration(
-                          labelText: 'Complete Address *',
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.location_on),
-                          hintText: 'Office, Building, City',
-                          helperText:
-                              'Include complete address for admin contact',
-                          errorText:
-                              (showAllErrors ||
-                                  _addressController.text.isNotEmpty)
-                              ? addressError
+                                  _emailController.text.isNotEmpty)
+                              ? emailError
                               : null,
                         ),
                         onChanged: (_) => validateFields(),
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<String>(
-                        value: (['Admin', 'Superadmin'].contains(_selectedRole))
+                        value: (['superadmin', 'admin'].contains(_selectedRole))
                             ? _selectedRole
-                            : null,
+                            : 'admin',
                         decoration: const InputDecoration(
                           labelText: 'Role',
                           border: OutlineInputBorder(),
@@ -321,11 +206,11 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                         ),
                         items: const [
                           DropdownMenuItem(
-                            value: 'Superadmin',
+                            value: 'superadmin',
                             child: Text('Superadmin'),
                           ),
                           DropdownMenuItem(
-                            value: 'Admin',
+                            value: 'admin',
                             child: Text('Admin'),
                           ),
                         ],
@@ -343,64 +228,23 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => Navigator.of(context).pop(),
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade400),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancel'),
                     ),
                     const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
+                    ElevatedButton(
+                      onPressed: () {
+                        showAllFieldErrors();
+                        if (nameError == null && emailError == null) {
+                          _validateAndSaveAdmin(context);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2d5f3f),
+                        foregroundColor: Colors.white,
                       ),
-                      child: Material(
-                        color: Color(0xFF2d5f3f),
-                        borderRadius: BorderRadius.circular(8),
-                        child: InkWell(
-                          onTap: () {
-                            showAllFieldErrors();
-                            _validateAndSaveAdmin(context, setDialogState);
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            child: const Text(
-                              'Save',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: const Text('Save'),
                     ),
                   ],
                 ),
@@ -412,126 +256,70 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
     );
   }
 
-  void _validateAndSaveAdmin(
-    BuildContext dialogContext,
-    StateSetter setDialogState,
-  ) {
-    String? errorMessage;
-    if (_nameController.text.trim().isEmpty) {
-      errorMessage = '❌ Admin Name is required';
-    } else if (_contactController.text.trim().isEmpty) {
-      errorMessage = '❌ Contact Number is required';
-    } else if (!_contactController.text.startsWith('09')) {
-      errorMessage =
-          '❌ Invalid Contact Number - Must start with 09 (e.g., 09123456789)';
-    } else if (_contactController.text.length != 11) {
-      errorMessage =
-          '❌ Invalid Contact Number - Must be exactly 11 digits (09XXXXXXXXX)';
-    } else if (!RegExp(r'^[0-9]+$').hasMatch(_contactController.text)) {
-      errorMessage = '❌ Invalid Contact Number - Must contain only numbers';
-    } else if (_addressController.text.trim().isEmpty) {
-      errorMessage = '❌ Complete Address is required';
-    } else if (_addressController.text.trim().length < 10) {
-      errorMessage =
-          '❌ Incomplete Address - Please provide a complete address (minimum 10 characters)';
-    } else if (_admins.any(
-      (admin) =>
-          admin['contact'] == _contactController.text &&
-          admin['id'] != _editingAdminId,
-    )) {
-      errorMessage =
-          '❌ Duplicate Contact Number - This mobile number is already registered in the system';
-    }
-    if (errorMessage != null) {
-      return;
-    }
-    _saveValidatedAdmin();
-    Navigator.of(dialogContext).pop();
-  }
-
-  void _saveValidatedAdmin() {
-    setState(() {
-      if (_editingAdminId == null) {
-        final newId = (_admins.length + 1).toString();
-        _admins.add({
-          'id': newId,
-          'name': _nameController.text.trim(),
-          'contact': _contactController.text.trim(),
-          'address': _addressController.text.trim(),
-          'role': _selectedRole,
-          'status': 'Active',
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '✅ Success! Admin "${_nameController.text.trim()}" has been added to the system',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
+  Future<void> _validateAndSaveAdmin(BuildContext dialogContext) async {
+    if (_editingAdminId == null) {
+      await _adminService.addAdmin({
+        'username': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'role': _selectedRole,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '✅ Success! Admin "${_nameController.text.trim()}" has been added to the system',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+              ),
+            ],
           ),
-        );
-      } else {
-        final adminIndex = _admins.indexWhere(
-          (admin) => admin['id'] == _editingAdminId,
-        );
-        if (adminIndex != -1) {
-          _admins[adminIndex] = {
-            'id': _editingAdminId!,
-            'name': _nameController.text.trim(),
-            'contact': _contactController.text.trim(),
-            'address': _addressController.text.trim(),
-            'role': _selectedRole,
-            'status': _admins[adminIndex]['status']!,
-          };
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '✅ Success! Admin "${_nameController.text.trim()}" has been updated successfully',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ],
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      await _adminService.editAdmin(_editingAdminId!, {
+        'username': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'role': _selectedRole,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '✅ Success! Admin "${_nameController.text.trim()}" has been updated successfully',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
               ),
-              backgroundColor: Colors.blue,
-              duration: const Duration(seconds: 3),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          );
-        }
-      }
-    });
-    _applyFiltersAndSorting();
+            ],
+          ),
+          backgroundColor: Colors.blue,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+    Navigator.of(dialogContext).pop();
+    await _fetchAdmins();
     _clearForm();
   }
 
-  void _showDeleteConfirmation(Map<String, String> admin) {
+  void _showDeleteConfirmation(Map<String, dynamic> admin) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete ${admin['name']}?'),
+          content: Text(
+            'Are you sure you want to delete ${admin['username']}?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -539,7 +327,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                _deleteAdmin(admin['id']!);
+                _deleteAdmin(admin['id']);
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
@@ -554,11 +342,9 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
     );
   }
 
-  void _deleteAdmin(String adminId) {
-    setState(() {
-      _admins.removeWhere((admin) => admin['id'] == adminId);
-    });
-    _applyFiltersAndSorting();
+  Future<void> _deleteAdmin(String adminId) async {
+    await _adminService.deleteAdmin(adminId);
+    await _fetchAdmins();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Admin deleted successfully!')),
     );
@@ -566,9 +352,9 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
 
   void _clearForm() {
     _nameController.clear();
-    _contactController.clear();
-    _addressController.clear();
-    _selectedRole = 'Admin';
+    _emailController.clear();
+    _selectedRole = 'admin';
+    _editingAdminId = null;
   }
 
   void _exportAdmins(String format) {
@@ -600,9 +386,16 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
           ],
         ),
         backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -611,11 +404,9 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
       drawer: AdminDrawer(
         selectedIndex: 1,
         role: widget.role,
+        // ... (drawer navigation code unchanged)
         onItemSelected: (index) {
-          if (index == 1) {
-            // Already on Admin Management, do nothing
-            return;
-          }
+          if (index == 1) return;
           switch (index) {
             case 0:
               if (widget.role == 'superadmin') {
@@ -633,7 +424,6 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
               }
               break;
             case 1:
-              // Always go to admin management, not user management
               Navigator.pushReplacementNamed(
                 context,
                 '/admins',
@@ -730,6 +520,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Top controls (search, filter, add, export)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -889,7 +680,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            // Search, filter, and sort row
+            // Search and filters
             Row(
               children: [
                 // Search
@@ -898,7 +689,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                   child: TextField(
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.search),
-                      hintText: 'Search admins by name, contact, or address...',
+                      hintText: 'Search admins by username or email...',
                       filled: true,
                       fillColor: Colors.green[50],
                       border: OutlineInputBorder(
@@ -931,7 +722,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                     ),
                     items: [
                       DropdownMenuItem(value: 'All', child: Text('All Roles')),
-                      ...['Superadmin', 'Admin'].map(
+                      ...['superadmin', 'admin'].map(
                         (role) =>
                             DropdownMenuItem(value: role, child: Text(role)),
                       ),
@@ -939,37 +730,6 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                     onChanged: (value) {
                       setState(() {
                         _selectedRoleFilter = value!;
-                        _applyFiltersAndSorting();
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                // Status filter
-                Expanded(
-                  flex: 2,
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedStatusFilter,
-                    decoration: InputDecoration(
-                      labelText: 'Filter by Status',
-                      filled: true,
-                      fillColor: Colors.green[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    items: [
-                      DropdownMenuItem(value: 'All', child: Text('All Status')),
-                      DropdownMenuItem(value: 'Active', child: Text('Active')),
-                      DropdownMenuItem(
-                        value: 'Inactive',
-                        child: Text('Inactive'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedStatusFilter = value!;
                         _applyFiltersAndSorting();
                       });
                     },
@@ -997,7 +757,7 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            // Sort row
+            // Sorting
             Row(
               children: [
                 Text('Sort by:', style: TextStyle(fontWeight: FontWeight.w500)),
@@ -1015,15 +775,11 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                     style: const TextStyle(fontSize: 15, color: Colors.black),
                     borderRadius: BorderRadius.circular(8),
                     items: const [
-                      DropdownMenuItem(value: 'name', child: Text('Name')),
                       DropdownMenuItem(
-                        value: 'contact',
-                        child: Text('Contact Number'),
+                        value: 'username',
+                        child: Text('Username'),
                       ),
-                      DropdownMenuItem(
-                        value: 'address',
-                        child: Text('Address'),
-                      ),
+                      DropdownMenuItem(value: 'email', child: Text('Email')),
                       DropdownMenuItem(value: 'role', child: Text('Role')),
                     ],
                     onChanged: (value) {
@@ -1048,217 +804,134 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            // Admin table
+            // Admin data table
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                child: SingleChildScrollView(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
+              child: SingleChildScrollView(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 8,
+                  ),
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.all(
+                      const Color(0xFF2d5f3f),
+                    ),
+                    headingTextStyle: const TextStyle(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                    dataRowMinHeight: 56,
+                    dataRowMaxHeight: 72,
+                    columnSpacing: 32,
+                    horizontalMargin: 24,
+                    dataRowColor: WidgetStateProperty.resolveWith<Color?>((
+                      Set<WidgetState> states,
+                    ) {
+                      if (states.contains(WidgetState.selected)) {
+                        return Colors.green[100];
+                      }
+                      return Colors.white;
+                    }),
+                    columns: const [
+                      DataColumn(
+                        label: Text(
+                          'Username',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 8,
-                    ),
-                    child: DataTable(
-                      headingRowColor: WidgetStateProperty.all(
-                        const Color(0xFF2d5f3f),
                       ),
-                      headingTextStyle: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                      DataColumn(
+                        label: Text(
+                          'Email',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      dataRowMinHeight: 56,
-                      dataRowMaxHeight: 72,
-                      columnSpacing: 32,
-                      horizontalMargin: 24,
-                      dataRowColor: WidgetStateProperty.resolveWith<Color?>((
-                        Set<WidgetState> states,
-                      ) {
-                        if (states.contains(WidgetState.selected)) {
-                          return Colors.green[100];
-                        }
-                        return Colors.white;
-                      }),
-                      columns: const [
-                        DataColumn(
-                          label: Text(
-                            'Name',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      DataColumn(
+                        label: Text(
+                          'Role',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        DataColumn(
-                          label: Text(
-                            'Contact Number',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Actions',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        DataColumn(
-                          label: Text(
-                            'Address',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                      ),
+                    ],
+                    rows: _filteredAdmins.map((admin) {
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            Text(
+                              admin['username'] ?? '',
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Role',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          DataCell(
+                            Text(
+                              admin['email'] ?? '',
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Status',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          DataCell(
+                            Text(
+                              admin['role'] ?? '',
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Actions',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                      rows: _filteredAdmins.map((admin) {
-                        final isActive = admin['status'] == 'Active';
-                        return DataRow(
-                          cells: [
-                            DataCell(
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: const Color(0xFF2d5f3f),
-                                    foregroundColor: Colors.white,
-                                    radius: 22,
-                                    child: Text(
-                                      admin['name']![0].toUpperCase(),
-                                      style: const TextStyle(fontSize: 20),
-                                    ),
+                          DataCell(
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.edit,
+                                    color: Colors.blue,
+                                    size: 22,
                                   ),
-                                  const SizedBox(width: 20),
-                                  Text(
-                                    admin['name'] ?? '',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                admin['contact'] ?? '',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                admin['address'] ?? '',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                admin['role'] ?? '',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                            DataCell(
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
+                                  tooltip: 'Edit',
+                                  onPressed: () => _showEditAdminDialog(admin),
                                 ),
-                                decoration: BoxDecoration(
-                                  color: isActive
-                                      ? Colors.green[50]
-                                      : Colors.red[50],
-                                  border: Border.all(
-                                    color: isActive ? Colors.green : Colors.red,
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                    size: 22,
                                   ),
-                                  borderRadius: BorderRadius.circular(20),
+                                  tooltip: 'Delete',
+                                  onPressed: () =>
+                                      _showDeleteConfirmation(admin),
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.circle,
-                                      size: 12,
-                                      color: isActive
-                                          ? Colors.green
-                                          : Colors.red,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      admin['status'] ?? '',
-                                      style: TextStyle(
-                                        color: isActive
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              ],
                             ),
-                            DataCell(
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.edit,
-                                      color: Colors.blue,
-                                      size: 22,
-                                    ),
-                                    tooltip: 'Edit',
-                                    onPressed: () =>
-                                        _showEditAdminDialog(admin),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                      size: 22,
-                                    ),
-                                    tooltip: 'Delete',
-                                    onPressed: () =>
-                                        _showDeleteConfirmation(admin),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
