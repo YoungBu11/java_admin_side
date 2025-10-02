@@ -24,6 +24,64 @@ class _SafetyTipsAndMeasuresPanelState
     selectedCategoryId = widget.categories.first['id']!;
   }
 
+  // Helper function to get color based on tip level/title
+  Color _getTipColor(String title) {
+    final lowerTitle = title.toLowerCase();
+    
+    // Air Quality colors
+    if (lowerTitle.contains('good') && lowerTitle.contains('green')) {
+      return Colors.green;
+    } else if (lowerTitle.contains('moderate') && lowerTitle.contains('yellow')) {
+      return Colors.amber;
+    } else if (lowerTitle.contains('unhealthy for sensitive') && lowerTitle.contains('orange')) {
+      return Colors.orange;
+    } else if (lowerTitle.contains('unhealthy') && lowerTitle.contains('red')) {
+      return Colors.red;
+    } else if (lowerTitle.contains('very unhealthy') && lowerTitle.contains('purple')) {
+      return Colors.purple;
+    } else if (lowerTitle.contains('hazardous') && lowerTitle.contains('maroon')) {
+      return const Color(0xFF800000); // Maroon
+    }
+    
+    // Heat Index colors
+    else if (lowerTitle.contains('safe') && lowerTitle.contains('green')) {
+      return Colors.green;
+    } else if (lowerTitle.contains('caution') && lowerTitle.contains('yellow')) {
+      return Colors.amber;
+    } else if (lowerTitle.contains('extreme caution') && lowerTitle.contains('orange')) {
+      return Colors.orange;
+    } else if (lowerTitle.contains('danger') && lowerTitle.contains('red')) {
+      return Colors.red;
+    } else if (lowerTitle.contains('extreme danger') && lowerTitle.contains('purple')) {
+      return Colors.purple;
+    }
+    
+    // Flood Alert colors
+    else if (lowerTitle.contains('alert level 1') && lowerTitle.contains('yellow')) {
+      return Colors.amber;
+    } else if (lowerTitle.contains('alert level 2') && lowerTitle.contains('orange')) {
+      return Colors.orange;
+    } else if (lowerTitle.contains('critical level 3') && lowerTitle.contains('red')) {
+      return Colors.red;
+    }
+    
+    // Typhoon colors
+    else if (lowerTitle.contains('tropical depression') && lowerTitle.contains('blue')) {
+      return Colors.blue;
+    } else if (lowerTitle.contains('tropical storm') && lowerTitle.contains('yellow')) {
+      return Colors.amber;
+    } else if (lowerTitle.contains('severe tropical storm') && lowerTitle.contains('orange')) {
+      return Colors.orange;
+    } else if (lowerTitle.contains('typhoon') && lowerTitle.contains('red')) {
+      return Colors.red;
+    } else if (lowerTitle.contains('super typhoon') && lowerTitle.contains('purple')) {
+      return Colors.purple;
+    }
+    
+    // Default color for other tips
+    return Colors.grey[600] ?? Colors.grey;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -69,17 +127,81 @@ class _SafetyTipsAndMeasuresPanelState
                   final title = (tip.level ?? tip.title).isNotEmpty
                       ? (tip.level ?? tip.title)
                       : tip.title; // fallback for older records
-                  return Card(
-                    color: Colors.green[50],
-                    child: ListTile(
-                      title: Text(
-                        title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(tip.description),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => _showTipDialog(context, tip, title),
+                  final tipColor = _getTipColor(title);
+                  
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: tipColor.withOpacity(0.3), width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: tipColor.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: tipColor,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: tipColor,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.edit, color: tipColor),
+                                onPressed: () => _showTipDialog(context, tip, title),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(top: 6),
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: tipColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  tip.description,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1.4,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   );
